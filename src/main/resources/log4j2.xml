@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+        <RollingFile name="RollingFile" fileName="logs/project.log"
+                     filePattern="logs/$${date:yyyy-MM}/project-%d{yyy-MM-dd}-%i.log.gz">
+            <PatternLayout>
+                <pattern>%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="5MB" />
+                <TImeBasedTriggeringPolicy />
+            </Policies>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Logger name="com.epam.upskillproject.init.DataBaseInitializer" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.init.PropertiesKeeper" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.controller.filters.UserFilter" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.connect.customds.CustomPooledDataSource" level="DEBUG" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.model.service.AdminService" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.model.service.SuperadminService" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.model.service.CustomerService" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.model.service.SystemService" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.model.dao.queryhandlers.QueryExecutor" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.model.dao.queryhandlers.FinancialTransactionsPerformer" level="TRACE"
+                additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.model.dao.AccountDaoImpl" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.model.dao.CardDaoImpl" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.model.dao.IncomeDaoImpl" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.model.dao.PaymentDaoImpl" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.model.dao.PersonDaoImpl" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.controller.servlets.admin.AccountsServlet" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.controller.servlets.admin.AdminProfileServlet" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.controller.servlets.admin.AdminsServlet" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.controller.servlets.admin.CardsServlet" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.controller.servlets.admin.CustomerAccountsServlet" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.controller.servlets.admin.CustomerProfileServlet" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.controller.servlets.admin.CustomersServlet" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.controller.servlets.admin.IncomeServlet" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.controller.servlets.admin.PaymentsServlet" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.controller.servlets.payservice.MyAccountServiceServlet" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.controller.servlets.payservice.MyAccountsServlet" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.controller.servlets.UserProfileServlet" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.controller.servlets.SignupServlet" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Root level="TRACE">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>
