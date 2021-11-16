@@ -1,5 +1,6 @@
 package com.epam.upskillproject.controller.servlets.admin;
 
+import com.epam.upskillproject.controller.LocaleDispatcher;
 import com.epam.upskillproject.controller.ParamReader;
 import com.epam.upskillproject.exceptions.TransactionException;
 import com.epam.upskillproject.init.PropertiesKeeper;
@@ -58,10 +59,12 @@ public class CustomerProfileServlet extends HttpServlet {
     private static final String OPERATION_NAME_ATTR = "opName";
     private static final String OPERATION_STATUS_ATTR = "opStat";
     private static final String ERROR_MESSAGE_ATTR = "errMsg";
-    private static final String DEFAULT_VIEW = "/WEB-INF/view/admin/customer.jsp";
+    private static final String DEFAULT_VIEW = "/WEB-INF/view/en/admin/customer.jsp";
 
     @Inject
     private SecurityContext securityContext;
+    @Inject
+    private LocaleDispatcher localeDispatcher;
     @Inject
     private PropertiesKeeper propertiesKeeper;
     @Inject
@@ -72,11 +75,11 @@ public class CustomerProfileServlet extends HttpServlet {
     private AdminService adminService;
     @Inject
     private Pbkdf2PasswordHash passwordHash;
-//
-    private String viewPath;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String localizedView = localeDispatcher.getLocalizedView(req, VIEW_PROP);
+        String viewPath = (localizedView.length() > 0) ? localizedView : DEFAULT_VIEW;
         RequestDispatcher view = req.getRequestDispatcher(viewPath);
         try {
             String path = req.getRequestURI();
@@ -109,7 +112,8 @@ public class CustomerProfileServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
+        String localizedView = localeDispatcher.getLocalizedView(req, VIEW_PROP);
+        String viewPath = (localizedView.length() > 0) ? localizedView : DEFAULT_VIEW;
         RequestDispatcher view = req.getRequestDispatcher(viewPath);
         Optional<Boolean> deleteMethod = paramReader.readBoolean(req, DELETE_PARAM);
         Optional<BigInteger> id = paramReader.readBigInteger(req, ID_PARAM);
@@ -224,7 +228,6 @@ public class CustomerProfileServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        this.viewPath = propertiesKeeper.getStringOrDefault(VIEW_PROP, DEFAULT_VIEW);
         Map<String, String> parameters = new HashMap<>();
         parameters.put(PASSWORD_HASH_ITERATIONS_PROP, propertiesKeeper.getString(PASSWORD_HASH_ITERATIONS_PROP));
         parameters.put(PASSWORD_HASH_ALGORITHM_PROP, propertiesKeeper.getString(PASSWORD_HASH_ALGORITHM_PROP));

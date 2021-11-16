@@ -5,13 +5,13 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <meta name="description" content="UpSkillPAY - admin's management" />
+        <meta name="description" content="UpSkillPAY - payments info" />
         <meta name="keywords" content="payment, customer, account" />
         <meta name="author" content="P. Miakish" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
               integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
-        <title>Admin list - UpSkillPAY</title>
+        <title>Payment list - UpSkillPAY</title>
     </head>
     <body>
         <div class="container">
@@ -22,13 +22,13 @@
                         <img src="../../../img/logo.png" class="img-fluid" width="150" height="91" alt="UpSkillPAY logo">
                     </a>
                 </div>
-                <div class="col align-self-center">
-                    <h1>Admin list</h1>
+                <div class="col-6 align-self-center">
+                    <h1>Payments</h1>
                 </div>
                 <div class="col-3">
                     <c:if test="${user != null}">
                         <p>
-                            <br /><strong>Superadmin:</strong><br />
+                            <br /><strong>Admin:</strong><br />
                             <a href="/profile" title="Edit profile">${user.email}</a><br />
                             ${user.firstName} ${user.lastName}<br />
                             <div class="d-grid gap-1 col-6 mx-auto">
@@ -43,8 +43,7 @@
             <nav class="navbar navbar-expand-lg navbar-light bg-light">
                 <div class="container-fluid">
                     <a class="navbar-brand" href="/">UpSkillPay</a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar"
-                            aria-controls="adminNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar" aria-controls="adminNavbar" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
                     </button>
                     <div class="collapse navbar-collapse" id="adminNavbar">
@@ -59,14 +58,16 @@
                                 <a class="nav-link" href="/cards">Cards</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="/payments">Payments</a>
+                                <a class="nav-link active" aria-current="page" href="/payments">Payments</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link active" aria-current="page" href="/admins">Admins</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/income">Income</a>
-                            </li>
+                            <c:if test="${user != null && user.permission == 'SUPERADMIN'}">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/admins">Admins</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/income">Income</a>
+                                </li>
+                            </c:if>
                         </ul>
                     </div>
                 </div>
@@ -80,40 +81,36 @@
                 <thead class="table-light">
                     <tr>
                         <th scope="col">
-                            <project:sortlink page="${page}" endpoint="/admins" target="id" description="ID" />
+                            <project:sortlink page="${page}" endpoint="/payments" target="id" description="ID" />
                         </th>
                         <th scope="col">
-                            <project:sortlink page="${page}" endpoint="/admins" target="email" description="email" />
+                            <project:sortlink page="${page}" endpoint="/payments" target="amount" description="Amount" />
                         </th>
                         <th scope="col">
-                            <project:sortlink page="${page}" endpoint="/admins" target="firstname" description="First Name" />
+                            <project:sortlink page="${page}" endpoint="/payments" target="payer" description="Payer's account" />
                         </th>
                         <th scope="col">
-                            <project:sortlink page="${page}" endpoint="/admins" target="lastname" description="Last Name" />
+                            <project:sortlink page="${page}" endpoint="/payments" target="receiver" description="Receiver's account" />
                         </th>
                         <th scope="col">
-                            <project:sortlink page="${page}" endpoint="/admins" target="regdate" description="Registration" />
+                            <project:sortlink page="${page}" endpoint="/payments" target="date" description="Timestamp" />
                         </th>
-                        <th scope="col">
-                            <project:sortlink page="${page}" endpoint="/admins" target="status" description="Status" />
-                        </th>
-                        <th scope="col">&nbsp;</th>
                     </tr>
                 </thead>
                 <tbody>
-                <c:forEach items="${page.entries}" var="admin">
+                <c:forEach items="${page.entries}" var="payment">
                     <tr>
-                        <th scope="row">${admin.id}</th>
-                        <td>${admin.email}</td>
-                        <td>${admin.firstName}</td>
-                        <td>${admin.lastName}</td>
-                        <td>${admin.regDate}</td>
-                        <td<c:if test="${admin.status == 'BLOCKED'}">  class="table-danger"</c:if>>${admin.status}</td>
+                        <th scope="row">${payment.id}</th>
+                        <td>${payment.amount}</td>
                         <td>
-                            <a href="/admin/${admin.id}" title="Edit">
-                                <img src="../../../img/edit.png" width="25" height="25" alt="edit">
-                            </a>
+                            <c:if test="${payment.payerId == 0}">SYSTEM</c:if>
+                            <c:if test="${payment.payerId != 0}">${payment.payerId}</c:if>
                         </td>
+                        <td>
+                            <c:if test="${payment.receiverId == 0}">SYSTEM</c:if>
+                            <c:if test="${payment.receiverId != 0}">${payment.receiverId}</c:if>
+                        </td>
+                        <td>${payment.dateTime.format(formatter)}</td>
                     </tr>
                 </c:forEach>
                 </tbody>
@@ -122,10 +119,10 @@
         <div class="container">
             <div class="row">
                 <div class="col">
-                    <project:pagination page="${page}" endpoint="/admins" />
+                    <project:pagination page="${page}" endpoint="/payments" />
                 </div>
                 <div class="col-2">
-                    <form method="GET" action="/admins">
+                    <form method="GET" action="/payments">
                         <input type="hidden" name="page" value="1" />
                         <input type="hidden" name="sort" value="${page.sort}" />
                         <div class="form-group">
@@ -141,6 +138,18 @@
                     </form>
                 </div>
             </div>
+        </div>
+        <br /><br />
+        <div class="container" style="background-color: rgba(232, 232, 232, 0.3);">
+            <br />
+            <p class="text-center">
+                <a href="/lang?locale=ru&uri=${requestScope['jakarta.servlet.forward.request_uri']}"
+                   title="Русская версия">Русский</a>
+                &nbsp;|&nbsp;
+                <a href="/lang?locale=en&uri=${requestScope['jakarta.servlet.forward.request_uri']}"
+                   class="pe-none" tabindex="-1" aria-disabled="true">English</a>
+            </p>
+            <br />
         </div>
     </body>
 </html>

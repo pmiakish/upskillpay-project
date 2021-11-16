@@ -1,6 +1,6 @@
 package com.epam.upskillproject.controller.servlets.admin;
 
-import com.epam.upskillproject.init.PropertiesKeeper;
+import com.epam.upskillproject.controller.LocaleDispatcher;
 import com.epam.upskillproject.model.service.SuperadminService;
 import jakarta.inject.Inject;
 import jakarta.servlet.RequestDispatcher;
@@ -25,18 +25,17 @@ public class IncomeServlet extends HttpServlet {
 
     private static final String VIEW_PROP = "servlet.view.income";
     private static final String INCOME_BALANCE_ATTR = "balance";
-    private static final String DEFAULT_VIEW = "/WEB-INF/view/admin/income.jsp";
+    private static final String DEFAULT_VIEW = "/WEB-INF/view/en/admin/income.jsp";
 
     @Inject
-    private PropertiesKeeper propertiesKeeper;
-
-    private String viewPath;
-
+    private LocaleDispatcher localeDispatcher;
     @Inject
     private SuperadminService superadminService;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String localizedView = localeDispatcher.getLocalizedView(req, VIEW_PROP);
+        String viewPath = (localizedView.length() > 0) ? localizedView : DEFAULT_VIEW;
         RequestDispatcher view = req.getRequestDispatcher(viewPath);
         try {
             req.setAttribute(INCOME_BALANCE_ATTR, superadminService.getIncomeBalance());
@@ -45,11 +44,5 @@ public class IncomeServlet extends HttpServlet {
             logger.log(Level.ERROR, "Cannot get system income value", e);
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
-    }
-
-    @Override
-    public void init() throws ServletException {
-        super.init();
-        this.viewPath = propertiesKeeper.getStringOrDefault(VIEW_PROP, DEFAULT_VIEW);
     }
 }

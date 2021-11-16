@@ -1,22 +1,18 @@
 package com.epam.upskillproject.controller.servlets.payservice;
 
+import com.epam.upskillproject.controller.LocaleDispatcher;
 import com.epam.upskillproject.controller.ParamReader;
-import com.epam.upskillproject.controller.servlets.admin.CustomerAccountsServlet;
 import com.epam.upskillproject.exceptions.AccountLimitException;
 import com.epam.upskillproject.exceptions.PaymentParamException;
 import com.epam.upskillproject.exceptions.TransactionException;
-import com.epam.upskillproject.init.PropertiesKeeper;
 import com.epam.upskillproject.model.dto.Account;
 import com.epam.upskillproject.model.dto.Page;
 import com.epam.upskillproject.model.dto.Person;
-import com.epam.upskillproject.model.service.AdminService;
 import com.epam.upskillproject.model.service.CustomerService;
-import com.epam.upskillproject.model.service.SuperadminService;
 import com.epam.upskillproject.model.service.sort.AccountSortType;
 import com.epam.upskillproject.view.tags.OperationType;
 import jakarta.ejb.EJBException;
 import jakarta.inject.Inject;
-import jakarta.security.auth.message.AuthException;
 import jakarta.security.enterprise.SecurityContext;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -29,7 +25,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -54,25 +49,25 @@ public class MyAccountsServlet extends HttpServlet {
     private static final String OPERATION_NAME_ATTR = "opName";
     private static final String OPERATION_STATUS_ATTR = "opStat";
     private static final String ERROR_MESSAGE_ATTR = "errMsg";
-    private static final String DEFAULT_VIEW = "/WEB-INF/view/payservice/myAccounts.jsp";
+    private static final String DEFAULT_VIEW = "/WEB-INF/view/en/payservice/myAccounts.jsp";
 
     @Inject
     SecurityContext securityContext;
     @Inject
-    private PropertiesKeeper propertiesKeeper;
+    private LocaleDispatcher localeDispatcher;
     @Inject
     private ParamReader paramReader;
     @Inject
     CustomerService customerService;
 
-    private String viewPath;
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String localizedView = localeDispatcher.getLocalizedView(req, VIEW_PROP);
+        String viewPath = (localizedView.length() > 0) ? localizedView : DEFAULT_VIEW;
+        RequestDispatcher view = req.getRequestDispatcher(viewPath);
         Principal principal = securityContext.getCallerPrincipal();
         if (principal != null) {
             try {
-                RequestDispatcher view = req.getRequestDispatcher(viewPath);
                 Person user = customerService.getUserPerson(principal);
                 if (user == null) {
                     logger.log(Level.ERROR, String.format("Cannot get principal person from database (principal: %s)",
@@ -93,9 +88,11 @@ public class MyAccountsServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String localizedView = localeDispatcher.getLocalizedView(req, VIEW_PROP);
+        String viewPath = (localizedView.length() > 0) ? localizedView : DEFAULT_VIEW;
+        RequestDispatcher view = req.getRequestDispatcher(viewPath);
         Principal principal = securityContext.getCallerPrincipal();
         if (principal != null) {
-            RequestDispatcher view = req.getRequestDispatcher(viewPath);
             Optional<String> target = paramReader.readString(req, TARGET_PARAM);
             try {
                 req.setAttribute(OPERATION_NAME_ATTR, OperationType.UPDATE.name());
@@ -194,11 +191,5 @@ public class MyAccountsServlet extends HttpServlet {
             logger.log(Level.ERROR, String.format("Cannot build accounts page (principal: %s)", principal.getName()), e);
         }
         view.forward(req, resp);
-    }
-
-    @Override
-    public void init() throws ServletException {
-        super.init();
-        this.viewPath = propertiesKeeper.getStringOrDefault(VIEW_PROP, DEFAULT_VIEW);
     }
 }

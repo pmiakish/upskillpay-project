@@ -1,7 +1,7 @@
 package com.epam.upskillproject.controller.servlets.admin;
 
+import com.epam.upskillproject.controller.LocaleDispatcher;
 import com.epam.upskillproject.controller.ParamReader;
-import com.epam.upskillproject.init.PropertiesKeeper;
 import com.epam.upskillproject.model.dto.*;
 import com.epam.upskillproject.model.service.AdminService;
 import com.epam.upskillproject.model.service.SuperadminService;
@@ -44,12 +44,12 @@ public class CustomerAccountsServlet extends HttpServlet {
     private static final String OPERATION_NAME_ATTR = "opName";
     private static final String OPERATION_STATUS_ATTR = "opStat";
     private static final String ERROR_MESSAGE_ATTR = "errMsg";
-    private static final String DEFAULT_VIEW = "/WEB-INF/view/admin/customerAccounts.jsp";
+    private static final String DEFAULT_VIEW = "/WEB-INF/view/en/admin/customerAccounts.jsp";
 
     @Inject
     SecurityContext securityContext;
     @Inject
-    private PropertiesKeeper propertiesKeeper;
+    private LocaleDispatcher localeDispatcher;
     @Inject
     private ParamReader paramReader;
     @Inject
@@ -57,10 +57,10 @@ public class CustomerAccountsServlet extends HttpServlet {
     @Inject
     private AdminService adminService;
 
-    private String viewPath;
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String localizedView = localeDispatcher.getLocalizedView(req, VIEW_PROP);
+        String viewPath = (localizedView.length() > 0) ? localizedView : DEFAULT_VIEW;
         RequestDispatcher view = req.getRequestDispatcher(viewPath);
         try {
             Person customer = getCustomer(req);
@@ -89,6 +89,8 @@ public class CustomerAccountsServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String localizedView = localeDispatcher.getLocalizedView(req, VIEW_PROP);
+        String viewPath = (localizedView.length() > 0) ? localizedView : DEFAULT_VIEW;
         RequestDispatcher view = req.getRequestDispatcher(viewPath);
         Optional<String> target = paramReader.readString(req, TARGET_PARAM);
         Optional<BigInteger> id = paramReader.readBigInteger(req, ID_PARAM);
@@ -206,11 +208,5 @@ public class CustomerAccountsServlet extends HttpServlet {
             throw new IllegalArgumentException("Customer's id may not be less than 1");
         }
         return id;
-    }
-
-    @Override
-    public void init() throws ServletException {
-        super.init();
-        this.viewPath = propertiesKeeper.getStringOrDefault(VIEW_PROP, DEFAULT_VIEW);
     }
 }

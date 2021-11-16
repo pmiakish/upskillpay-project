@@ -5,13 +5,13 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <meta name="description" content="UpSkillPAY - profile" />
-        <meta name="keywords" content="payment, customer, account" />
+        <meta name="description" content="UpSkillPAY - профиль" />
+        <meta name="keywords" content="платеж, клиент, счет" />
         <meta name="author" content="P. Miakish" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
               integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
-        <title>My profile - UpSkillPAY</title>
+        <title>Мой профиль - UpSkillPAY</title>
     </head>
     <body>
         <div class="container">
@@ -19,20 +19,20 @@
             <div class="row">
                 <div class="col-3 align-self-center" >
                     <a href="/" title="UpSkillPAY">
-                        <img src="../img/logo.png" class="img-fluid" width="150" height="91" alt="UpSkillPAY logo">
+                        <img src="../img/logo.png" class="img-fluid" width="150" height="91" alt="UpSkillPAY лого">
                     </a>
                 </div>
                 <div class="col align-self-center">
-                    <h1>My profile</h1>
+                    <h1>Мой профиль</h1>
                 </div>
                 <div class="col-3">
                     <c:if test="${user != null}">
                         <p>
-                            <br /><strong>User:</strong><br />
+                            <br /><strong>Пользователь:</strong><br />
                             ${user.email}<br />
                             ${user.firstName} ${user.lastName}<br />
                             <div class="d-grid gap-1 col-6 mx-auto">
-                                <a href="/logout" class="btn btn-outline-dark btn-sm" role="button">Logout</a>
+                                <a href="/logout" class="btn btn-outline-dark btn-sm" role="button">Выйти</a>
                             </div>
                         </p>
                     </c:if>
@@ -51,21 +51,21 @@
                         <ul class="navbar-nav">
                             <c:if test="${user != null && (user.permission == 'SUPERADMIN' || user.permission == 'ADMIN')}">
                                 <li class="nav-item">
-                                    <a class="nav-link" href="/customers">Customers</a>
+                                    <a class="nav-link" href="/customers">Клиенты</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="/accounts">Accounts</a>
+                                    <a class="nav-link" href="/accounts">Счета</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="/cards">Cards</a>
+                                    <a class="nav-link" href="/cards">Карты</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="/payments">Payments</a>
+                                    <a class="nav-link" href="/payments">Платежи</a>
                                 </li>
                             </c:if>
                             <c:if test="${user != null && user.permission == 'SUPERADMIN'}">
                                 <li class="nav-item">
-                                    <a class="nav-link" href="/admins">Admins</a>
+                                    <a class="nav-link" href="/admins">Администраторы</a>
                                 </li>
                             </c:if>
                         </ul>
@@ -78,45 +78,45 @@
             <project:status operation="${opName}" result="${opStat}" message="${errMsg}" />
             <br />
             <c:if test="${user != null}">
-                <p><h3>Edit profile:</h3></p>
+                <p><h3>Редактировать профиль:</h3></p>
                 <br />
                 <form method="POST" action="/profile" class="row g-3 needs-validation" novalidate
-                      oninput='cPass.setCustomValidity(cPass.value != pass.value ? "Passwords do not match" : "")'>
+                      oninput='cPass.setCustomValidity(cPass.value != pass.value ? "Пароли не совпадают" : "")'>
                     <input type="hidden" id="inputHash" value="${user.hash}" name="hash" />
                     <div class="mb-3 row">
-                        <label for="staticEmail" class="col-sm-2 col-form-label"><strong>email (login)</strong></label>
+                        <label for="staticEmail" class="col-sm-2 col-form-label"><strong>Электронная почта (логин)</strong></label>
                         <div class="col-sm-10">
                             <input type="text" readonly class="form-control-plaintext" id="staticEmail" value="${user.email}" name="email" />
                         </div>
                     </div>
                     <div class="mb-3 row">
-                        <label for="inputPassword" class="col-sm-2 col-form-label"><strong>New password</strong></label>
+                        <label for="inputPassword" class="col-sm-2 col-form-label"><strong>Новый пароль</strong></label>
                         <div class="col-sm-10">
                             <input type="password" class="form-control" id="inputPassword" name="pass" />
                         </div>
                     </div>
                     <div class="mb-3 row">
-                        <label for="confirmPassword" class="col-sm-2 col-form-label"><strong>Confirm password</strong></label>
+                        <label for="confirmPassword" class="col-sm-2 col-form-label"><strong>Подтвердить пароль</strong></label>
                         <div class="col-sm-10">
                             <input type="password" class="form-control" id="confirmPassword" name="cPass" />
                         </div>
                     </div>
                     <div class="mb-3 row">
-                        <label for="inputFirstName" class="col-sm-2 col-form-label"><strong>First Name</strong></label>
+                        <label for="inputFirstName" class="col-sm-2 col-form-label"><strong>Имя</strong></label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="inputFirstName" pattern="[A-ZА-Я][\-A-Za-zА-Яа-я ]+"
                                    required value="${user.firstName}" name="firstName" />
                         </div>
                     </div>
                     <div class="mb-3 row">
-                        <label for="inputLastName" class="col-sm-2 col-form-label"><strong>Last Name</strong></label>
+                        <label for="inputLastName" class="col-sm-2 col-form-label"><strong>Фамилия</strong></label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="inputLastName" pattern="[A-ZА-Я][\-A-Za-zА-Яа-я ]+"
                                    required value="${user.lastName}" name="lastName" />
                         </div>
                     </div>
                     <div class="mb-3 row">
-                        <label for="staticRegDate" class="col-sm-2 col-form-label"><strong>Registration</strong></label>
+                        <label for="staticRegDate" class="col-sm-2 col-form-label"><strong>Регистрация</strong></label>
                         <div class="col-sm-10">
                             <input type="text" readonly class="form-control-plaintext" id="staticRegDate"
                                    value="${user.regDate}" name="regDate" />
@@ -124,16 +124,28 @@
                     </div>
                     <br />
                     <div class="col-12">
-                        <button type="submit" class="btn btn-primary">Update</button>
+                        <button type="submit" class="btn btn-primary">Применить</button>
                     </div>
                 </form>
                 <br />
             </c:if>
             <c:if test="${user == null}">
                 <div class="alert alert-danger" role="alert">
-                    User's data loading failed!
+                    Ошибка загрузки пользовательских данных
                 </div>
             </c:if>
+        </div>
+        <br /><br />
+        <div class="container" style="background-color: rgba(232, 232, 232, 0.3);">
+            <br />
+            <p class="text-center">
+                <a href="/lang?locale=ru&uri=${requestScope['jakarta.servlet.forward.request_uri']}"
+                   class="pe-none" tabindex="-1" aria-disabled="true">Русский</a>
+                &nbsp;|&nbsp;
+                <a href="/lang?locale=en&uri=${requestScope['jakarta.servlet.forward.request_uri']}"
+                   title="English version">English</a>
+            </p>
+            <br />
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
                 integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous">

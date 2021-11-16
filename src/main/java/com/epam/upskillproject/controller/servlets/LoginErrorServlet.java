@@ -1,6 +1,6 @@
 package com.epam.upskillproject.controller.servlets;
 
-import com.epam.upskillproject.init.PropertiesKeeper;
+import com.epam.upskillproject.controller.LocaleDispatcher;
 import jakarta.inject.Inject;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -14,23 +14,17 @@ import java.io.IOException;
 public class LoginErrorServlet extends HttpServlet {
 
     private static final String VIEW_PROP = "servlet.view.error";
-    private static final String DEFAULT_VIEW = "/WEB-INF/view/error.jsp";
+    private static final String DEFAULT_VIEW = "/WEB-INF/view/en/error.jsp";
 
     @Inject
-    private PropertiesKeeper propertiesKeeper;
-
-    private String viewPath;
+    private LocaleDispatcher localeDispatcher;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String localizedView = localeDispatcher.getLocalizedView(req, VIEW_PROP);
+        String viewPath = (localizedView.length() > 0) ? localizedView : DEFAULT_VIEW;
         RequestDispatcher view = req.getRequestDispatcher(viewPath);
         view.forward(req, resp);
-    }
-
-    @Override
-    public void init() throws ServletException {
-        super.init();
-        this.viewPath = propertiesKeeper.getStringOrDefault(VIEW_PROP, DEFAULT_VIEW);
     }
 }
 

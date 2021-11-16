@@ -1,5 +1,6 @@
 package com.epam.upskillproject.controller.servlets.payservice;
 
+import com.epam.upskillproject.controller.LocaleDispatcher;
 import com.epam.upskillproject.controller.ParamReader;
 import com.epam.upskillproject.exceptions.AccountLimitException;
 import com.epam.upskillproject.exceptions.PaymentParamException;
@@ -63,10 +64,12 @@ public class MyAccountServiceServlet extends HttpServlet {
     private static final String ERROR_MESSAGE_ATTR = "errMsg";
     private static final int DEFAULT_SCALE = 2;
     private static final RoundingMode DEFAULT_ROUNDING_MODE = RoundingMode.HALF_UP;
-    private static final String DEFAULT_VIEW = "/WEB-INF/view/payservice/myAccountService.jsp";
+    private static final String DEFAULT_VIEW = "/WEB-INF/view/en/payservice/myAccountService.jsp";
 
     @Inject
     private SecurityContext securityContext;
+    @Inject
+    private LocaleDispatcher localeDispatcher;
     @Inject
     private PropertiesKeeper propertiesKeeper;
     @Inject
@@ -74,15 +77,16 @@ public class MyAccountServiceServlet extends HttpServlet {
     @Inject
     private CustomerService customerService;
 
-    private String viewPath;
     private BigDecimal commissionRate;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String localizedView = localeDispatcher.getLocalizedView(req, VIEW_PROP);
+        String viewPath = (localizedView.length() > 0) ? localizedView : DEFAULT_VIEW;
+        RequestDispatcher view = req.getRequestDispatcher(viewPath);
         Principal principal = securityContext.getCallerPrincipal();
         if (principal != null) {
             putViewObjectsToRequest(req, resp, principal);
-            RequestDispatcher view = req.getRequestDispatcher(viewPath);
             view.forward(req, resp);
         } else {
             logger.log(Level.ERROR, "Cannot get caller principal, uri: " + req.getRequestURI());
@@ -92,12 +96,14 @@ public class MyAccountServiceServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String localizedView = localeDispatcher.getLocalizedView(req, VIEW_PROP);
+        String viewPath = (localizedView.length() > 0) ? localizedView : DEFAULT_VIEW;
+        RequestDispatcher view = req.getRequestDispatcher(viewPath);
         Principal principal = securityContext.getCallerPrincipal();
         Optional<String> target = paramReader.readString(req, TARGET_PARAM);
         Optional<BigInteger> id = paramReader.readBigInteger(req, ID_PARAM);
         Optional<CardNetworkType> cardNet = paramReader.readCardNetworkType(req, CARD_NETWORK_PARAM);
         if (principal != null) {
-            RequestDispatcher view = req.getRequestDispatcher(viewPath);
             try {
                 // Block account
                 if (target.isPresent() && id.isPresent() && target.get().equals(ACCOUNT_BLOCK_TARGET)) {
@@ -265,7 +271,6 @@ public class MyAccountServiceServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        this.viewPath = propertiesKeeper.getStringOrDefault(VIEW_PROP, DEFAULT_VIEW);
         commissionRate = propertiesKeeper.getBigDecimal(COMMISSION_RATE_PROP).setScale(DEFAULT_SCALE, DEFAULT_ROUNDING_MODE);
     }
 }
