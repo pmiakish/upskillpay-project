@@ -1,5 +1,6 @@
 package com.epam.upskillproject.controller.servlets;
 
+import com.epam.upskillproject.controller.LocaleDispatcher;
 import com.epam.upskillproject.controller.ParamReader;
 import com.epam.upskillproject.init.PropertiesKeeper;
 import com.epam.upskillproject.model.service.SystemService;
@@ -44,10 +45,12 @@ public class UserProfileServlet extends HttpServlet {
     private static final String OPERATION_NAME_ATTR = "opName";
     private static final String OPERATION_STATUS_ATTR = "opStat";
     private static final String ERROR_MESSAGE_ATTR = "errMsg";
-    private static final String DEFAULT_VIEW = "/WEB-INF/view/profile.jsp";
+    private static final String DEFAULT_VIEW = "/WEB-INF/view/en/profile.jsp";
 
     @Inject
     private SecurityContext securityContext;
+    @Inject
+    private LocaleDispatcher localeDispatcher;
     @Inject
     private PropertiesKeeper propertiesKeeper;
     @Inject
@@ -57,16 +60,18 @@ public class UserProfileServlet extends HttpServlet {
     @Inject
     private Pbkdf2PasswordHash passwordHash;
 
-    private String viewPath;
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String localizedView = localeDispatcher.getLocalizedView(req, VIEW_PROP);
+        String viewPath = (localizedView.length() > 0) ? localizedView : DEFAULT_VIEW;
         RequestDispatcher view = req.getRequestDispatcher(viewPath);
         view.forward(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String localizedView = localeDispatcher.getLocalizedView(req, VIEW_PROP);
+        String viewPath = (localizedView.length() > 0) ? localizedView : DEFAULT_VIEW;
         RequestDispatcher view = req.getRequestDispatcher(viewPath);
         Principal principal = securityContext.getCallerPrincipal();
         Optional<Integer> hash = paramReader.readInteger(req, HASH_PARAM);
@@ -117,7 +122,6 @@ public class UserProfileServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        this.viewPath = propertiesKeeper.getStringOrDefault(VIEW_PROP, DEFAULT_VIEW);
         Map<String, String> parameters = new HashMap<>();
         parameters.put(PASSWORD_HASH_ITERATIONS_PROP, propertiesKeeper.getString(PASSWORD_HASH_ITERATIONS_PROP));
         parameters.put(PASSWORD_HASH_ALGORITHM_PROP, propertiesKeeper.getString(PASSWORD_HASH_ALGORITHM_PROP));

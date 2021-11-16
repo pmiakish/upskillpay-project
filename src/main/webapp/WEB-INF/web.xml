@@ -15,9 +15,9 @@
 
     <request-character-encoding>UTF-8</request-character-encoding>
 
-    <welcome-file-list>
-        <welcome-file>/WEB-INF/view/index.jsp</welcome-file>
-    </welcome-file-list>
+<!--    <welcome-file-list>-->
+<!--        <welcome-file>/WEB-INF/view/en/index.jsp</welcome-file>-->
+<!--    </welcome-file-list>-->
 
     <!-- Security roles referenced by this web application -->
     <security-role>

@@ -1,7 +1,7 @@
 package com.epam.upskillproject.controller.servlets.admin;
 
+import com.epam.upskillproject.controller.LocaleDispatcher;
 import com.epam.upskillproject.controller.ParamReader;
-import com.epam.upskillproject.init.PropertiesKeeper;
 import com.epam.upskillproject.model.dto.Card;
 import com.epam.upskillproject.model.dto.StatusType;
 import com.epam.upskillproject.model.service.AdminService;
@@ -39,22 +39,22 @@ public class CardsServlet extends HttpServlet {
     private static final String OPERATION_NAME_ATTR = "opName";
     private static final String OPERATION_STATUS_ATTR = "opStat";
     private static final String ERROR_MESSAGE_ATTR = "errMsg";
-    private static final String DEFAULT_VIEW = "/WEB-INF/view/admin/cards.jsp";
+    private static final String DEFAULT_VIEW = "/WEB-INF/view/en/admin/cards.jsp";
 
     @Inject
-    private PropertiesKeeper propertiesKeeper;
+    private LocaleDispatcher localeDispatcher;
     @Inject
     private ParamReader paramReader;
     @Inject
     private AdminService adminService;
 
-    private String viewPath;
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String localizedView = localeDispatcher.getLocalizedView(req, VIEW_PROP);
+        String viewPath = (localizedView.length() > 0) ? localizedView : DEFAULT_VIEW;
+        RequestDispatcher view = req.getRequestDispatcher(viewPath);
         try {
             req.setAttribute(PAGE_ATTR, buildCardsPage(req));
-            RequestDispatcher view = req.getRequestDispatcher(viewPath);
             view.forward(req, resp);
         } catch (SQLException e) {
             logger.log(Level.ERROR, "Cannot build cards page", e);
@@ -64,6 +64,8 @@ public class CardsServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String localizedView = localeDispatcher.getLocalizedView(req, VIEW_PROP);
+        String viewPath = (localizedView.length() > 0) ? localizedView : DEFAULT_VIEW;
         RequestDispatcher view = req.getRequestDispatcher(viewPath);
         Optional<BigInteger> id = paramReader.readBigInteger(req, ID_PARAM);
         Optional<StatusType> currentStatus = paramReader.readStatusType(req, CURRENT_STATUS_PARAM);
@@ -122,11 +124,4 @@ public class CardsServlet extends HttpServlet {
         Optional<String> errMsg = paramReader.readString(req, ERROR_MESSAGE_ATTR);
         req.setAttribute(ERROR_MESSAGE_ATTR, errMsg.orElse("").concat((message != null) ? message : ""));
     }
-
-    @Override
-    public void init() throws ServletException {
-        super.init();
-        this.viewPath = propertiesKeeper.getStringOrDefault(VIEW_PROP, DEFAULT_VIEW);
-    }
-
 }

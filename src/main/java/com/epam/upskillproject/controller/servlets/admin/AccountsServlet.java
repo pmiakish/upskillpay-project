@@ -1,7 +1,7 @@
 package com.epam.upskillproject.controller.servlets.admin;
 
 import com.epam.upskillproject.controller.ParamReader;
-import com.epam.upskillproject.init.PropertiesKeeper;
+import com.epam.upskillproject.controller.LocaleDispatcher;
 import com.epam.upskillproject.model.dto.Account;
 import com.epam.upskillproject.model.dto.StatusType;
 import com.epam.upskillproject.model.service.sort.AccountSortType;
@@ -39,20 +39,20 @@ public class AccountsServlet extends HttpServlet {
     private static final String OPERATION_NAME_ATTR = "opName";
     private static final String OPERATION_STATUS_ATTR = "opStat";
     private static final String ERROR_MESSAGE_ATTR = "errMsg";
-    private static final String DEFAULT_VIEW = "/WEB-INF/view/admin/accounts.jsp";
+    private static final String DEFAULT_VIEW = "/WEB-INF/view/en/admin/accounts.jsp";
 
     @Inject
-    private PropertiesKeeper propertiesKeeper;
+    private LocaleDispatcher localeDispatcher;
     @Inject
     private ParamReader paramReader;
     @Inject
     private AdminService adminService;
 
-    private String viewPath;
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
+            String localizedView = localeDispatcher.getLocalizedView(req, VIEW_PROP);
+            String viewPath = (localizedView.length() > 0) ? localizedView : DEFAULT_VIEW;
             req.setAttribute(PAGE_ATTR, buildAccountsPage(req));
             RequestDispatcher view = req.getRequestDispatcher(viewPath);
             view.forward(req, resp);
@@ -64,6 +64,8 @@ public class AccountsServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String localizedView = localeDispatcher.getLocalizedView(req, VIEW_PROP);
+        String viewPath = (localizedView.length() > 0) ? localizedView : DEFAULT_VIEW;
         RequestDispatcher view = req.getRequestDispatcher(viewPath);
         Optional<BigInteger> id = paramReader.readBigInteger(req, ID_PARAM);
         Optional<StatusType> currentStatus = paramReader.readStatusType(req, CURRENT_STATUS_PARAM);
@@ -123,9 +125,4 @@ public class AccountsServlet extends HttpServlet {
         req.setAttribute(ERROR_MESSAGE_ATTR, errMsg.orElse("").concat((message != null) ? message : ""));
     }
 
-    @Override
-    public void init() throws ServletException {
-        super.init();
-        this.viewPath = propertiesKeeper.getStringOrDefault(VIEW_PROP, DEFAULT_VIEW);
-    }
 }

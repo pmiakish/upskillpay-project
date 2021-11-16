@@ -5,7 +5,7 @@
         <meta charset="UTF-8" />
         <meta content="text/html; charset=utf-8" http-equiv="content-type" />
         <meta name="description" content="UpSkillPAY - sign in" />
-        <meta name="keywords" content="payment, customer, account" />
+        <meta name="keywords" content="платеж, клиент, счет" />
         <meta name="author" content="P. Miakish" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -18,7 +18,7 @@
             <div class="row">
                 <div class="col-3 align-self-center">
                     <a href="/" title="UpSkillPAY">
-                        <img src="../../img/logo.png" class="img-fluid" width="150" height="91" alt="UpSkillPAY logo" />
+                        <img src="../../img/logo.png" class="img-fluid" width="150" height="91" alt="UpSkillPAY лого" />
                     </a>
                 </div>
                 <div class="col align-self-center">
@@ -45,5 +45,6 @@
                 </div>
             </div>
         </div>
+        <br /><br />
     </body>
 </html>

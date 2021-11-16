@@ -25,6 +25,9 @@
         <Logger name="com.epam.upskillproject.controller.filters.UserFilter" level="TRACE" additivity="true">
             <AppenderRef ref="RollingFile"/>
         </Logger>
+        <Logger name="com.epam.upskillproject.controller.LocaleDispatcher" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
         <Logger name="com.epam.upskillproject.connect.customds.CustomPooledDataSource" level="DEBUG" additivity="true">
             <AppenderRef ref="RollingFile"/>
         </Logger>

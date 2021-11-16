@@ -1,7 +1,7 @@
 package com.epam.upskillproject.controller.servlets.admin;
 
+import com.epam.upskillproject.controller.LocaleDispatcher;
 import com.epam.upskillproject.controller.ParamReader;
-import com.epam.upskillproject.init.PropertiesKeeper;
 import com.epam.upskillproject.model.service.AdminService;
 import com.epam.upskillproject.model.service.sort.TransactionSortType;
 import jakarta.inject.Inject;
@@ -32,37 +32,30 @@ public class PaymentsServlet extends HttpServlet {
     private static final String SORT_PARAM = "sort";
     private static final String PAGE_ATTR = "page";
     private static final String FORMATTER_ATTR = "formatter";
-    private static final String DEFAULT_VIEW = "/WEB-INF/view/admin/payments.jsp";
+    private static final String DEFAULT_VIEW = "/WEB-INF/view/en/admin/payments.jsp";
 
     @Inject
-    private PropertiesKeeper propertiesKeeper;
+    private LocaleDispatcher localeDispatcher;
     @Inject
     private ParamReader paramReader;
     @Inject
     private AdminService adminService;
 
-    private String viewPath;
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String localizedView = localeDispatcher.getLocalizedView(req, VIEW_PROP);
+        String viewPath = (localizedView.length() > 0) ? localizedView : DEFAULT_VIEW;
+        RequestDispatcher view = req.getRequestDispatcher(viewPath);
         int pageNumber = paramReader.readPageNumber(req);
         int pageSize = paramReader.readPageSize(req);
         Optional<TransactionSortType> sortType = paramReader.readPaymentSort(req, SORT_PARAM);
         try {
             req.setAttribute(FORMATTER_ATTR, DateTimeFormatter.ofPattern(DATE_TIME_PATTERN));
             req.setAttribute(PAGE_ATTR, adminService.getPayments(pageSize, pageNumber, sortType.orElse(null)));
-            RequestDispatcher view = req.getRequestDispatcher(viewPath);
             view.forward(req, resp);
         } catch (SQLException e) {
             logger.log(Level.ERROR, "Cannot build payments page", e);
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
-
-    @Override
-    public void init() throws ServletException {
-        super.init();
-        this.viewPath = propertiesKeeper.getStringOrDefault(VIEW_PROP, DEFAULT_VIEW);
-    }
-
 }

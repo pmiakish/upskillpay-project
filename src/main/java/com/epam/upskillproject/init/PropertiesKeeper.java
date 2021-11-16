@@ -2,6 +2,8 @@ package com.epam.upskillproject.init;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.Singleton;
+import jakarta.ejb.Stateful;
+import jakarta.enterprise.inject.Default;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,7 +27,9 @@ public class PropertiesKeeper {
             "db.properties",
             "html.properties",
             "sql.properties",
-            "passwordhash.properties"
+            "passwordhash.properties",
+            "/lang/en/view.properties",
+            "/lang/ru/view.properties"
     };
     private Properties properties = new Properties();
 
@@ -36,7 +40,7 @@ public class PropertiesKeeper {
         this.properties = collectedProperties;
     }
 
-    private Properties readPropertiesFromFile(String resourceName) {
+    protected Properties readPropertiesFromFile(String resourceName) {
         Properties readProperties = new Properties();
         try {
             ClassLoader classLoader = getClass().getClassLoader();
