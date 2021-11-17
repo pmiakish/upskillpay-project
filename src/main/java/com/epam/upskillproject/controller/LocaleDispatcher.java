@@ -27,10 +27,9 @@ public class LocaleDispatcher {
         Object sessionLocale = session.getAttribute(SESSION_LOCALE_ATTR);
         if (sessionLocale instanceof String && !((String) sessionLocale).equalsIgnoreCase(locale.name())) {
             setLocale((String) sessionLocale);
+        } else if (sessionLocale != null && !(sessionLocale instanceof String) ) {
+            session.removeAttribute(SESSION_LOCALE_ATTR);
         }
-//        else {
-//            session.removeAttribute(SESSION_LOCALE_ATTR);
-//        }
         String localizedView;
         try {
             localizedView = propertiesKeeper.getString(String.format("%s.%s", locale.name().toLowerCase(), VIEW_PROP));

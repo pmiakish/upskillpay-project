@@ -92,8 +92,6 @@ public class OperationStatusMessageTag extends SimpleTagSupport {
     }
 
     private String localizeMessage(String property, String locale) {
-
-        System.out.println("SESSION LOCALE -> " + locale);
         String localizedMsg = "";
         try {
             localizedMsg = (locale != null && locale.length() > 0) ?
