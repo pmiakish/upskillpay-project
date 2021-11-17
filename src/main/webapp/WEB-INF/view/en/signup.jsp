@@ -33,7 +33,7 @@
         <div class="container">
             <p>
                 <%-- Operation status message --%>
-                <project:status operation="${opName}" result="${opStat}" message="${errMsg}" />
+                <project:status operation="${opName}" result="${opStat}" message="${errMsg}" locale="${sessionScope.sessLoc}" />
                 <br />
                 <c:if test="${opStat == true}">
                     <br />

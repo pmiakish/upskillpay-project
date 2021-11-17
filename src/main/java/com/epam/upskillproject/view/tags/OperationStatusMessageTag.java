@@ -1,6 +1,7 @@
 package com.epam.upskillproject.view.tags;
 
 import com.epam.upskillproject.init.PropertiesKeeper;
+import jakarta.ejb.EJBException;
 import jakarta.inject.Inject;
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.JspWriter;
@@ -10,16 +11,17 @@ import java.util.Objects;
 
 public class OperationStatusMessageTag extends SimpleTagSupport {
 
-    private static final String MSG_CREATE_SUCCESS = "Created successfully";
-    private static final String MSG_CREATE_FAILED = "Creation failed";
-    private static final String MSG_UPDATE_SUCCESS = "Updated successfully";
-    private static final String MSG_UPDATE_FAILED = "Update failed";
-    private static final String MSG_DELETE_SUCCESS = "Deleted successfully";
-    private static final String MSG_DELETE_FAILED = "Removal failed";
-    private static final String MSG_PAYMENT_SUCCESS = "Payment performed successfully";
-    private static final String MSG_PAYMENT_FAILED = "Payment cannot be implemented";
-    private static final String MSG_DEFAULT_SUCCESS = "Operation has been performed successfully";
-    private static final String MSG_DEFAULT_FAILED = "Operation failed";
+    private static final String MSG_CREATE_SUCCESS_PROP = "msg.create.success";
+    private static final String MSG_CREATE_FAILED_PROP = "msg.create.failed";
+    private static final String MSG_UPDATE_SUCCESS_PROP = "msg.update.success";
+    private static final String MSG_UPDATE_FAILED_PROP = "msg.update.failed";
+    private static final String MSG_DELETE_SUCCESS_PROP = "msg.delete.success";
+    private static final String MSG_DELETE_FAILED_PROP = "msg.delete.failed";
+    private static final String MSG_PAYMENT_SUCCESS_PROP = "msg.payment.success";
+    private static final String MSG_PAYMENT_FAILED_PROP = "msg.payment.failed";
+    private static final String MSG_DEFAULT_SUCCESS_PROP = "msg.default.success";
+    private static final String MSG_DEFAULT_FAILED_PROP = "msg.default.failed";
+    private static final String DEFAULT_LOCALE = "en";
     private static final String MSG_DELIMITER = "<br />";
     private static final String ALERT_SUCCESS_PROP = "operation.tag.alert.success";
     private static final String ALERT_FAILED_PROP = "operation.tag.alert.failed";
@@ -30,6 +32,7 @@ public class OperationStatusMessageTag extends SimpleTagSupport {
     private OperationType operation;
     private boolean result;
     private String message;
+    private String locale;
 
     @Override
     public void doTag() throws JspException, IOException {
@@ -38,19 +41,24 @@ public class OperationStatusMessageTag extends SimpleTagSupport {
             StringBuilder tagBody = new StringBuilder();
             switch (operation) {
                 case CREATE:
-                    tagBody.append((result) ? MSG_CREATE_SUCCESS : MSG_CREATE_FAILED);
+                    tagBody.append((result) ? localizeMessage(MSG_CREATE_SUCCESS_PROP, locale) :
+                            localizeMessage(MSG_CREATE_FAILED_PROP, locale));
                     break;
                 case UPDATE:
-                    tagBody.append((result) ? MSG_UPDATE_SUCCESS : MSG_UPDATE_FAILED);
+                    tagBody.append((result) ? localizeMessage(MSG_UPDATE_SUCCESS_PROP, locale) :
+                            localizeMessage(MSG_UPDATE_FAILED_PROP, locale));
                     break;
                 case DELETE:
-                    tagBody.append((result) ? MSG_DELETE_SUCCESS : MSG_DELETE_FAILED);
+                    tagBody.append((result) ? localizeMessage(MSG_DELETE_SUCCESS_PROP, locale) :
+                            localizeMessage(MSG_DELETE_FAILED_PROP, locale));
                     break;
                 case PAYMENT:
-                    tagBody.append((result) ? MSG_PAYMENT_SUCCESS : MSG_PAYMENT_FAILED);
+                    tagBody.append((result) ? localizeMessage(MSG_PAYMENT_SUCCESS_PROP, locale) :
+                            localizeMessage(MSG_PAYMENT_FAILED_PROP, locale));
                     break;
                 default:
-                    tagBody.append((result) ? MSG_DEFAULT_SUCCESS : MSG_DEFAULT_FAILED);
+                    tagBody.append((result) ? localizeMessage(MSG_DEFAULT_SUCCESS_PROP, locale) :
+                            localizeMessage(MSG_DEFAULT_FAILED_PROP, locale));
                     break;
             }
             if (!result && message != null) {
@@ -78,4 +86,26 @@ public class OperationStatusMessageTag extends SimpleTagSupport {
     public void setMessage(String message) {
         this.message = message;
     }
+
+    public void setLocale(String locale) {
+        this.locale = locale;
+    }
+
+    private String localizeMessage(String property, String locale) {
+
+        System.out.println("SESSION LOCALE -> " + locale);
+        String localizedMsg = "";
+        try {
+            localizedMsg = (locale != null && locale.length() > 0) ?
+                    propertiesKeeper.getString(String.format("%s.%s", locale.toLowerCase(), property)) :
+                    propertiesKeeper.getString(String.format("%s.%s", DEFAULT_LOCALE, property));
+        } catch (EJBException e) {
+            if (e.getCause() instanceof IllegalArgumentException) {
+                localizedMsg = propertiesKeeper.getStringOrDefault(String.format("%s.%s", DEFAULT_LOCALE, property), "");
+            }
+        }
+        return localizedMsg;
+    }
 }
+
+

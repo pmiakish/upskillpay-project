@@ -74,7 +74,7 @@
         </div>
         <div class="container">
             <%-- Operation status message --%>
-            <project:status operation="${opName}" result="${opStat}" message="${errMsg}" />
+            <project:status operation="${opName}" result="${opStat}" message="${errMsg}" locale="${sessionScope.sessLoc}" />
             <br />
             <c:if test="${admin != null}">
             <ul class="nav nav-tabs">

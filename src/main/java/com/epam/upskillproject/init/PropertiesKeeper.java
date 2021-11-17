@@ -29,7 +29,9 @@ public class PropertiesKeeper {
             "sql.properties",
             "passwordhash.properties",
             "/lang/en/view.properties",
-            "/lang/ru/view.properties"
+            "/lang/en/statusmsg.properties",
+            "/lang/ru/view.properties",
+            "/lang/ru/statusmsg.properties"
     };
     private Properties properties = new Properties();
 
