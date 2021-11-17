@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Optional;
 
 @WebServlet("/lang")
@@ -27,7 +28,7 @@ public class LangServlet extends HttpServlet {
         Optional<String> locale = paramReader.readString(req, LOCALE_PARAM);
         if (previousUri.isPresent() && locale.isPresent()) {
             HttpSession session = req.getSession();
-            session.setAttribute(SESSION_LOCALE_ATTR, locale.get());
+            session.setAttribute(SESSION_LOCALE_ATTR, locale.get().toUpperCase());
             resp.sendRedirect(previousUri.get());
         } else if (previousUri.isPresent()) {
             resp.sendRedirect(previousUri.get());

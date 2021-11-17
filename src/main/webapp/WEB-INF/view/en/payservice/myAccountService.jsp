@@ -71,6 +71,12 @@
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="/payservice/my_account_service/${account.id}">Account ${account.id}</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/payservice/my_account_incoming/${account.id}">Incoming payments</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/payservice/my_account_outgoing/${account.id}">Outgoing payments</a>
+                    </li>
                 </ul>
                 <table class="table">
                     <thead class="table-light">
@@ -250,7 +256,6 @@
                                 event.preventDefault()
                                 event.stopPropagation()
                             }
-
                             form.classList.add('was-validated')
                         }, false)
                     })

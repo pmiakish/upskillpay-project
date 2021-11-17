@@ -86,9 +86,9 @@ public class PaymentDaoImpl implements PaymentDao {
     }
 
     @Override
-    public List<Transaction> getPaymentsByPayer(BigInteger id) throws SQLException {
+    public List<Transaction> getPaymentsByPayer(BigInteger id, TransactionSortType sortType) throws SQLException {
         String rawQuery = queryConstructor.byPayer();
-        ResultSet rs = queryExecutor.execute(rawQuery, id);
+        ResultSet rs = queryExecutor.execute(String.format(rawQuery, orderStrategy.getOrder(sortType)), id);
         List<Transaction> payments = new ArrayList<>();
         if (rs != null) {
             while (rs.next()) {
@@ -100,12 +100,13 @@ public class PaymentDaoImpl implements PaymentDao {
     }
 
     @Override
-    public List<Transaction> getPaymentsByPayerPage(BigInteger id, int limit, int offset) throws SQLException {
+    public List<Transaction> getPaymentsByPayerPage(BigInteger id, int limit, int offset, TransactionSortType sortType)
+            throws SQLException {
         if (limit < 1) {
             return new ArrayList<>();
         }
         String rawQuery = queryConstructor.byPayerPage();
-        ResultSet rs = queryExecutor.execute(rawQuery, id, limit, offset);
+        ResultSet rs = queryExecutor.execute(String.format(rawQuery, orderStrategy.getOrder(sortType)), id, limit, offset);
         List<Transaction> payments = new ArrayList<>();
         if (rs != null) {
             while (rs.next()) {
@@ -117,9 +118,9 @@ public class PaymentDaoImpl implements PaymentDao {
     }
 
     @Override
-    public List<Transaction> getPaymentsByReceiver(BigInteger id) throws SQLException {
+    public List<Transaction> getPaymentsByReceiver(BigInteger id, TransactionSortType sortType) throws SQLException {
         String rawQuery = queryConstructor.byReceiver();
-        ResultSet rs = queryExecutor.execute(rawQuery, id);
+        ResultSet rs = queryExecutor.execute(String.format(rawQuery, orderStrategy.getOrder(sortType)), id);
         List<Transaction> payments = new ArrayList<>();
         if (rs != null) {
             while (rs.next()) {
@@ -131,12 +132,13 @@ public class PaymentDaoImpl implements PaymentDao {
     }
 
     @Override
-    public List<Transaction> getPaymentsByReceiverPage(BigInteger id, int limit, int offset) throws SQLException {
+    public List<Transaction> getPaymentsByReceiverPage(BigInteger id, int limit, int offset,
+                                                       TransactionSortType sortType) throws SQLException {
         if (limit < 1) {
             return new ArrayList<>();
         }
         String rawQuery = queryConstructor.byReceiverPage();
-        ResultSet rs = queryExecutor.execute(rawQuery, id, limit, offset);
+        ResultSet rs = queryExecutor.execute(String.format(rawQuery, orderStrategy.getOrder(sortType)), id, limit, offset);
         List<Transaction> payments = new ArrayList<>();
         if (rs != null) {
             while (rs.next()) {

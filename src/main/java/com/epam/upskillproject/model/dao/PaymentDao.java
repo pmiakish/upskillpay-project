@@ -12,10 +12,10 @@ public interface PaymentDao {
     Optional<Transaction> getSinglePaymentById(BigInteger id) throws SQLException;
     List<Transaction> getAllPayments(TransactionSortType sortType) throws SQLException;
     List<Transaction> getPaymentsPage(int limit, int offset, TransactionSortType sortType) throws SQLException;
-    List<Transaction> getPaymentsByPayer(BigInteger id) throws SQLException;
-    List<Transaction> getPaymentsByPayerPage(BigInteger id, int limit, int offset) throws SQLException;
-    List<Transaction> getPaymentsByReceiver(BigInteger id) throws SQLException;
-    List<Transaction> getPaymentsByReceiverPage(BigInteger id, int limit, int offset) throws SQLException;
+    List<Transaction> getPaymentsByPayer(BigInteger id, TransactionSortType sortType) throws SQLException;
+    List<Transaction> getPaymentsByPayerPage(BigInteger id, int limit, int offset, TransactionSortType sortType) throws SQLException;
+    List<Transaction> getPaymentsByReceiver(BigInteger id, TransactionSortType sortType) throws SQLException;
+    List<Transaction> getPaymentsByReceiverPage(BigInteger id, int limit, int offset, TransactionSortType sortType) throws SQLException;
     int countPayments() throws SQLException;
     int countPaymentsByPayer(BigInteger id) throws SQLException;
     int countPaymentsByReceiver(BigInteger id) throws SQLException;
