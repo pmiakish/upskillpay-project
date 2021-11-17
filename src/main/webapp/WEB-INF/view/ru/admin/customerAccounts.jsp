@@ -151,7 +151,7 @@
                             </c:if>
                                 <form style="display: inline;" method="POST"
                                       action="${requestScope['jakarta.servlet.forward.request_uri']}"
-                                      onsubmit="return confirm('Are you sure? Action cannot be canceled');">
+                                      onsubmit="return confirm('Вы уверены? Действие не может быть отменено!');">
                                     <input type="hidden" name="target" value="accDelete" />
                                     <input type="hidden" name="id" value="${account.id}" />
                                     <button type="submit" class="btn btn-danger">УДАЛИТЬ</button>
@@ -205,7 +205,7 @@
                             </c:if>
                                 <form style="display: inline;" method="POST"
                                       action="${requestScope['jakarta.servlet.forward.request_uri']}"
-                                      onsubmit="return confirm('Are you sure? Action cannot be canceled');">
+                                      onsubmit="return confirm('Вы уверены? Действие не может быть отменено!');">
                                     <input type="hidden" name="target" value="cardDelete" />
                                     <input type="hidden" name="id" value="${card.id}" />
                                     <button type="submit" class="btn btn-danger">УДАЛИТЬ</button>
