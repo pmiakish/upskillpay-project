@@ -59,7 +59,7 @@
         </div>
         <div class="container">
             <%-- Operation status message --%>
-            <project:status operation="${opName}" result="${opStat}" message="${errMsg}" />
+            <project:status operation="${opName}" result="${opStat}" message="${errMsg}" locale="${sessionScope.sessLoc}" />
                 <c:if test="${createdCvc != null}">
                     <div class="alert alert-success" role="alert">
                         <strong>CVC is ${createdCvc}</strong>

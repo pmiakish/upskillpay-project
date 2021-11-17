@@ -76,7 +76,7 @@
         </div>
         <div class="container">
             <%-- Operation status message --%>
-            <project:status operation="${opName}" result="${opStat}" message="${errMsg}" />
+            <project:status operation="${opName}" result="${opStat}" message="${errMsg}" locale="${sessionScope.sessLoc}" />
             <br />
             <p class="lead">Total found: ${page.total} entries</p>
             <br />
