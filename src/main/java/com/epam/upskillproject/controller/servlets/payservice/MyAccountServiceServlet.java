@@ -246,7 +246,7 @@ public class MyAccountServiceServlet extends HttpServlet {
                 resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 req.setAttribute(ERROR_MESSAGE_ATTR, "Account not found");
             }
-        } catch (SQLException e) {
+        } catch (SQLException | IllegalArgumentException e) {
             logger.log(Level.ERROR, String.format("Cannot get customer's accounts (principal: %s)",
                     principal.getName()), e);
             buildErrorMessage(req, String.format("Cannot get customer's accounts (%s). ", e.getMessage()));

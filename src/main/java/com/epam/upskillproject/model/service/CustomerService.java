@@ -7,7 +7,7 @@ import com.epam.upskillproject.model.dao.*;
 import com.epam.upskillproject.model.dao.queryhandlers.FinancialTransactionsPerformer;
 import com.epam.upskillproject.model.dto.*;
 import com.epam.upskillproject.model.service.sort.AccountSortType;
-import jakarta.ejb.EJBException;
+import com.epam.upskillproject.model.service.sort.TransactionSortType;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import org.apache.logging.log4j.Level;
@@ -28,6 +28,7 @@ public class CustomerService {
     private static final Logger logger = LogManager.getLogger(CustomerService.class.getName());
 
     private static final AccountSortType DEFAULT_ACCOUNT_SORT_TYPE = AccountSortType.ID;
+    private static final TransactionSortType DEFAULT_PAYMENT_SORT_TYPE = TransactionSortType.ID_DESC;
     private static final BigInteger SYSTEM_INCOME_ID = BigInteger.ZERO;
     private static final int MAX_ACCOUNTS_PER_CUSTOMER = 5;
     private static final int MAX_CARDS_PER_ACCOUNT = 3;
@@ -142,6 +143,74 @@ public class CustomerService {
             logger.log(Level.WARN, String.format("Cannot get user's cards (principal person is not found: %s)",
                     principal.getName()));
             return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Creates a Page of incoming payments by user's account
+     * @param principal java.security.Principal (from security context)
+     * @param accountId a positive BigInteger
+     * @param amount a number of payments in a returning Page (a positive integer)
+     * @param pageNumber a positive integer
+     * @param sortType TransactionSortType. If a passed value is null, will be used a default sort type
+     * @return a Page of user's accounts or null if parameters are invalid
+     * @throws SQLException
+     */
+    public Page<Transaction> getUserIncomingPaymentsByAccount(Principal principal, BigInteger accountId, int amount,
+                                                              int pageNumber, TransactionSortType sortType) throws SQLException {
+        if (!checkParams(principal, accountId, amount, pageNumber)) {
+            logger.log(Level.WARN, "Cannot get page of incoming payments (invalid page parameters or principal)");
+            return null;
+        }
+        if (sortType == null) {
+            sortType = DEFAULT_PAYMENT_SORT_TYPE;
+        }
+        Optional<Person> person = personDao.getSinglePersonByEmail(principal.getName());
+        Optional<Account> account = accountDao.getSingleAccountByIdAndOwner(accountId, (person.isPresent()) ?
+                person.get().getId() : BigInteger.valueOf(-1L));
+        if (person.isPresent() && account.isPresent()) {
+            int offset = amount * (pageNumber - 1);
+            List<Transaction> entries = paymentDao.getPaymentsByReceiverPage(account.get().getId(), amount, offset, sortType);
+            int total = paymentDao.countPaymentsByReceiver(account.get().getId());
+            return new Page<>(entries, pageNumber, amount, total, sortType);
+        } else {
+            logger.log(Level.WARN, String.format("Cannot get page of incoming payments (principal person or account " +
+                    "are not found: %s)", principal.getName()));
+            return null;
+        }
+    }
+
+    /**
+     * Creates a Page of outgoing payments by user's account
+     * @param principal java.security.Principal (from security context)
+     * @param accountId a positive BigInteger
+     * @param amount a number of payments in a returning Page (a positive integer)
+     * @param pageNumber a positive integer
+     * @param sortType TransactionSortType. If a passed value is null, will be used a default sort type
+     * @return a Page of user's accounts or null if parameters are invalid
+     * @throws SQLException
+     */
+    public Page<Transaction> getUserOutgoingPaymentsByAccount(Principal principal, BigInteger accountId, int amount,
+                                                              int pageNumber, TransactionSortType sortType) throws SQLException {
+        if (!checkParams(principal, accountId, amount, pageNumber)) {
+            logger.log(Level.WARN, "Cannot get page of outgoing payments (invalid page parameters or principal)");
+            return null;
+        }
+        if (sortType == null) {
+            sortType = DEFAULT_PAYMENT_SORT_TYPE;
+        }
+        Optional<Person> person = personDao.getSinglePersonByEmail(principal.getName());
+        Optional<Account> account = accountDao.getSingleAccountByIdAndOwner(accountId, (person.isPresent()) ?
+                person.get().getId() : BigInteger.valueOf(-1L));
+        if (person.isPresent() && account.isPresent()) {
+            int offset = amount * (pageNumber - 1);
+            List<Transaction> entries = paymentDao.getPaymentsByPayerPage(account.get().getId(), amount, offset, sortType);
+            int total = paymentDao.countPaymentsByPayer(account.get().getId());
+            return new Page<>(entries, pageNumber, amount, total, sortType);
+        } else {
+            logger.log(Level.WARN, String.format("Cannot get page of outgoing payments (principal person or account " +
+                    "are not found: %s)", principal.getName()));
+            return null;
         }
     }
 

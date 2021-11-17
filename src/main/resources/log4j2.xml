@@ -92,10 +92,16 @@
         <Logger name="com.epam.upskillproject.controller.servlets.admin.PaymentsServlet" level="TRACE" additivity="true">
             <AppenderRef ref="RollingFile"/>
         </Logger>
+        <Logger name="com.epam.upskillproject.controller.servlets.payservice.MyAccountsServlet" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
         <Logger name="com.epam.upskillproject.controller.servlets.payservice.MyAccountServiceServlet" level="TRACE" additivity="true">
             <AppenderRef ref="RollingFile"/>
         </Logger>
-        <Logger name="com.epam.upskillproject.controller.servlets.payservice.MyAccountsServlet" level="TRACE" additivity="true">
+        <Logger name="com.epam.upskillproject.controller.servlets.payservice.MyAccountIncomingServlet" level="TRACE" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Logger name="com.epam.upskillproject.controller.servlets.payservice.MyAccountOutgoingServlet" level="TRACE" additivity="true">
             <AppenderRef ref="RollingFile"/>
         </Logger>
         <Logger name="com.epam.upskillproject.controller.servlets.UserProfileServlet" level="TRACE" additivity="true">
