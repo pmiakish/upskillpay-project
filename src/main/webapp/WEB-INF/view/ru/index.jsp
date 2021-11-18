@@ -86,7 +86,7 @@
                                                 <input type="password" class="form-control" id="confirmPassword" name="cPass" />
                                             </div>
                                             <div class="col-md-6">
-                                                <label for="inputFirstName" class="form-label">Имяя <sup>*</sup></label>
+                                                <label for="inputFirstName" class="form-label">Имя <sup>*</sup></label>
                                                 <input type="text" class="form-control" id="inputFirstName" name="firstName" required
                                                        pattern="[A-ZА-Я][\-A-Za-zА-Яа-я ]+" />
                                             </div>
