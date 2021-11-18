@@ -1,6 +1,6 @@
 package com.epam.upskillproject.model.dao.queryhandlers.sqlorder;
 
-import com.epam.upskillproject.model.service.sort.SortType;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.SortType;
 
 public interface OrderStrategy {
     /**

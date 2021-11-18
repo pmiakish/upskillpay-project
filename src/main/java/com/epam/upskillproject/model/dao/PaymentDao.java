@@ -1,7 +1,7 @@
 package com.epam.upskillproject.model.dao;
 
 import com.epam.upskillproject.model.dto.Transaction;
-import com.epam.upskillproject.model.service.sort.TransactionSortType;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.TransactionSortType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.SQLException;

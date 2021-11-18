@@ -4,7 +4,7 @@ import com.epam.upskillproject.controller.ParamReader;
 import com.epam.upskillproject.controller.LocaleDispatcher;
 import com.epam.upskillproject.model.dto.Account;
 import com.epam.upskillproject.model.dto.StatusType;
-import com.epam.upskillproject.model.service.sort.AccountSortType;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.AccountSortType;
 import com.epam.upskillproject.model.service.AdminService;
 import com.epam.upskillproject.model.dto.Page;
 import com.epam.upskillproject.view.tags.OperationType;

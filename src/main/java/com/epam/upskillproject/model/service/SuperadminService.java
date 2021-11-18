@@ -6,7 +6,7 @@ import com.epam.upskillproject.model.dao.queryhandlers.FinancialTransactionsPerf
 import com.epam.upskillproject.model.dao.IncomeDao;
 import com.epam.upskillproject.model.dao.PersonDao;
 import com.epam.upskillproject.model.dto.*;
-import com.epam.upskillproject.model.service.sort.PersonSortType;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PersonSortType;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import org.apache.logging.log4j.Level;

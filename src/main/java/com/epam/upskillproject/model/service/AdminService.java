@@ -2,10 +2,10 @@ package com.epam.upskillproject.model.service;
 
 import com.epam.upskillproject.model.dao.*;
 import com.epam.upskillproject.model.dto.*;
-import com.epam.upskillproject.model.service.sort.AccountSortType;
-import com.epam.upskillproject.model.service.sort.CardSortType;
-import com.epam.upskillproject.model.service.sort.PersonSortType;
-import com.epam.upskillproject.model.service.sort.TransactionSortType;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.AccountSortType;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.CardSortType;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PersonSortType;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.TransactionSortType;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import org.apache.logging.log4j.Level;

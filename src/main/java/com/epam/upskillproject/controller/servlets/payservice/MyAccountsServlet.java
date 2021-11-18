@@ -9,7 +9,7 @@ import com.epam.upskillproject.model.dto.Account;
 import com.epam.upskillproject.model.dto.Page;
 import com.epam.upskillproject.model.dto.Person;
 import com.epam.upskillproject.model.service.CustomerService;
-import com.epam.upskillproject.model.service.sort.AccountSortType;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.AccountSortType;
 import com.epam.upskillproject.view.tags.OperationType;
 import jakarta.ejb.EJBException;
 import jakarta.inject.Inject;

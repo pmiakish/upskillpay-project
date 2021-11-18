@@ -7,7 +7,7 @@ import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.OrderStrategy;
 import com.epam.upskillproject.model.dto.Card;
 import com.epam.upskillproject.model.dto.CardNetworkType;
 import com.epam.upskillproject.model.dto.StatusType;
-import com.epam.upskillproject.model.service.sort.CardSortType;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.CardSortType;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;

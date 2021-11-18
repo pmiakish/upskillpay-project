@@ -5,7 +5,7 @@ import com.epam.upskillproject.controller.ParamReader;
 import com.epam.upskillproject.model.dto.Card;
 import com.epam.upskillproject.model.dto.StatusType;
 import com.epam.upskillproject.model.service.AdminService;
-import com.epam.upskillproject.model.service.sort.CardSortType;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.CardSortType;
 import com.epam.upskillproject.model.dto.Page;
 import com.epam.upskillproject.view.tags.OperationType;
 import jakarta.inject.Inject;

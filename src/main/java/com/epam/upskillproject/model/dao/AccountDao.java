@@ -3,7 +3,7 @@ package com.epam.upskillproject.model.dao;
 import com.epam.upskillproject.exceptions.PaymentParamException;
 import com.epam.upskillproject.model.dto.Account;
 import com.epam.upskillproject.model.dto.StatusType;
-import com.epam.upskillproject.model.service.sort.AccountSortType;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.AccountSortType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Connection;

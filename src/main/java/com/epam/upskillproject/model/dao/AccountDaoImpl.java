@@ -6,7 +6,7 @@ import com.epam.upskillproject.model.dao.queryhandlers.constructors.AccountQuery
 import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.OrderStrategy;
 import com.epam.upskillproject.model.dto.Account;
 import com.epam.upskillproject.model.dto.StatusType;
-import com.epam.upskillproject.model.service.sort.AccountSortType;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.AccountSortType;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;

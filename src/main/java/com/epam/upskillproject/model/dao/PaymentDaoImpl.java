@@ -4,7 +4,7 @@ import com.epam.upskillproject.model.dao.queryhandlers.QueryExecutor;
 import com.epam.upskillproject.model.dao.queryhandlers.constructors.PaymentQueryConstructor;
 import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.OrderStrategy;
 import com.epam.upskillproject.model.dto.Transaction;
-import com.epam.upskillproject.model.service.sort.TransactionSortType;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.TransactionSortType;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
