@@ -8,7 +8,7 @@ import org.apache.commons.dbcp2.BasicDataSource;
 public class DataSourceAdapter extends BasicDataSource {
 
     // JDBC driver name and database URL
-    static final String JDBC_DRIVER = "org.hsqldb.jdbc.JDBCDriver";
+    private static final String JDBC_DRIVER = "org.hsqldb.jdbc.JDBCDriver";
     private static final String DB_URL = "jdbc:hsqldb:mem:projectDb";
 
     //  Database credentials

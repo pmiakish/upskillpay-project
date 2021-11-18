@@ -3,7 +3,7 @@ package com.epam.upskillproject.model.dao;
 import com.epam.upskillproject.model.dto.PermissionType;
 import com.epam.upskillproject.model.dto.Person;
 import com.epam.upskillproject.model.dto.StatusType;
-import com.epam.upskillproject.model.service.sort.PersonSortType;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PersonSortType;
 import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.SQLException;

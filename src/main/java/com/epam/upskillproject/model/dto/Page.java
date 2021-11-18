@@ -1,6 +1,6 @@
 package com.epam.upskillproject.model.dto;
 
-import com.epam.upskillproject.model.service.sort.SortType;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.SortType;
 import java.util.List;
 
 public class Page<T> {

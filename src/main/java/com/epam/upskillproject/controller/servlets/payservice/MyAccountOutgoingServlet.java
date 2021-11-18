@@ -4,7 +4,7 @@ import com.epam.upskillproject.controller.LocaleDispatcher;
 import com.epam.upskillproject.controller.ParamReader;
 import com.epam.upskillproject.model.dto.Account;
 import com.epam.upskillproject.model.service.CustomerService;
-import com.epam.upskillproject.model.service.sort.TransactionSortType;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.TransactionSortType;
 import jakarta.inject.Inject;
 import jakarta.security.enterprise.SecurityContext;
 import jakarta.servlet.RequestDispatcher;

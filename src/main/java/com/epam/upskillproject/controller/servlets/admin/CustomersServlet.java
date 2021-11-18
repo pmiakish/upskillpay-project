@@ -3,7 +3,7 @@ package com.epam.upskillproject.controller.servlets.admin;
 import com.epam.upskillproject.controller.LocaleDispatcher;
 import com.epam.upskillproject.controller.ParamReader;
 import com.epam.upskillproject.model.service.AdminService;
-import com.epam.upskillproject.model.service.sort.PersonSortType;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PersonSortType;
 import jakarta.inject.Inject;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
