@@ -1,16 +1,16 @@
 # UpSkillPay - payment service
 
-> UpSkill Lab Java training web-project by P. Miakish
+> UpSkill Lab Java training web project by P. Miakish
 
 ---
 
 ## General information
 
-The web-application implements a payment system with the assignment of user roles. The system allows customers to make payments and other actions with their accounts and related cards, and allows administrators to manage customers.
+The web application implements a payment system with the assignment of user roles. The system allows customers to make payments and other actions with their accounts and related cards, and allows administrators to manage customers.
 
 ## Project architecture
 
-The project is a Java web-application based on the *MVC-pattern* and built using *Apache Maven* tools. 
+The project is a Java web application based on the *MVC-pattern* and is built using *Apache Maven* tools. 
 The application is developed on the *Jakarta EE* platform (v.9.1.0), implements CDI, Servlet and JSP technologies.
 
 ### Data storage
@@ -23,7 +23,7 @@ The application is developed on the *Jakarta EE* platform (v.9.1.0), implements 
 
 ### Access security
 
-- The web-application uses the *Jakarta Security API* (form based HTTP authentication mechanism) for authentication and authorization 
+- The web application uses the *Jakarta Security API* (form-based HTTP authentication mechanism) for authentication and authorization 
 
 ### Content view
 
@@ -44,7 +44,7 @@ The application interface is internationalized and includes English and Russian 
 
 All users are divided into three *roles*: customers, admins and superadmins. There are different permissions for each of these roles.
 
-For each type of users, it is possible to log in and log out, edit the own profile. There is also a possibility to register for new customers. 
+For each type of users, it is possible to log in and log out, edit their own profile. There is also a possibility to register for new customers. 
 
 ### Customer's interface
 
@@ -56,4 +56,4 @@ The admin's interface provides the ability to view and edit customer's profiles,
 
 ### Superadmin's interface
 
-Superadmins have all the admin's permissions. In additional, superadmins can manage admins' profiles, get system balance information and perform delete operations (with profiles, accounts and cards).
+Superadmins have all the admin's permissions. In addition, superadmins can manage admins' profiles, get system balance information and perform delete operations (with profiles, accounts and cards).
