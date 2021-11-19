@@ -43,6 +43,7 @@ public class UserProfileServlet extends HttpServlet {
     private static final String LAST_NAME_PARAM = "lastName";
     private static final String PASSWORD_PARAM = "pass";
     private static final String OPERATION_NAME_ATTR = "opName";
+    private static final String USER_ATTR = "user";
     private static final String OPERATION_STATUS_ATTR = "opStat";
     private static final String ERROR_MESSAGE_ATTR = "errMsg";
     private static final String DEFAULT_VIEW = "/WEB-INF/view/en/profile.jsp";
@@ -92,6 +93,7 @@ public class UserProfileServlet extends HttpServlet {
                 );
                 req.setAttribute(OPERATION_NAME_ATTR, OperationType.UPDATE.name());
                 req.setAttribute(OPERATION_STATUS_ATTR, updated);
+                req.setAttribute(USER_ATTR, systemService.getPerson(principal.getName()));
                 resp.setStatus((updated) ? HttpServletResponse.SC_OK : HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 view.forward(req, resp);
             } catch (SQLException e) {

@@ -103,6 +103,8 @@ public class CustomerAccountsServlet extends HttpServlet {
                 boolean updated = adminService.updateAccountStatus(id.get(),
                         (currentStatus.get() == StatusType.ACTIVE) ? StatusType.BLOCKED : StatusType.ACTIVE);
                 req.setAttribute(OPERATION_STATUS_ATTR, updated);
+                putViewObjectsToRequest(req, resp);
+                view.forward(req, resp);
             // Change card status
             } else if (target.isPresent() && target.get().equals(CARD_STATUS_TARGET) && id.isPresent() &&
                     currentStatus.isPresent()) {
@@ -119,22 +121,30 @@ public class CustomerAccountsServlet extends HttpServlet {
                     updated = adminService.updateCardStatus(id.get(), StatusType.BLOCKED);
                 }
                 req.setAttribute(OPERATION_STATUS_ATTR, updated);
+                putViewObjectsToRequest(req, resp);
+                view.forward(req, resp);
             // Delete account
             } else if (target.isPresent() && target.get().equals(ACCOUNT_DEL_TARGET) && id.isPresent()) {
                 if (!securityContext.isCallerInRole(PermissionType.SUPERADMIN.getType())) {
                     logger.log(Level.WARN, String.format("Forbidden: principal %s tries to delete account id %s",
                             securityContext.getCallerPrincipal().getName(), id.get()));
                     resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Only superadmins have delete permission");
+                } else {
+                    req.setAttribute(OPERATION_NAME_ATTR, OperationType.DELETE);
+                    req.setAttribute(OPERATION_STATUS_ATTR, superadminService.deleteAccount(id.get()));
+                    putViewObjectsToRequest(req, resp);
+                    view.forward(req, resp);
                 }
-                req.setAttribute(OPERATION_NAME_ATTR, OperationType.DELETE);
-                req.setAttribute(OPERATION_STATUS_ATTR, superadminService.deleteAccount(id.get()));
             // Delete card
             } else if (target.isPresent() && target.get().equals(CARD_DEL_TARGET) && id.isPresent()) {
                 if (!securityContext.isCallerInRole(PermissionType.SUPERADMIN.getType())) {
                     resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Only superadmins have delete permission");
+                } else {
+                    req.setAttribute(OPERATION_NAME_ATTR, OperationType.DELETE);
+                    req.setAttribute(OPERATION_STATUS_ATTR, superadminService.deleteCard(id.get()));
+                    putViewObjectsToRequest(req, resp);
+                    view.forward(req, resp);
                 }
-                req.setAttribute(OPERATION_NAME_ATTR, OperationType.DELETE);
-                req.setAttribute(OPERATION_STATUS_ATTR, superadminService.deleteCard(id.get()));
             } else {
                 logger.log(Level.WARN, String.format("Cannot perform operation: incorrect parameters passed " +
                                 "(target: %s, id: %s)", target.orElse(null), id.orElse(null)));
@@ -147,8 +157,6 @@ public class CustomerAccountsServlet extends HttpServlet {
             sendOperationError(req, resp, view, OperationType.DEFAULT, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                     String.format("Exception thrown during operation (%s). ", e.getMessage()));
         }
-        putViewObjectsToRequest(req, resp);
-        view.forward(req, resp);
     }
 
     private void buildErrorMessage(HttpServletRequest req, String message) {

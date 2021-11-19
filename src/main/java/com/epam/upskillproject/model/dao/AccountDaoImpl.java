@@ -156,7 +156,7 @@ public class AccountDaoImpl implements AccountDao {
     }
 
     @Override
-    public synchronized boolean updateAccountStatus(BigInteger id, StatusType statusType) throws SQLException {
+    public boolean updateAccountStatus(BigInteger id, StatusType statusType) throws SQLException {
         String rawQuery = queryConstructor.updateStatus();
         int result = queryExecutor.executeUpdate(rawQuery, statusType, id);
         Optional<StatusType> updatedStatusType = getAccountStatus(id);
@@ -233,8 +233,7 @@ public class AccountDaoImpl implements AccountDao {
     @Override
     public synchronized boolean deleteSingleAccountById(Connection conn, BigInteger id) throws SQLException {
         String rawQuery = queryConstructor.delSingleById();
-        int result = queryExecutor.executeUpdate(conn, rawQuery, id);
-        return (result != 0);
+        return (queryExecutor.executeUpdate(conn, rawQuery, id) != 0);
     }
 
     // should use the method as a transaction part after removing all the cards associated with the account
@@ -242,16 +241,14 @@ public class AccountDaoImpl implements AccountDao {
     public synchronized boolean deleteSingleAccountByIdAndOwner(Connection conn, BigInteger accountId, BigInteger ownerId)
             throws SQLException {
         String rawQuery = queryConstructor.delSingleByIdAndOwner();
-        int result = queryExecutor.executeUpdate(conn, rawQuery, accountId, ownerId);
-        return (result != 0);
+        return (queryExecutor.executeUpdate(conn, rawQuery, accountId, ownerId) != 0);
     }
 
     // should use the method as a transaction part after removing all the cards associated with the owner
     @Override
     public synchronized boolean deleteAccountsByOwner(Connection conn, BigInteger id) throws SQLException {
         String rawQuery = queryConstructor.delByOwner();
-        int result = queryExecutor.executeUpdate(conn, rawQuery, id);
-        return (result != 0);
+        return (queryExecutor.executeUpdate(conn, rawQuery, id) != 0);
     }
 
     private Account buildInstance(ResultSet rs) throws SQLException {

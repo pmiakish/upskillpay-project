@@ -149,6 +149,7 @@
                                         <button type="submit" class="btn btn-outline-danger">БЛОКИРОВАТЬ</button>
                                     </form>
                             </c:if>
+                            <c:if test="${user != null && user.permission == 'SUPERADMIN'}">
                                 <form style="display: inline;" method="POST"
                                       action="${requestScope['jakarta.servlet.forward.request_uri']}"
                                       onsubmit="return confirm('Вы уверены? Действие не может быть отменено!');">
@@ -156,6 +157,7 @@
                                     <input type="hidden" name="id" value="${account.id}" />
                                     <button type="submit" class="btn btn-danger">УДАЛИТЬ</button>
                                 </form>
+                            </c:if>
                             </td>
                         </tr>
                     </c:forEach>
@@ -203,6 +205,7 @@
                                         <button type="submit" class="btn btn-outline-danger">БЛОКИРОВАТЬ</button>
                                     </form>
                             </c:if>
+                            <c:if test="${user != null && user.permission == 'SUPERADMIN'}">
                                 <form style="display: inline;" method="POST"
                                       action="${requestScope['jakarta.servlet.forward.request_uri']}"
                                       onsubmit="return confirm('Вы уверены? Действие не может быть отменено!');">
@@ -210,6 +213,7 @@
                                     <input type="hidden" name="id" value="${card.id}" />
                                     <button type="submit" class="btn btn-danger">УДАЛИТЬ</button>
                                 </form>
+                            </c:if>
                             </td>
                         </tr>
                     </c:forEach>

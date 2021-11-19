@@ -42,16 +42,5 @@
             </p>
         </div>
         <br /><br />
-        <div class="container" style="background-color: rgba(232, 232, 232, 0.3);">
-            <br />
-            <p class="text-center">
-                <a href="/lang?locale=ru&uri=${requestScope['jakarta.servlet.forward.request_uri']}"
-                   class="pe-none" tabindex="-1" aria-disabled="true">Русский</a>
-                &nbsp;|&nbsp;
-                <a href="/lang?locale=en&uri=${requestScope['jakarta.servlet.forward.request_uri']}"
-                   title="English version">English</a>
-            </p>
-            <br />
-        </div>
     </body>
 </html>

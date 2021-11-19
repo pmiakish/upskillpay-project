@@ -221,7 +221,7 @@ public class CustomerService {
      * @return true if an account was blocked, otherwise false
      * @throws SQLException
      */
-    public boolean blockUserAccount(Principal principal, BigInteger accountId) throws SQLException {
+    public synchronized boolean blockUserAccount(Principal principal, BigInteger accountId) throws SQLException {
         if (!checkParams(principal, accountId)) {
             logger.log(Level.WARN, String.format("Cannot block user's account (invalid principal or account id: %s)",
                     accountId));
@@ -284,8 +284,8 @@ public class CustomerService {
      * @throws AccountLimitException if expected that the specified top up limit will be reached as an operation result
      * @throws PaymentParamException if invalid payment parameters passed
      */
-    public boolean topUpAccount(Principal principal, BigInteger accountId, BigDecimal amount) throws SQLException,
-            AccountLimitException, PaymentParamException, TransactionException {
+    public synchronized boolean topUpAccount(Principal principal, BigInteger accountId, BigDecimal amount) throws
+            SQLException, AccountLimitException, PaymentParamException, TransactionException {
         if (!checkParams(principal, accountId, amount)) {
             logger.log(Level.WARN, String.format("Cannot top up account: incorrect payment parameters (principal " +
                     "name: %s, accountId: %s, amount: %s)", principal.getName(), accountId, amount));
@@ -322,7 +322,7 @@ public class CustomerService {
      * @throws SQLException
      * @throws AccountLimitException if the maximum number of customer's accounts exceeded
      */
-    public boolean addUserAccount(Principal principal) throws SQLException, AccountLimitException {
+    public synchronized boolean addUserAccount(Principal principal) throws SQLException, AccountLimitException {
         if (!checkParams(principal)) {
             logger.log(Level.WARN, "Cannot add user's account (invalid principal)");
             return false;
@@ -352,7 +352,7 @@ public class CustomerService {
      * @return true if a user's account was deleted or false in other cases
      * @throws SQLException
      */
-    public boolean deleteUserAccount(Principal principal, BigInteger accountId) throws SQLException,
+    public synchronized boolean deleteUserAccount(Principal principal, BigInteger accountId) throws SQLException,
             TransactionException {
         if (!checkParams(principal, accountId)) {
             logger.log(Level.WARN, String.format("Cannot delete a user's account: incorrect parameters (principal " +
@@ -379,8 +379,8 @@ public class CustomerService {
      * @throws SQLException
      * @throws AccountLimitException if the maximum account cards number exceeded
      */
-    public String addUserCard(Principal principal, BigInteger accountId, CardNetworkType cardNetworkType) throws
-            SQLException, AccountLimitException, TransactionException {
+    public synchronized String addUserCard(Principal principal, BigInteger accountId, CardNetworkType cardNetworkType)
+            throws SQLException, AccountLimitException, TransactionException {
         if (!checkParams(principal, accountId, cardNetworkType)) {
             logger.log(Level.WARN, "Cannot add user's card (incorrect parameters)");
             return "";
@@ -411,7 +411,7 @@ public class CustomerService {
      * @return true if a user's card was deleted or false in other cases
      * @throws SQLException
      */
-    public boolean deleteUserCard(Principal principal, BigInteger cardId) throws SQLException {
+    public synchronized boolean deleteUserCard(Principal principal, BigInteger cardId) throws SQLException {
         if (!checkParams(principal, cardId)) {
             logger.log(Level.WARN, String.format("Cannot delete a user's card: incorrect parameters (principal " +
                     "name: %s, card id: %s)", principal.getName(), cardId));
@@ -440,8 +440,9 @@ public class CustomerService {
      * @throws PaymentParamException if invalid payment parameters passed
      * @throws TransactionException exception might be thrown by FinancialTransactionsPerformer instance
      */
-    public void performPayment(Principal principal, BigInteger payerCardId, String cvc, BigInteger receiverAccountId,
-                               BigDecimal amount) throws SQLException, PaymentParamException, TransactionException {
+    public synchronized void performPayment(Principal principal, BigInteger payerCardId, String cvc,
+                                            BigInteger receiverAccountId, BigDecimal amount)
+            throws SQLException, PaymentParamException, TransactionException {
         if (!checkParams(principal, payerCardId, receiverAccountId, amount)) {
             logger.log(Level.WARN, String.format("Cannot perform payment: incorrect parameters (principal " +
                     "name: %s, payer's card id: %s, receiver's account id: %s, amount: %s)", principal.getName(),

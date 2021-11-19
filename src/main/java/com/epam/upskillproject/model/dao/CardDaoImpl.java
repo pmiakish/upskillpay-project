@@ -179,7 +179,7 @@ public class CardDaoImpl implements CardDao {
     }
 
     @Override
-    public synchronized boolean updateCardStatus(BigInteger id, StatusType statusType) throws SQLException {
+    public boolean updateCardStatus(BigInteger id, StatusType statusType) throws SQLException {
         String rawQuery = queryConstructor.updateStatus();
         int result = queryExecutor.executeUpdate(rawQuery, statusType, id);
         Optional<StatusType> updatedStatusType = getCardStatus(id);

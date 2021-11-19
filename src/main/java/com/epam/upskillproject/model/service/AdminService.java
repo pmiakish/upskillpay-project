@@ -209,7 +209,7 @@ public class AdminService {
      * @return true if the specified account record was changed or false in other cases
      * @throws SQLException
      */
-    public boolean updateAccountStatus(BigInteger id, StatusType statusType) throws SQLException {
+    public synchronized boolean updateAccountStatus(BigInteger id, StatusType statusType) throws SQLException {
         if (!checkParams(id, statusType)) {
             logger.log(Level.WARN, "Cannot update account status (invalid parameters passed)");
             return false;
@@ -295,7 +295,7 @@ public class AdminService {
      * @return true if the specified card record was changed or false in other cases
      * @throws SQLException
      */
-    public boolean updateCardStatus(BigInteger id, StatusType statusType) throws SQLException {
+    public synchronized boolean updateCardStatus(BigInteger id, StatusType statusType) throws SQLException {
         if (!checkParams(id, statusType)) {
             logger.log(Level.WARN, "Cannot update card status (invalid parameters passed)");
             return false;

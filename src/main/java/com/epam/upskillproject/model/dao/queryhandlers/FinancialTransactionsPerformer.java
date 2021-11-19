@@ -160,7 +160,7 @@ public class FinancialTransactionsPerformer {
         return cvc;
     }
 
-    public synchronized boolean deletePerson(BigInteger id) throws TransactionException {
+    public synchronized void deletePerson(BigInteger id) throws TransactionException {
         if (id != null) {
             Connection conn = startTransaction();
             logger.log(Level.TRACE, String.format("Person delete transaction started (id: %s)", id));
@@ -176,6 +176,7 @@ public class FinancialTransactionsPerformer {
                     for (Account acc : accounts) {
                         cardDao.deleteCardsByAccount(conn, acc.getId());
                         if (acc.getBalance().compareTo(BigDecimal.ZERO) > 0) {
+                            accountDao.updateAccountStatus(acc.getId(), StatusType.ACTIVE);
                             makePayment(acc.getBalance(), acc.getId(), SYSTEM_INCOME_ID);
                         }
                         accountDao.deleteSingleAccountById(conn, acc.getId());
@@ -184,7 +185,6 @@ public class FinancialTransactionsPerformer {
                     logger.log(Level.TRACE, String.format("Person delete transaction successfully finished (id: %s)",
                             id));
                     endTransaction(conn, true, null);
-                    return personDao.getSinglePersonById(id).isEmpty();
                 } catch (SQLException e) {
                     logger.log(Level.WARN, String.format("Cannot perform person delete transaction: an exception was " +
                             "thrown during execution (id: %s)", id), e);
@@ -202,7 +202,6 @@ public class FinancialTransactionsPerformer {
             throw new TransactionException(TransactionExceptionType.BAD_PARAM, HttpServletResponse.SC_BAD_REQUEST,
                     "Incorrect person's id");
         }
-        return false;
     }
 
     public synchronized boolean deleteAccount(BigInteger id) throws TransactionException {

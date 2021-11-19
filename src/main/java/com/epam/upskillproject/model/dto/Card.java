@@ -80,7 +80,6 @@ public class Card {
                 ", ownerId=" + ownerId +
                 ", accountId=" + accountId +
                 ", network=" + network +
-                ", cvc='" + cvc + '\'' +
                 ", status=" + status +
                 ", expDate=" + expDate +
                 '}';
