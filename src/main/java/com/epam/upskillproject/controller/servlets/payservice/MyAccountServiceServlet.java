@@ -115,13 +115,14 @@ public class MyAccountServiceServlet extends HttpServlet {
                     req.setAttribute(OPERATION_STATUS_ATTR, customerService.blockUserCard(principal, id.get()));
                 // Add card
                 } else if (target.isPresent() && target.get().equals(ADD_CARD_TARGET) && cardNet.isPresent()) {
-                    req.setAttribute(OPERATION_NAME_ATTR, OperationType.UPDATE);
+                    req.setAttribute(OPERATION_NAME_ATTR, OperationType.CREATE);
                     String cvc = customerService.addUserCard(principal, getIdFromRequestUri(req), cardNet.get());
                     if (cvc.length() > 0) {
                         req.setAttribute(OPERATION_STATUS_ATTR, true);
                         req.setAttribute(CREATED_CVC_ATTR, cvc);
+                        resp.setStatus(HttpServletResponse.SC_CREATED);
                     } else {
-                        sendOperationError(req, resp, view, OperationType.UPDATE, principal,
+                        sendOperationError(req, resp, view, OperationType.CREATE, principal,
                                 HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Card issue failed");
                     }
                 // Delete account

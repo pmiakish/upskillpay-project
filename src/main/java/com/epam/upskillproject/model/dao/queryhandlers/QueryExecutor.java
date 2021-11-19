@@ -65,7 +65,7 @@ public class QueryExecutor {
      * @return the row count for SQL statements or 0 for SQL statements that return nothing
      * @throws SQLException
      */
-    public int executeUpdate(String query, Object... params) throws SQLException {
+    public synchronized int executeUpdate(String query, Object... params) throws SQLException {
         if (checkParams(query) && checkParams(params)) {
             try (Connection conn = dataSource.getConnection()) {
                 try (PreparedStatement statement = conn.prepareStatement(query)) {
@@ -86,7 +86,7 @@ public class QueryExecutor {
      * @return the row count for SQL statements or 0 for SQL statements that return nothing
      * @throws SQLException
      */
-    public int executeUpdate(Connection conn, String query, Object... params) throws SQLException {
+    public synchronized int executeUpdate(Connection conn, String query, Object... params) throws SQLException {
         if (checkParams(conn, query) && checkParams(params)) {
             try (PreparedStatement statement = conn.prepareStatement(query)) {
                 putParams(statement, params);

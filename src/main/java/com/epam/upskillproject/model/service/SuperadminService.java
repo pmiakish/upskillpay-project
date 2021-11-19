@@ -145,7 +145,12 @@ public class SuperadminService {
             logger.log(Level.WARN, String.format("Cannot delete person (bad id parameter passed: %s)", id));
             return false;
         }
-        return financialTransactionsPerformer.deletePerson(id);
+        financialTransactionsPerformer.deletePerson(id);
+        try {
+            return personDao.getSinglePersonById(id).isEmpty();
+        } catch (SQLException e) {
+            return false;
+        }
     }
 
     /**

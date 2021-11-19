@@ -129,7 +129,7 @@ public class CustomerProfileServlet extends HttpServlet {
                     boolean deleted = superadminService.deletePerson(id.get());
                     req.setAttribute(OPERATION_NAME_ATTR, OperationType.DELETE.name());
                     req.setAttribute(OPERATION_STATUS_ATTR, deleted);
-                    resp.setStatus((deleted) ? HttpServletResponse.SC_NO_CONTENT :
+                    resp.setStatus((deleted) ? HttpServletResponse.SC_OK :
                             HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                     putCustomerToRequest(req, id.get());
                     view.forward(req, resp);
@@ -147,53 +147,53 @@ public class CustomerProfileServlet extends HttpServlet {
                 sendOperationError(req, resp, view, OperationType.DELETE, HttpServletResponse.SC_BAD_REQUEST,
                         "Incorrect or missing admin's ID. ");
             }
-        }
-
-        // Update customer
-        if (id.isEmpty() || id.get().compareTo(BigInteger.ZERO) <= 0) {
-            logger.log(Level.WARN, String.format("Cannot update customer (bad id parameter) [id: %s]",
-                    id.orElse(null)));
-            sendOperationError(req, resp, view, OperationType.UPDATE, HttpServletResponse.SC_BAD_REQUEST,
-                    "Incorrect or missing customer's ID. ");
         } else {
-            boolean result = false;
-            try {
-                Person controlCustomerInstance = adminService.getCustomer(id.get());
-                req.setAttribute(CUSTOMER_ATTR, controlCustomerInstance);
-                if (controlCustomerInstance == null || customerHash.isEmpty() ||
-                        !customerHash.get().equals(controlCustomerInstance.getHash())) {
-                    logger.log(Level.WARN, String.format("Cannot update customer (person's hash was changed) [id: %s]",
-                            id.get()));
-                    sendOperationError(req, resp, view, OperationType.UPDATE, HttpServletResponse.SC_CONFLICT,
-                            "Uncommitted changes were found. ");
-                } else {
-                    result = adminService.updateCustomer(
-                            paramReader.readBigInteger(req, ID_PARAM).orElseThrow(InvalidParameterException::new),
-                            (req.isUserInRole(PermissionType.SUPERADMIN.getType())) ?
-                                    paramReader.readPermissionType(req, PERMISSION_PARAM).orElse(null) : null,
-                            paramReader.readString(req, EMAIL_PARAM).orElseThrow(InvalidParameterException::new),
-                            paramReader.readString(req, PASSWORD_PARAM).isPresent() ?
-                                    passwordHash.generate(paramReader.readString(req, PASSWORD_PARAM).get().toCharArray()) : null,
-                            paramReader.readString(req, FIRST_NAME_PARAM).orElseThrow(InvalidParameterException::new),
-                            paramReader.readString(req, LAST_NAME_PARAM).orElseThrow(InvalidParameterException::new),
-                            (STATUS_ACTIVE_VALUE.equals(paramReader.readString(req, STATUS_ACTIVE_PARAM).orElse(""))) ?
-                                    StatusType.ACTIVE : StatusType.BLOCKED,
-                            paramReader.readLocalDate(req, REG_DATE_PARAM).orElseThrow(InvalidParameterException::new)
-                    );
-                    req.setAttribute(OPERATION_NAME_ATTR, OperationType.UPDATE.name());
-                    req.setAttribute(OPERATION_STATUS_ATTR, result);
-                    resp.setStatus((result) ? HttpServletResponse.SC_OK : HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                    putCustomerToRequest(req, id.get());
-                    view.forward(req, resp);
-                }
-            } catch (SQLException e) {
-                logger.log(Level.ERROR, String.format("Exception thrown during customer update operation (id: %s)", id), e);
-                sendOperationError(req, resp, view, OperationType.UPDATE, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                        String.format("Exception thrown during operation (%s). ", e.getMessage()));
-            } catch (InvalidParameterException e) {
-                logger.log(Level.WARN, String.format("Cannot update customer (bad parameters passed) [id: %s]", id), e);
+            // Update customer
+            if (id.isEmpty() || id.get().compareTo(BigInteger.ZERO) <= 0) {
+                logger.log(Level.WARN, String.format("Cannot update customer (bad id parameter) [id: %s]",
+                        id.orElse(null)));
                 sendOperationError(req, resp, view, OperationType.UPDATE, HttpServletResponse.SC_BAD_REQUEST,
-                        "Bad parameters passed. ");
+                        "Incorrect or missing customer's ID. ");
+            } else {
+                boolean result = false;
+                try {
+                    Person controlCustomerInstance = adminService.getCustomer(id.get());
+                    req.setAttribute(CUSTOMER_ATTR, controlCustomerInstance);
+                    if (controlCustomerInstance == null || customerHash.isEmpty() ||
+                            !customerHash.get().equals(controlCustomerInstance.getHash())) {
+                        logger.log(Level.WARN, String.format("Cannot update customer (person's hash was changed) [id: %s]",
+                                id.get()));
+                        sendOperationError(req, resp, view, OperationType.UPDATE, HttpServletResponse.SC_CONFLICT,
+                                "Uncommitted changes were found. ");
+                    } else {
+                        result = adminService.updateCustomer(
+                                paramReader.readBigInteger(req, ID_PARAM).orElseThrow(InvalidParameterException::new),
+                                (req.isUserInRole(PermissionType.SUPERADMIN.getType())) ?
+                                        paramReader.readPermissionType(req, PERMISSION_PARAM).orElse(null) : null,
+                                paramReader.readString(req, EMAIL_PARAM).orElseThrow(InvalidParameterException::new),
+                                paramReader.readString(req, PASSWORD_PARAM).isPresent() ?
+                                        passwordHash.generate(paramReader.readString(req, PASSWORD_PARAM).get().toCharArray()) : null,
+                                paramReader.readString(req, FIRST_NAME_PARAM).orElseThrow(InvalidParameterException::new),
+                                paramReader.readString(req, LAST_NAME_PARAM).orElseThrow(InvalidParameterException::new),
+                                (STATUS_ACTIVE_VALUE.equals(paramReader.readString(req, STATUS_ACTIVE_PARAM).orElse(""))) ?
+                                        StatusType.ACTIVE : StatusType.BLOCKED,
+                                paramReader.readLocalDate(req, REG_DATE_PARAM).orElseThrow(InvalidParameterException::new)
+                        );
+                        req.setAttribute(OPERATION_NAME_ATTR, OperationType.UPDATE.name());
+                        req.setAttribute(OPERATION_STATUS_ATTR, result);
+                        resp.setStatus((result) ? HttpServletResponse.SC_OK : HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                        putCustomerToRequest(req, id.get());
+                        view.forward(req, resp);
+                    }
+                } catch (SQLException e) {
+                    logger.log(Level.ERROR, String.format("Exception thrown during customer update operation (id: %s)", id), e);
+                    sendOperationError(req, resp, view, OperationType.UPDATE, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                            String.format("Exception thrown during operation (%s). ", e.getMessage()));
+                } catch (InvalidParameterException e) {
+                    logger.log(Level.WARN, String.format("Cannot update customer (bad parameters passed) [id: %s]", id), e);
+                    sendOperationError(req, resp, view, OperationType.UPDATE, HttpServletResponse.SC_BAD_REQUEST,
+                            "Bad parameters passed. ");
+                }
             }
         }
     }

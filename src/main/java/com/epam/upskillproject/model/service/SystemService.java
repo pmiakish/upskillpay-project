@@ -61,8 +61,8 @@ public class SystemService {
      * @throws SQLException
      * @throws TransactionException exception might be thrown by FinancialTransactionsPerformer instance
      */
-    public boolean addCustomer(String email, String password, String firstName, String lastName) throws SQLException,
-            TransactionException {
+    public synchronized boolean addCustomer(String email, String password, String firstName, String lastName) throws
+            SQLException, TransactionException {
         if (!checkParams(email, password, firstName, lastName) || !email.matches(EMAIL_PATTERN)) {
             logger.log(Level.WARN, String.format("Cannot add new customer (invalid parameters) [email: %s]", email));
             return false;
@@ -130,9 +130,9 @@ public class SystemService {
      * @return true if a user's record was updated, otherwise false
      * @throws SQLException
      */
-    public boolean updateUser(String email, String newPassword, String newFirstName, String newLastName)
+    public synchronized boolean updateUser(String email, String newPassword, String newFirstName, String newLastName)
             throws SQLException {
-        if (!checkParams(email, newPassword, newFirstName, newLastName) || !email.matches(EMAIL_PATTERN)) {
+        if (!checkParams(email, newFirstName, newLastName) || !email.matches(EMAIL_PATTERN)) {
             logger.log(Level.WARN, String.format("Cannot update user's record (invalid parameters) [email: %s]",
                     email));
             return false;
