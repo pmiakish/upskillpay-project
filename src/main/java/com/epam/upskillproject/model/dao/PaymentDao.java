@@ -1,7 +1,7 @@
 package com.epam.upskillproject.model.dao;
 
-import com.epam.upskillproject.model.dto.Transaction;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.TransactionSortType;
+import com.epam.upskillproject.model.dto.Payment;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PaymentSortType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.SQLException;
@@ -9,13 +9,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PaymentDao {
-    Optional<Transaction> getSinglePaymentById(BigInteger id) throws SQLException;
-    List<Transaction> getAllPayments(TransactionSortType sortType) throws SQLException;
-    List<Transaction> getPaymentsPage(int limit, int offset, TransactionSortType sortType) throws SQLException;
-    List<Transaction> getPaymentsByPayer(BigInteger id, TransactionSortType sortType) throws SQLException;
-    List<Transaction> getPaymentsByPayerPage(BigInteger id, int limit, int offset, TransactionSortType sortType) throws SQLException;
-    List<Transaction> getPaymentsByReceiver(BigInteger id, TransactionSortType sortType) throws SQLException;
-    List<Transaction> getPaymentsByReceiverPage(BigInteger id, int limit, int offset, TransactionSortType sortType) throws SQLException;
+    Optional<Payment> getSinglePaymentById(BigInteger id) throws SQLException;
+    List<Payment> getAllPayments(PaymentSortType sortType) throws SQLException;
+    List<Payment> getPaymentsPage(int limit, int offset, PaymentSortType sortType) throws SQLException;
+    List<Payment> getPaymentsByPayer(BigInteger id, PaymentSortType sortType) throws SQLException;
+    List<Payment> getPaymentsByPayerPage(BigInteger id, int limit, int offset, PaymentSortType sortType) throws SQLException;
+    List<Payment> getPaymentsByReceiver(BigInteger id, PaymentSortType sortType) throws SQLException;
+    List<Payment> getPaymentsByReceiverPage(BigInteger id, int limit, int offset, PaymentSortType sortType) throws SQLException;
     int countPayments() throws SQLException;
     int countPaymentsByPayer(BigInteger id) throws SQLException;
     int countPaymentsByReceiver(BigInteger id) throws SQLException;

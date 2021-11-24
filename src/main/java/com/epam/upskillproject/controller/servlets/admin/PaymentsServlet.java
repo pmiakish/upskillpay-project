@@ -3,7 +3,7 @@ package com.epam.upskillproject.controller.servlets.admin;
 import com.epam.upskillproject.controller.LocaleDispatcher;
 import com.epam.upskillproject.controller.ParamReader;
 import com.epam.upskillproject.model.service.AdminService;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.TransactionSortType;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PaymentSortType;
 import jakarta.inject.Inject;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -48,7 +48,7 @@ public class PaymentsServlet extends HttpServlet {
         RequestDispatcher view = req.getRequestDispatcher(viewPath);
         int pageNumber = paramReader.readPageNumber(req);
         int pageSize = paramReader.readPageSize(req);
-        Optional<TransactionSortType> sortType = paramReader.readPaymentSort(req, SORT_PARAM);
+        Optional<PaymentSortType> sortType = paramReader.readPaymentSort(req, SORT_PARAM);
         try {
             req.setAttribute(FORMATTER_ATTR, DateTimeFormatter.ofPattern(DATE_TIME_PATTERN));
             req.setAttribute(PAGE_ATTR, adminService.getPayments(pageSize, pageNumber, sortType.orElse(null)));

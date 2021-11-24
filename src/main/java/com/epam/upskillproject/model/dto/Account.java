@@ -26,6 +26,15 @@ public class Account {
         this.hash = hashCode();
     }
 
+    public Account(BigInteger ownerId, BigDecimal balance, StatusType status) {
+        this.id = null;
+        this.ownerId = ownerId;
+        this.balance = balance.setScale(DEFAULT_SCALE, DEFAULT_ROUNDING_MODE);
+        this.status = status;
+        this.regDate = null;
+        this.hash = hashCode();
+    }
+
     public BigInteger getId() {
         return id;
     }
@@ -55,13 +64,16 @@ public class Account {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Account account = (Account) o;
-        return id.equals(account.id) && ownerId.equals(account.ownerId) && status == account.status &&
-                regDate.equals(account.regDate);
+        return Objects.equals(id, account.id) &&
+                Objects.equals(ownerId, account.ownerId) &&
+                Objects.equals(balance, account.balance) &&
+                status == account.status &&
+                Objects.equals(regDate, account.regDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, ownerId, status, regDate);
+        return Objects.hash(id, ownerId, balance, status, regDate);
     }
 
     @Override

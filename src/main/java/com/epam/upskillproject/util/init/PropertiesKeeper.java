@@ -1,9 +1,7 @@
-package com.epam.upskillproject.init;
+package com.epam.upskillproject.util.init;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.Singleton;
-import jakarta.ejb.Stateful;
-import jakarta.enterprise.inject.Default;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

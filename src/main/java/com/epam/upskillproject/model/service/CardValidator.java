@@ -1,6 +1,6 @@
 package com.epam.upskillproject.model.service;
 
-import com.epam.upskillproject.init.PropertiesKeeper;
+import com.epam.upskillproject.util.init.PropertiesKeeper;
 import com.epam.upskillproject.model.dto.Card;
 import com.epam.upskillproject.model.dto.StatusType;
 import jakarta.annotation.PostConstruct;

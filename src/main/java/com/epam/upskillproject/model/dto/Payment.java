@@ -6,7 +6,7 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class Transaction {
+public class Payment {
 
     private static final int DEFAULT_SCALE = 2;
     private static final RoundingMode DEFAULT_ROUNDING_MODE = RoundingMode.HALF_UP;
@@ -17,7 +17,7 @@ public class Transaction {
     private final BigInteger receiverId;
     private final LocalDateTime dateTime;
 
-    public Transaction(BigInteger id, BigDecimal amount, BigInteger payerId, BigInteger receiverId, LocalDateTime dateTime) {
+    public Payment(BigInteger id, BigDecimal amount, BigInteger payerId, BigInteger receiverId, LocalDateTime dateTime) {
         this.id = id;
         this.amount = amount.setScale(DEFAULT_SCALE, DEFAULT_ROUNDING_MODE);
         this.payerId = payerId;
@@ -49,9 +49,12 @@ public class Transaction {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Transaction that = (Transaction) o;
-        return id.equals(that.id) && amount.equals(that.amount) && payerId.equals(that.payerId) &&
-                receiverId.equals(that.receiverId) && dateTime.equals(that.dateTime);
+        Payment payment = (Payment) o;
+        return Objects.equals(id, payment.id) &&
+                Objects.equals(amount, payment.amount) &&
+                Objects.equals(payerId, payment.payerId) &&
+                Objects.equals(receiverId, payment.receiverId) &&
+                Objects.equals(dateTime, payment.dateTime);
     }
 
     @Override

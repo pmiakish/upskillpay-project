@@ -1,35 +1,35 @@
 package com.epam.upskillproject.model.dao.queryhandlers.sqlorder;
 
 import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.SortType;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.TransactionSortType;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PaymentSortType;
 import jakarta.ejb.Stateless;
 
 @Stateless
 public class PaymentOrderStrategy implements OrderStrategy {
 
-    private static final String DEFAULT_ORDER = TransactionSortType.ID_DESC.getSqlName();
+    private static final String DEFAULT_ORDER = PaymentSortType.ID_DESC.getSqlName();
 
     @Override
     public String getOrder(SortType sortType) {
-        if (sortType instanceof TransactionSortType) {
-            TransactionSortType transactionSortType = (TransactionSortType) sortType;
+        if (sortType instanceof PaymentSortType) {
+            PaymentSortType paymentSortType = (PaymentSortType) sortType;
             String order;
-            switch (transactionSortType) {
+            switch (paymentSortType) {
                 case ID:
                 case ID_DESC:
-                    order = transactionSortType.getSqlName();
+                    order = paymentSortType.getSqlName();
                     break;
                 case AMOUNT:
                 case PAYER:
                 case RECEIVER:
                 case DATE:
-                    order = transactionSortType.getSqlName() + ", " + TransactionSortType.ID.getSqlName();
+                    order = paymentSortType.getSqlName() + ", " + PaymentSortType.ID.getSqlName();
                     break;
                 case AMOUNT_DESC:
                 case PAYER_DESC:
                 case RECEIVER_DESC:
                 case DATE_DESC:
-                    order = transactionSortType.getSqlName() + ", " + TransactionSortType.ID_DESC.getSqlName();
+                    order = paymentSortType.getSqlName() + ", " + PaymentSortType.ID_DESC.getSqlName();
                     break;
                 default:
                     order = DEFAULT_ORDER;

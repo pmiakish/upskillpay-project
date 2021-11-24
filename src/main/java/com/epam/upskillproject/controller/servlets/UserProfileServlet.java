@@ -2,7 +2,7 @@ package com.epam.upskillproject.controller.servlets;
 
 import com.epam.upskillproject.controller.LocaleDispatcher;
 import com.epam.upskillproject.controller.ParamReader;
-import com.epam.upskillproject.init.PropertiesKeeper;
+import com.epam.upskillproject.util.init.PropertiesKeeper;
 import com.epam.upskillproject.model.service.SystemService;
 import com.epam.upskillproject.view.tags.OperationType;
 import jakarta.inject.Inject;

@@ -3,10 +3,9 @@ package com.epam.upskillproject.controller.servlets;
 import com.epam.upskillproject.controller.LocaleDispatcher;
 import com.epam.upskillproject.controller.ParamReader;
 import com.epam.upskillproject.exceptions.TransactionException;
-import com.epam.upskillproject.init.PropertiesKeeper;
+import com.epam.upskillproject.util.init.PropertiesKeeper;
 import com.epam.upskillproject.model.service.SystemService;
 import com.epam.upskillproject.view.tags.OperationType;
-import jakarta.ejb.EJBException;
 import jakarta.inject.Inject;
 import jakarta.security.enterprise.identitystore.Pbkdf2PasswordHash;
 import jakarta.servlet.RequestDispatcher;
@@ -82,20 +81,11 @@ public class SignupServlet extends HttpServlet {
             req.setAttribute(OPERATION_STATUS_ATTR, false);
             req.setAttribute(ERROR_MESSAGE_ATTR, "Cannot create profile (incorrect parameters passed)");
             logger.log(Level.WARN, "Cannot create account (bad parameters passed)", e);
-        } catch (EJBException e) {
-            Throwable cause = e;
-            while (cause instanceof EJBException) {
-                cause = cause.getCause();
-            }
-            if (cause instanceof TransactionException) {
-                logger.log(Level.WARN, "Cannot create account (transaction failed)", cause);
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                req.setAttribute(OPERATION_STATUS_ATTR, false);
-                req.setAttribute(ERROR_MESSAGE_ATTR, "Cannot create account (transaction failed)");
-            } else {
-                logger.log(Level.ERROR, "Cannot create account (unknown error)", cause);
-                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unknown error: " + cause.getMessage());
-            }
+        } catch (TransactionException e) {
+            logger.log(Level.WARN, "Cannot create account (transaction failed)", e);
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            req.setAttribute(OPERATION_STATUS_ATTR, false);
+            req.setAttribute(ERROR_MESSAGE_ATTR, "Cannot create account (transaction failed)");
         }
         view.forward(req, resp);
     }

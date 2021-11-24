@@ -75,25 +75,28 @@
                                                "Passwords do not match" : "")'>
                                             <div class="col-12">
                                                 <label for="inputEmail" class="form-label">Email <sup>*</sup></label>
-                                                <input type="email" class="form-control" id="inputEmail" name="email" required />
+                                                <input type="email" class="form-control" id="inputEmail" name="email" required
+                                                       minlength="6" maxlength="100"/>
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="inputPassword" class="form-label">Password <sup>*</sup></label>
-                                                <input type="password" class="form-control" id="inputPassword" name="pass" required />
+                                                <input type="password" class="form-control" id="inputPassword" name="pass" required
+                                                       minlength="3" maxlength="255"/>
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="confirmPassword" class="form-label">Confirm password <sup>*</sup></label>
-                                                <input type="password" class="form-control" id="confirmPassword" name="cPass" />
+                                                <input type="password" class="form-control" id="confirmPassword" name="cPass"
+                                                       minlength="3" maxlength="255"/>
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="inputFirstName" class="form-label">First Name <sup>*</sup></label>
                                                 <input type="text" class="form-control" id="inputFirstName" name="firstName" required
-                                                       pattern="[A-ZА-Я][\-A-Za-zА-Яа-я ]+" />
+                                                       pattern="[A-ZА-Я][\-A-Za-zА-Яа-я ]+" minlength="2" maxlength="30"/>
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="inputLastName" class="form-label">Last Name <sup>*</sup></label>
                                                 <input type="text" class="form-control" id="inputLastName" name="lastName" required
-                                                       pattern="[A-ZА-Я][\-A-Za-zА-Яа-я ]+" />
+                                                       pattern="[A-ZА-Я][\-A-Za-zА-Яа-я ]+" minlength="2" maxlength="30"/>
                                             </div>
                                             <div class="col-12">
                                                 <sup>*</sup> - mandatory fields

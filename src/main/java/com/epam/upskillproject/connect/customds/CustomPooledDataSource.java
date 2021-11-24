@@ -1,7 +1,7 @@
 package com.epam.upskillproject.connect.customds;
 
-import com.epam.upskillproject.init.PropertiesKeeper;
-import com.epam.upskillproject.model.dto.Card;
+import com.epam.upskillproject.exceptions.CustomSQLCode;
+import com.epam.upskillproject.util.init.PropertiesKeeper;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
@@ -15,6 +15,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Singleton(name = "customProjectDB")
 public class CustomPooledDataSource extends JDBCDataSource {
@@ -37,6 +38,8 @@ public class CustomPooledDataSource extends JDBCDataSource {
     private static final int DEFAULT_CP_REQUEST_TIMEOUT_VALUE = 5;
     private static final TimeUnit DEFAULT_CP_REQUEST_TIMEOUT_UNIT = TimeUnit.SECONDS;
     private static final int DEFAULT_CP_INACTIVITY_LIMIT_MS = 100000;
+
+    private static final String CONNECTION_FAILURE_SQLSTATE = "08001";
 
     private PropertiesKeeper propertiesKeeper;
 
@@ -148,7 +151,7 @@ public class CustomPooledDataSource extends JDBCDataSource {
     }
 
     @Override
-    public synchronized Connection getConnection() throws SQLException, IllegalStateException {
+    public synchronized Connection getConnection() throws SQLException {
         if (connectionPool == null || activeConnections == null) {
             throw new IllegalStateException("Connection pool is shut down");
         }
@@ -166,7 +169,8 @@ public class CustomPooledDataSource extends JDBCDataSource {
         } catch (InterruptedException e) {
             logger.log(Level.WARN, String.format("Cannot get connection from Connection pool, timeout: %s %s",
                     requestTimeoutValue, requestTimeoutUnit.name()), e);
-            throw new IllegalStateException("Cannot get connection: timeout reached");
+            throw new SQLException("Cannot get connection: connection pool exhausted", CONNECTION_FAILURE_SQLSTATE,
+                    CustomSQLCode.POOL_EXHAUSTED.getCode(), e);
         }
     }
 
@@ -196,7 +200,7 @@ public class CustomPooledDataSource extends JDBCDataSource {
     }
 
     private PoolConnection createConnection() throws SQLException {
-        return new PoolConnection(DriverManager.getConnection(url, user, password));
+        return new PoolConnection(DriverManager.getConnection(url, name, password));
     }
 
     private int totalConnections() {
@@ -204,29 +208,31 @@ public class CustomPooledDataSource extends JDBCDataSource {
     }
 
     private synchronized void releaseConnection(PoolConnection poolConnection) {
+        if (poolConnection == null) {
+            return;
+        }
         try {
             boolean added = false;
+            poolConnection.closeStatements();
             // in case if the connection comes from activeConnections
             if (activeConnections.remove(poolConnection)) {
-                if (poolConnection != null && poolConnection.isValid(VALIDATION_TIMEOUT_VALUE_SEC) &&
+                if (poolConnection.isValid(VALIDATION_TIMEOUT_VALUE_SEC) &&
                         connectionPool.size() < connectionPool.remainingCapacity()) {
                     poolConnection.setAutoCommit(true);
                     added = connectionPool.add(poolConnection);
-                } else if (poolConnection != null) {
+                } else {
                     poolConnection.shutdown();
-                    logger.log(Level.TRACE, "Connection from pool closed");
+                    logger.log(Level.TRACE, "Connection from pool closed (is invalid)");
                 }
             } else {
-                if (poolConnection != null && !poolConnection.isClosed()) {
-                    poolConnection.shutdown();
-                    logger.log(Level.INFO, "Unknown connection closed");
-                }
+                poolConnection.shutdown();
+                logger.log(Level.INFO, "Unknown connection closed");
             }
             if (added) {
                 logger.log(Level.TRACE, "Connection returned to connection pool");
             }
         } catch (SQLException e) {
-            logger.log(Level.WARN, "Cannot release connection", e);
+            logger.log(Level.WARN, "Connection was not released properly", e);
         }
         try {
             closeOldConnections();
@@ -258,9 +264,48 @@ public class CustomPooledDataSource extends JDBCDataSource {
     private class PoolConnection implements Connection {
         private Connection connection;
         private long lastUsageTimeStamp = System.currentTimeMillis();
+        private List<Statement> statements = new ArrayList<>();
+        private List<PreparedStatement> preparedStatements = new ArrayList<>();
+        private List<CallableStatement> callableStatements = new ArrayList<>();
 
-        public PoolConnection(Connection connection) {
+        private PoolConnection(Connection connection) {
             this.connection = connection;
+        }
+
+        private void closeStatements() {
+            for (Statement st : statements) {
+                try {
+                    if (st != null && !st.isClosed()) {
+                        st.close();
+                        statements.remove(st);
+                    }
+                } catch (SQLException e) {
+                    logger.log(Level.WARN, "Cannot close statement", e);
+                }
+                statements = statements.stream().filter(Objects::nonNull).collect(Collectors.toList());
+            }
+            for (PreparedStatement ps : preparedStatements) {
+                try {
+                    if (ps != null && !ps.isClosed()) {
+                        ps.close();
+                        statements.remove(ps);
+                    }
+                } catch (SQLException e) {
+                    logger.log(Level.WARN, "Cannot close prepared statement", e);
+                }
+                preparedStatements = preparedStatements.stream().filter(Objects::nonNull).collect(Collectors.toList());
+            }
+            for (CallableStatement cs : callableStatements) {
+                try {
+                    if (cs != null && !cs.isClosed()) {
+                        cs.close();
+                        statements.remove(cs);
+                    }
+                } catch (SQLException e) {
+                    logger.log(Level.WARN, "Cannot close callable statement", e);
+                }
+                callableStatements = callableStatements.stream().filter(Objects::nonNull).collect(Collectors.toList());
+            }
         }
 
         private void shutdown() throws SQLException {
@@ -320,20 +365,26 @@ public class CustomPooledDataSource extends JDBCDataSource {
 
         @Override
         public Statement createStatement() throws SQLException {
+            Statement st = connection.createStatement();
+            statements.add(st);
             lastUsageTimeStamp = System.currentTimeMillis();
-            return connection.createStatement();
+            return st;
         }
 
         @Override
         public PreparedStatement prepareStatement(String sql) throws SQLException {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            preparedStatements.add(ps);
             lastUsageTimeStamp = System.currentTimeMillis();
-            return connection.prepareStatement(sql);
+            return ps;
         }
 
         @Override
         public CallableStatement prepareCall(String sql) throws SQLException {
+            CallableStatement cs = connection.prepareCall(sql);
+            callableStatements.add(cs);
             lastUsageTimeStamp = System.currentTimeMillis();
-            return connection.prepareCall(sql);
+            return cs;
         }
 
         @Override
@@ -422,22 +473,28 @@ public class CustomPooledDataSource extends JDBCDataSource {
 
         @Override
         public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
+            Statement st = connection.createStatement(resultSetType, resultSetConcurrency);
+            statements.add(st);
             lastUsageTimeStamp = System.currentTimeMillis();
-            return connection.createStatement(resultSetType, resultSetConcurrency);
+            return st;
         }
 
         @Override
         public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency)
                 throws SQLException {
+            PreparedStatement ps = connection.prepareStatement(sql, resultSetType, resultSetConcurrency);
+            preparedStatements.add(ps);
             lastUsageTimeStamp = System.currentTimeMillis();
-            return connection.prepareStatement(sql, resultSetType, resultSetConcurrency);
+            return ps;
         }
 
         @Override
         public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency)
                 throws SQLException {
+            CallableStatement cs = connection.prepareCall(sql, resultSetType, resultSetConcurrency);
+            callableStatements.add(cs);
             lastUsageTimeStamp = System.currentTimeMillis();
-            return connection.prepareCall(sql, resultSetType, resultSetConcurrency);
+            return cs;
         }
 
         @Override
@@ -489,40 +546,54 @@ public class CustomPooledDataSource extends JDBCDataSource {
         @Override
         public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability)
                 throws SQLException {
+            Statement st = connection.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability);
+            statements.add(st);
             lastUsageTimeStamp = System.currentTimeMillis();
-            return connection.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability);
+            return st;
         }
 
         @Override
         public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency,
                                                   int resultSetHoldability) throws SQLException {
+            PreparedStatement ps = connection.prepareStatement(sql, resultSetType, resultSetConcurrency,
+                    resultSetHoldability);
+            preparedStatements.add(ps);
             lastUsageTimeStamp = System.currentTimeMillis();
-            return connection.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
+            return ps;
         }
 
         @Override
         public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency,
                                              int resultSetHoldability) throws SQLException {
+            CallableStatement cs = connection.prepareCall(sql, resultSetType, resultSetConcurrency,
+                    resultSetHoldability);
+            callableStatements.add(cs);
             lastUsageTimeStamp = System.currentTimeMillis();
-            return connection.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
+            return cs;
         }
 
         @Override
         public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys) throws SQLException {
+            PreparedStatement ps = connection.prepareStatement(sql, autoGeneratedKeys);
+            preparedStatements.add(ps);
             lastUsageTimeStamp = System.currentTimeMillis();
-            return connection.prepareStatement(sql, autoGeneratedKeys);
+            return ps;
         }
 
         @Override
         public PreparedStatement prepareStatement(String sql, int[] columnIndexes) throws SQLException {
+            PreparedStatement ps = connection.prepareStatement(sql, columnIndexes);
+            preparedStatements.add(ps);
             lastUsageTimeStamp = System.currentTimeMillis();
-            return connection.prepareStatement(sql, columnIndexes);
+            return ps;
         }
 
         @Override
         public PreparedStatement prepareStatement(String sql, String[] columnNames) throws SQLException {
+            PreparedStatement ps = connection.prepareStatement(sql, columnNames);
+            preparedStatements.add(ps);
             lastUsageTimeStamp = System.currentTimeMillis();
-            return connection.prepareStatement(sql, columnNames);
+            return ps;
         }
 
         @Override
@@ -647,9 +718,6 @@ public class CustomPooledDataSource extends JDBCDataSource {
         public String toString() {
             return connection.toString();
         }
-
-
     }
-
 
 }

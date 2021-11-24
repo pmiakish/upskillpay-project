@@ -5,13 +5,12 @@ import com.epam.upskillproject.controller.ParamReader;
 import com.epam.upskillproject.exceptions.AccountLimitException;
 import com.epam.upskillproject.exceptions.PaymentParamException;
 import com.epam.upskillproject.exceptions.TransactionException;
-import com.epam.upskillproject.init.PropertiesKeeper;
+import com.epam.upskillproject.util.init.PropertiesKeeper;
 import com.epam.upskillproject.model.dto.Account;
 import com.epam.upskillproject.model.dto.Card;
 import com.epam.upskillproject.model.dto.CardNetworkType;
 import com.epam.upskillproject.model.service.CustomerService;
 import com.epam.upskillproject.view.tags.OperationType;
-import jakarta.ejb.EJBException;
 import jakarta.inject.Inject;
 import jakarta.security.enterprise.SecurityContext;
 import jakarta.servlet.RequestDispatcher;
@@ -130,16 +129,11 @@ public class MyAccountServiceServlet extends HttpServlet {
                     req.setAttribute(OPERATION_NAME_ATTR, OperationType.DELETE);
                     try {
                         req.setAttribute(OPERATION_STATUS_ATTR, customerService.deleteUserAccount(principal, id.get()));
-                    } catch (EJBException e) {
-                        if (e.getCause() instanceof TransactionException) {
-                            TransactionException tEx = (TransactionException) e.getCause();
-                            logger.log(Level.WARN, String.format("Cannot delete account (%s) [id: %s]", tEx.getMessage(),
-                                    id.orElse(null)));
-                            sendOperationError(req, resp, view, OperationType.DELETE, principal, tEx.getStatusCode(),
-                                    tEx.getMessage());
-                        } else {
-                            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unknown error");
-                        }
+                    } catch (TransactionException e) {
+                        logger.log(Level.WARN, String.format("Cannot delete account (%s) [id: %s]", e.getMessage(),
+                                id.orElse(null)));
+                        sendOperationError(req, resp, view, OperationType.DELETE, principal, e.getStatusCode(),
+                                e.getMessage());
                     }
                 // Delete card
                 } else if (target.isPresent() && id.isPresent() && target.get().equals(DEL_CARD_TARGET)) {
@@ -180,37 +174,24 @@ public class MyAccountServiceServlet extends HttpServlet {
                 view.forward(req, resp);
             } catch (SQLException e) {
                 logger.log(Level.ERROR, String.format("Exception thrown during operation (principal: %s, target: %s, " +
-                                "id: %s)", principal.getName(), target.orElse(null), id.orElse(null)), e);
+                        "id: %s)", principal.getName(), target.orElse(null), id.orElse(null)), e);
                 sendOperationError(req, resp, view, OperationType.DEFAULT, principal,
                         HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                         String.format("Exception thrown during operation (%s). ", e.getMessage()));
-            } catch (EJBException e) {
-                Throwable cause = e;
-                while (cause instanceof EJBException) {
-                    cause = cause.getCause();
-                }
-                if (cause instanceof PaymentParamException) {
-                    logger.log(Level.WARN, String.format("Cannot perform payment (bad parameters) [principal: %s, " +
-                            "target: %s, id: %s]", principal.getName(), target.orElse(null), id.orElse(null)),
-                            cause);
-                    sendOperationError(req, resp, view, OperationType.PAYMENT, principal,
-                            HttpServletResponse.SC_BAD_REQUEST, cause.getMessage());
-                } else if (cause instanceof TransactionException) {
-                    logger.log(Level.WARN, String.format("Cannot perform payment (transaction failed) [principal: %s, " +
-                            "target: %s, id: %s]", principal.getName(), target.orElse(null), id.orElse(null)),
-                            cause);
-                    sendOperationError(req, resp, view, OperationType.PAYMENT, principal,
-                            ((TransactionException) cause).getStatusCode(), cause.getMessage());
-                } else if (cause instanceof AccountLimitException) {
-                    logger.log(Level.WARN, String.format("Limit was exceeded (principal: %s, target: %s, id: %s)",
-                            principal.getName(), target.orElse(null), id.orElse(null)), cause);
-                    sendOperationError(req, resp, view, OperationType.PAYMENT, principal,
-                            HttpServletResponse.SC_CONFLICT, cause.getMessage());
-                } else {
-                    logger.log(Level.ERROR, String.format("Unknown error (principal: %s, target: %s, id: %s)",
-                            principal.getName(), target.orElse(null), id.orElse(null)), cause);
-                    resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unknown error: " + cause.getMessage());
-                }
+            } catch (PaymentParamException e) {
+                logger.log(Level.WARN, String.format("Cannot perform payment (bad parameters) [principal: %s, " +
+                        "target: %s, id: %s]", principal.getName(), target.orElse(null), id.orElse(null)), e);
+                sendOperationError(req, resp, view, OperationType.PAYMENT, principal, HttpServletResponse.SC_BAD_REQUEST,
+                        e.getMessage());
+            } catch (TransactionException e) {
+                logger.log(Level.WARN, String.format("Cannot perform payment (transaction failed) [principal: %s, " +
+                        "target: %s, id: %s]", principal.getName(), target.orElse(null), id.orElse(null)), e);
+                sendOperationError(req, resp, view, OperationType.PAYMENT, principal, e.getStatusCode(), e.getMessage());
+            } catch (AccountLimitException e) {
+                logger.log(Level.WARN, String.format("Limit was exceeded (principal: %s, target: %s, id: %s)",
+                        principal.getName(), target.orElse(null), id.orElse(null)), e);
+                sendOperationError(req, resp, view, OperationType.PAYMENT, principal, HttpServletResponse.SC_CONFLICT,
+                        e.getMessage());
             }
         } else {
             logger.log(Level.ERROR, "Caller principal is null");

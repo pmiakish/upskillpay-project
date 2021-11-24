@@ -2,15 +2,12 @@ package com.epam.upskillproject.model.dao.queryhandlers;
 
 import com.epam.upskillproject.exceptions.TransactionException;
 import com.epam.upskillproject.exceptions.TransactionExceptionType;
-import com.epam.upskillproject.init.PropertiesKeeper;
+import com.epam.upskillproject.util.init.PropertiesKeeper;
 import com.epam.upskillproject.model.dao.AccountDao;
 import com.epam.upskillproject.model.dao.CardDao;
 import com.epam.upskillproject.model.dao.IncomeDao;
 import com.epam.upskillproject.model.dao.PersonDao;
-import com.epam.upskillproject.model.dto.Account;
-import com.epam.upskillproject.model.dto.CardNetworkType;
-import com.epam.upskillproject.model.dto.Person;
-import com.epam.upskillproject.model.dto.StatusType;
+import com.epam.upskillproject.model.dto.*;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import jakarta.ejb.Singleton;
@@ -129,7 +126,8 @@ public class FinancialTransactionsPerformer {
                         endTransaction(conn, false, new IllegalStateException("Account and account owner may " +
                                 "not be blocked for card issue"));
                     }
-                    cvc = cardDao.addCard(conn, ownerId, accountId, cardNetworkType);
+                    Card cardDto = new Card(ownerId, accountId, cardNetworkType, StatusType.ACTIVE);
+                    cvc = cardDao.addCard(conn, cardDto);
                     if (cvc != null) {
                         BigDecimal amount = cardNetworkType.getCost();
                         debit(conn, accountId, amount);

@@ -129,33 +129,34 @@
                 <div class="mb-3 row">
                     <label for="inputEmail" class="col-sm-2 col-form-label"><strong>email</strong></label>
                     <div class="col-sm-10">
-                        <input type="email" class="form-control" id="inputEmail" required value="${admin.email}" name="email" />
+                        <input type="email" class="form-control" id="inputEmail" value="${admin.email}" name="email"
+                               maxlength="100" required />
                     </div>
                 </div>
                 <div class="mb-3 row">
                     <label for="inputPassword" class="col-sm-2 col-form-label"><strong>New password</strong></label>
                     <div class="col-sm-10">
-                        <input type="password" class="form-control" id="inputPassword" name="pass" />
+                        <input type="password" class="form-control" id="inputPassword" name="pass" maxlength="100" />
                     </div>
                 </div>
                 <div class="mb-3 row">
                     <label for="confirmPassword" class="col-sm-2 col-form-label"><strong>Confirm password</strong></label>
                     <div class="col-sm-10">
-                        <input type="password" class="form-control" id="confirmPassword" name="cPass" />
+                        <input type="password" class="form-control" id="confirmPassword" name="cPass" maxlength="100" />
                     </div>
                 </div>
                 <div class="mb-3 row">
                     <label for="inputFirstName" class="col-sm-2 col-form-label"><strong>First Name</strong></label>
                     <div class="col-sm-10">
                         <input type="text" class="form-control" id="inputFirstName" pattern="[A-ZА-Я][\-A-Za-zА-Яа-я ]+"
-                               required value="${admin.firstName}" name="firstName" />
+                               maxlength="30" value="${admin.firstName}" name="firstName" required />
                     </div>
                 </div>
                 <div class="mb-3 row">
                     <label for="inputLastName" class="col-sm-2 col-form-label"><strong>Last Name</strong></label>
                     <div class="col-sm-10">
                         <input type="text" class="form-control" id="inputLastName" pattern="[A-ZА-Я][\-A-Za-zА-Яа-я ]+"
-                               required value="${admin.lastName}" name="lastName" />
+                               maxlength="30" value="${admin.lastName}" name="lastName" required />
                     </div>
                 </div>
                 <div class="mb-3 row">

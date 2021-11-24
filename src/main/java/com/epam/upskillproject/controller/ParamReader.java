@@ -1,12 +1,12 @@
 package com.epam.upskillproject.controller;
 
-import com.epam.upskillproject.init.PropertiesKeeper;
+import com.epam.upskillproject.util.init.PropertiesKeeper;
 import com.epam.upskillproject.model.dto.CardNetworkType;
 import com.epam.upskillproject.model.dto.PermissionType;
 import com.epam.upskillproject.model.dto.StatusType;
 import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.AccountSortType;
 import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.CardSortType;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.TransactionSortType;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PaymentSortType;
 import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PersonSortType;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
@@ -141,12 +141,12 @@ public class ParamReader {
         return Optional.of(sortType);
     }
 
-    public Optional<TransactionSortType> readPaymentSort(HttpServletRequest req, String paramName) {
+    public Optional<PaymentSortType> readPaymentSort(HttpServletRequest req, String paramName) {
         Optional<String> paramValue = readString(req, paramName);
-        TransactionSortType sortType;
+        PaymentSortType sortType;
         if (paramValue.isPresent()) {
             try {
-                sortType = TransactionSortType.valueOf(paramValue.get().toUpperCase());
+                sortType = PaymentSortType.valueOf(paramValue.get().toUpperCase());
             } catch (IllegalArgumentException e) {
                 return Optional.empty();
             }

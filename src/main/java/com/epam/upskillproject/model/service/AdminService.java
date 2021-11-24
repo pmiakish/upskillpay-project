@@ -5,7 +5,8 @@ import com.epam.upskillproject.model.dto.*;
 import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.AccountSortType;
 import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.CardSortType;
 import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PersonSortType;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.TransactionSortType;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PaymentSortType;
+import com.epam.upskillproject.util.ParamsValidator;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import org.apache.logging.log4j.Level;
@@ -26,20 +27,23 @@ public class AdminService {
     private static final PersonSortType DEFAULT_PERSON_SORT_TYPE = PersonSortType.ID;
     private static final AccountSortType DEFAULT_ACCOUNT_SORT_TYPE = AccountSortType.ID;
     private static final CardSortType DEFAULT_CARD_SORT_TYPE = CardSortType.ID;
-    private static final TransactionSortType DEFAULT_PAYMENT_SORT_TYPE = TransactionSortType.ID_DESC;
+    private static final PaymentSortType DEFAULT_PAYMENT_SORT_TYPE = PaymentSortType.ID_DESC;
     private static final String EMAIL_PATTERN = "^\\w+@\\w+\\.\\w+$";
 
     private final PersonDao personDao;
     private final AccountDao accountDao;
     private final CardDao cardDao;
     private final PaymentDao paymentDao;
+    private final ParamsValidator paramsValidator;
 
     @Inject
-    public AdminService(PersonDao personDao, AccountDao accountDao, CardDao cardDao, PaymentDao paymentDao) {
+    public AdminService(PersonDao personDao, AccountDao accountDao, CardDao cardDao, PaymentDao paymentDao,
+                        ParamsValidator paramsValidator) {
         this.personDao = personDao;
         this.accountDao = accountDao;
         this.cardDao = cardDao;
         this.paymentDao = paymentDao;
+        this.paramsValidator = paramsValidator;
     }
 
     /**
@@ -51,8 +55,9 @@ public class AdminService {
      * @throws SQLException
      */
     public Page<Person> getCustomers(int amount, int pageNumber, PersonSortType sortType) throws SQLException {
-        if (!checkParams(amount, pageNumber)) {
-            logger.log(Level.WARN, "Cannot get page of customers (invalid page parameters)");
+        if (!paramsValidator.validatePageParams(amount, pageNumber)) {
+            logger.log(Level.WARN, String.format("Cannot get page of customers - invalid page parameters (amount: %d, " +
+                    "pageNumber: %d)", amount, pageNumber));
             return null;
         }
         if (sortType == null) {
@@ -72,7 +77,7 @@ public class AdminService {
      * @throws SQLException
      */
     public Person getCustomer(String email) throws SQLException {
-        if (!checkParams(email) || !email.matches(EMAIL_PATTERN)) {
+        if (!paramsValidator.validateEmail(email)) {
             logger.log(Level.WARN, String.format("Cannot get customer (invalid email parameter - %s)", email));
             return null;
         }
@@ -87,7 +92,7 @@ public class AdminService {
      * @throws SQLException
      */
     public Person getCustomer(BigInteger id) throws SQLException {
-        if (!checkParams(id)) {
+        if (!paramsValidator.validateId(id)) {
             logger.log(Level.WARN, String.format("Cannot get customer (invalid id parameter - %s)", id));
             return null;
         }
@@ -116,8 +121,9 @@ public class AdminService {
                                                String newLastName,
                                                StatusType statusType,
                                                LocalDate newRegDate) throws SQLException {
-        if (!checkParams(id, newEmail, newFirstName, newLastName, statusType, newRegDate)) {
-            logger.log(Level.WARN, "Cannot update customer (bad parameters passed)");
+        if (!paramsValidator.validatePersonUpdateParams(id, newEmail, newPassword, newFirstName, newLastName, statusType,
+                newRegDate)) {
+            logger.log(Level.WARN, String.format("Cannot update admin (bad parameters passed) [id: %s]", id));
             return false;
         }
         Optional<Person> person = personDao.getSinglePersonById(PermissionType.CUSTOMER, id);
@@ -128,8 +134,9 @@ public class AdminService {
             if (newPassword == null) {
                 newPassword = person.get().getPassword();
             }
-            return personDao.updatePerson(PermissionType.CUSTOMER, id, newPermissionType, newEmail, newPassword,
-                    newFirstName, newLastName, statusType, newRegDate);
+            Person personDto = new Person(id, newPermissionType, newEmail, newPassword, newFirstName, newLastName,
+                    statusType, newRegDate);
+            return personDao.updatePerson(PermissionType.CUSTOMER, personDto);
         } else {
             logger.log(Level.WARN, String.format("Cannot update customer (person with id %s not found)", id));
             return false;
@@ -145,8 +152,9 @@ public class AdminService {
      * @throws SQLException
      */
     public Page<Account> getAccounts(int amount, int pageNumber, AccountSortType sortType) throws SQLException {
-        if (!checkParams(amount, pageNumber)) {
-            logger.log(Level.WARN, "Cannot get page of accounts (invalid page parameters)");
+        if (!paramsValidator.validatePageParams(amount, pageNumber)) {
+            logger.log(Level.WARN, String.format("Cannot get page of accounts - invalid page parameters (amount: %d, " +
+                    "pageNumber: %d)", amount, pageNumber));
             return null;
         }
         if (sortType == null) {
@@ -165,7 +173,7 @@ public class AdminService {
      * @throws SQLException
      */
     public List<Account> getAccountsByOwner(BigInteger id) throws SQLException {
-        if (!checkParams(id)) {
+        if (!paramsValidator.validateId(id)) {
             logger.log(Level.WARN, String.format("Cannot get accounts by owner (invalid id parameter - %s)", id));
             return new ArrayList<>();
         }
@@ -179,7 +187,7 @@ public class AdminService {
      * @throws SQLException
      */
     public BigInteger getAccountIdByCardId(BigInteger cardId) throws SQLException {
-        if (!checkParams(cardId)) {
+        if (!paramsValidator.validateId(cardId)) {
             logger.log(Level.WARN, String.format("Cannot get account id by card id (invalid cardId parameter - %s)",
                     cardId));
             return null;
@@ -195,7 +203,7 @@ public class AdminService {
      * @throws SQLException
      */
     public StatusType getAccountStatus(BigInteger id) throws SQLException {
-        if (!checkParams(id)) {
+        if (!paramsValidator.validateId(id)) {
             logger.log(Level.WARN, String.format("Cannot get account status by id (invalid id parameter - %s)", id));
             return null;
         }
@@ -210,8 +218,9 @@ public class AdminService {
      * @throws SQLException
      */
     public synchronized boolean updateAccountStatus(BigInteger id, StatusType statusType) throws SQLException {
-        if (!checkParams(id, statusType)) {
-            logger.log(Level.WARN, "Cannot update account status (invalid parameters passed)");
+        if (statusType == null || !paramsValidator.validateId(id)) {
+            logger.log(Level.WARN, String.format("Cannot update account status (invalid parameters passed) " +
+                    "[target status: %s, id: %s]", statusType, id));
             return false;
         }
         if (statusType == StatusType.BLOCKED) {
@@ -232,8 +241,9 @@ public class AdminService {
      * @throws SQLException
      */
     public Page<Card> getCards(int amount, int pageNumber, CardSortType sortType) throws SQLException {
-        if (!checkParams(amount, pageNumber)) {
-            logger.log(Level.WARN, "Cannot get page of cards (invalid page parameters)");
+        if (!paramsValidator.validatePageParams(amount, pageNumber)) {
+            logger.log(Level.WARN, String.format("Cannot get page of cards - invalid page parameters (amount: %d, " +
+                    "pageNumber: %d)", amount, pageNumber));
             return null;
         }
         if (sortType == null) {
@@ -252,7 +262,7 @@ public class AdminService {
      * @throws SQLException
      */
     public List<Card> getCardsByOwner(BigInteger id) throws SQLException {
-        if (!checkParams(id)) {
+        if (!paramsValidator.validateId(id)) {
             logger.log(Level.WARN, String.format("Cannot get cards by owner (invalid owner's id parameter - %s)", id));
             return new ArrayList<>();
         }
@@ -266,7 +276,7 @@ public class AdminService {
      * @throws SQLException
      */
     public List<Card> getCardsByAccount(BigInteger id) throws SQLException {
-        if (!checkParams(id)) {
+        if (!paramsValidator.validateId(id)) {
             logger.log(Level.WARN, String.format("Cannot get cards by account (invalid account id parameter - %s)", id));
             return new ArrayList<>();
         }
@@ -280,7 +290,7 @@ public class AdminService {
      * @throws SQLException
      */
     public StatusType getCardStatus(BigInteger id) throws SQLException {
-        if (!checkParams(id)) {
+        if (!paramsValidator.validateId(id)) {
             logger.log(Level.WARN, String.format("Cannot get card status by id (invalid id parameter - %s)", id));
             return null;
         }
@@ -296,8 +306,9 @@ public class AdminService {
      * @throws SQLException
      */
     public synchronized boolean updateCardStatus(BigInteger id, StatusType statusType) throws SQLException {
-        if (!checkParams(id, statusType)) {
-            logger.log(Level.WARN, "Cannot update card status (invalid parameters passed)");
+        if (statusType == null || !paramsValidator.validateId(id)) {
+            logger.log(Level.WARN, String.format("Cannot update card status (invalid parameters passed) " +
+                    "[target status: %s, id: %s]", statusType, id));
             return false;
         }
         return cardDao.updateCardStatus(id, statusType);
@@ -311,38 +322,18 @@ public class AdminService {
      * @return a Page of payments or null if parameters are invalid
      * @throws SQLException
      */
-    public Page<Transaction> getPayments(int amount, int pageNumber, TransactionSortType sortType) throws SQLException {
-        if (!checkParams(amount, pageNumber)) {
-            logger.log(Level.WARN, "Cannot get page of payments (invalid page parameters)");
+    public Page<Payment> getPayments(int amount, int pageNumber, PaymentSortType sortType) throws SQLException {
+        if (!paramsValidator.validatePageParams(amount, pageNumber)) {
+            logger.log(Level.WARN, String.format("Cannot get page of payments - invalid page parameters (amount: %d, " +
+                    "pageNumber: %d)", amount, pageNumber));
             return null;
         }
         if (sortType == null) {
             sortType = DEFAULT_PAYMENT_SORT_TYPE;
         }
         int offset = amount * (pageNumber - 1);
-        List<Transaction> entries = paymentDao.getPaymentsPage(amount, offset, sortType);
+        List<Payment> entries = paymentDao.getPaymentsPage(amount, offset, sortType);
         int total = paymentDao.countPayments();
         return new Page<>(entries, pageNumber, amount, total, sortType);
-    }
-
-    private boolean checkParams(Object... params) {
-        if (params == null) {
-            logger.log(Level.WARN, String.format("Parameters array passed to %s is null",
-                    Thread.currentThread().getStackTrace()[1].getMethodName()));
-            return false;
-        }
-        for (Object p : params) {
-            if (
-                    p == null ||
-                            (p instanceof String && ((String) p).trim().length() == 0) ||
-                            (p instanceof Integer && ((Integer) p) < 0) ||
-                            (p instanceof BigInteger && ((BigInteger) p).compareTo(BigInteger.ZERO) < 0)
-            ) {
-                logger.log(Level.WARN, String.format("At least one of the passed parameters to %s is not valid",
-                        Thread.currentThread().getStackTrace()[1].getMethodName()));
-                return false;
-            }
-        }
-        return true;
     }
 }

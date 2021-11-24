@@ -205,11 +205,14 @@
                                     </c:forEach>
                                 </select>
                                 <label class="input-group-text" for="inputCvc">CVC</label>
-                                <input type="password" class="form-control" id="inputCvc" name="cvc" pattern="^[0-9]{3}$" required />
+                                <input type="password" class="form-control" id="inputCvc" name="cvc" pattern="^[0-9]{3}$"
+                                       maxlength="3" required />
                                 <label class="input-group-text" for="inputReceiver">Счет получателя</label>
-                                <input type="text" class="form-control" id="inputReceiver" name="receiver" pattern="[0-9]+" required />
+                                <input type="text" class="form-control" id="inputReceiver" name="receiver" pattern="[0-9]+"
+                                       maxlength="10" required />
                                 <label class="input-group-text" for="inputAmount">Сумма</label>
-                                <input type="text" class="form-control" id="inputAmount" name="amount" pattern="^[0-9]*.?[0-9]+$" required />
+                                <input type="text" class="form-control" id="inputAmount" name="amount" pattern="^[0-9]*.?[0-9]+$"
+                                       maxlength="20" required />
                                 <button type="submit" class="btn btn-outline-primary">Оплатить</button>
                             </div>
                         </form>

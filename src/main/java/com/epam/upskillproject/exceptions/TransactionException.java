@@ -1,5 +1,8 @@
 package com.epam.upskillproject.exceptions;
 
+import jakarta.ejb.ApplicationException;
+
+@ApplicationException
 public class TransactionException extends RuntimeException {
 
     private final TransactionExceptionType type;
