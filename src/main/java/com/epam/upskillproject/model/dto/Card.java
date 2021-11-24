@@ -27,6 +27,17 @@ public class Card {
         this.hash = hashCode();
     }
 
+    public Card(BigInteger ownerId, BigInteger accountId, CardNetworkType network, StatusType status) {
+        this.id = null;
+        this.ownerId = ownerId;
+        this.accountId = accountId;
+        this.network = network;
+        this.cvc = null;
+        this.status = status;
+        this.expDate = null;
+        this.hash = hashCode();
+    }
+
     public BigInteger getId() {
         return id;
     }
@@ -64,8 +75,13 @@ public class Card {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Card card = (Card) o;
-        return id.equals(card.id) && ownerId.equals(card.ownerId) && accountId.equals(card.accountId) &&
-                network == card.network && cvc.equals(card.cvc) && status == card.status && expDate.equals(card.expDate);
+        return Objects.equals(id, card.id) &&
+                Objects.equals(ownerId, card.ownerId) &&
+                Objects.equals(accountId, card.accountId) &&
+                network == card.network &&
+                Objects.equals(cvc, card.cvc) &&
+                status == card.status &&
+                Objects.equals(expDate, card.expDate);
     }
 
     @Override

@@ -1,16 +1,19 @@
 package com.epam.upskillproject.model.dao;
 
+import com.epam.upskillproject.exceptions.CustomSQLCode;
 import com.epam.upskillproject.model.dao.queryhandlers.QueryExecutor;
 import com.epam.upskillproject.model.dao.queryhandlers.constructors.PaymentQueryConstructor;
 import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.OrderStrategy;
-import com.epam.upskillproject.model.dto.Transaction;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.TransactionSortType;
+import com.epam.upskillproject.model.dto.Payment;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PaymentSortType;
+import jakarta.annotation.Resource;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import javax.sql.DataSource;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.*;
@@ -29,7 +32,10 @@ public class PaymentDaoImpl implements PaymentDao {
     private static final String PAYER_COLUMN_NAME = "PAYER";
     private static final String RECEIVER_COLUMN_NAME = "RECEIVER";
     private static final String DATE_COLUMN_NAME = "DATE";
+    private static final String INVALID_PARAM_SQLSTATE = "22023";
 
+    @Resource(lookup = "java:global/customProjectDB")
+    private DataSource dataSource;
     private final PaymentQueryConstructor queryConstructor;
     private final QueryExecutor queryExecutor;
     private final OrderStrategy orderStrategy;
@@ -43,146 +49,107 @@ public class PaymentDaoImpl implements PaymentDao {
     }
 
     @Override
-    public Optional<Transaction> getSinglePaymentById(BigInteger id) throws SQLException {
+    public Optional<Payment> getSinglePaymentById(BigInteger id) throws SQLException {
+        Connection conn = dataSource.getConnection();
         String rawQuery = queryConstructor.singleById();
-        ResultSet rs = queryExecutor.execute(rawQuery, id);
-        Transaction payment = null;
+        ResultSet rs = queryExecutor.execute(conn, rawQuery, id);
+        Payment payment = null;
         if (rs != null && rs.next()) {
             payment = buildInstance(rs);
-            rs.close();
+            rs.getStatement().close();
         }
+        conn.close();
         return (payment != null) ? Optional.of(payment) : Optional.empty();
     }
 
     @Override
-    public List<Transaction> getAllPayments(TransactionSortType sortType) throws SQLException {
+    public List<Payment> getAllPayments(PaymentSortType sortType) throws SQLException {
+        Connection conn = dataSource.getConnection();
         String rawQuery = queryConstructor.all();
-        ResultSet rs = queryExecutor.execute(String.format(rawQuery, orderStrategy.getOrder(sortType)));
-        List<Transaction> payments = new ArrayList<>();
-        if (rs != null) {
-            while (rs.next()) {
-                payments.add(buildInstance(rs));
-            }
-            rs.close();
-        }
-        return payments;
+        String query = String.format(rawQuery, orderStrategy.getOrder(sortType));
+        ResultSet rs = queryExecutor.execute(conn,query);
+        return retrievePayments(conn, rs);
     }
 
     @Override
-    public List<Transaction> getPaymentsPage(int limit, int offset, TransactionSortType sortType) throws SQLException {
+    public List<Payment> getPaymentsPage(int limit, int offset, PaymentSortType sortType) throws SQLException {
         if (limit < 1) {
             return new ArrayList<>();
         }
+        Connection conn = dataSource.getConnection();
         String rawQuery = queryConstructor.page();
-        ResultSet rs = queryExecutor.execute(String.format(rawQuery, orderStrategy.getOrder(sortType)), limit, offset);
-        List<Transaction> payments = new ArrayList<>();
-        if (rs != null) {
-            while (rs.next()) {
-                payments.add(buildInstance(rs));
-            }
-            rs.close();
-        }
-        return payments;
+        String query = String.format(rawQuery, orderStrategy.getOrder(sortType));
+        ResultSet rs = queryExecutor.execute(conn, query, limit, offset);
+        return retrievePayments(conn, rs);
     }
 
     @Override
-    public List<Transaction> getPaymentsByPayer(BigInteger id, TransactionSortType sortType) throws SQLException {
+    public List<Payment> getPaymentsByPayer(BigInteger id, PaymentSortType sortType) throws SQLException {
+        Connection conn = dataSource.getConnection();
         String rawQuery = queryConstructor.byPayer();
-        ResultSet rs = queryExecutor.execute(String.format(rawQuery, orderStrategy.getOrder(sortType)), id);
-        List<Transaction> payments = new ArrayList<>();
-        if (rs != null) {
-            while (rs.next()) {
-                payments.add(buildInstance(rs));
-            }
-            rs.close();
-        }
-        return payments;
+        String query = String.format(rawQuery, orderStrategy.getOrder(sortType));
+        ResultSet rs = queryExecutor.execute(conn, query, id);
+        return retrievePayments(conn, rs);
     }
 
     @Override
-    public List<Transaction> getPaymentsByPayerPage(BigInteger id, int limit, int offset, TransactionSortType sortType)
+    public List<Payment> getPaymentsByPayerPage(BigInteger id, int limit, int offset, PaymentSortType sortType)
             throws SQLException {
         if (limit < 1) {
             return new ArrayList<>();
         }
+        Connection conn = dataSource.getConnection();
         String rawQuery = queryConstructor.byPayerPage();
-        ResultSet rs = queryExecutor.execute(String.format(rawQuery, orderStrategy.getOrder(sortType)), id, limit, offset);
-        List<Transaction> payments = new ArrayList<>();
-        if (rs != null) {
-            while (rs.next()) {
-                payments.add(buildInstance(rs));
-            }
-            rs.close();
-        }
-        return payments;
+        String query = String.format(rawQuery, orderStrategy.getOrder(sortType));
+        ResultSet rs = queryExecutor.execute(conn, query, id, limit, offset);
+        return retrievePayments(conn, rs);
     }
 
     @Override
-    public List<Transaction> getPaymentsByReceiver(BigInteger id, TransactionSortType sortType) throws SQLException {
+    public List<Payment> getPaymentsByReceiver(BigInteger id, PaymentSortType sortType) throws SQLException {
+        Connection conn = dataSource.getConnection();
         String rawQuery = queryConstructor.byReceiver();
-        ResultSet rs = queryExecutor.execute(String.format(rawQuery, orderStrategy.getOrder(sortType)), id);
-        List<Transaction> payments = new ArrayList<>();
-        if (rs != null) {
-            while (rs.next()) {
-                payments.add(buildInstance(rs));
-            }
-            rs.close();
-        }
-        return payments;
+        String query = String.format(rawQuery, orderStrategy.getOrder(sortType));
+
+        ResultSet rs = queryExecutor.execute(conn, query, id);
+        return retrievePayments(conn, rs);
     }
 
     @Override
-    public List<Transaction> getPaymentsByReceiverPage(BigInteger id, int limit, int offset,
-                                                       TransactionSortType sortType) throws SQLException {
+    public List<Payment> getPaymentsByReceiverPage(BigInteger id, int limit, int offset,
+                                                   PaymentSortType sortType) throws SQLException {
         if (limit < 1) {
             return new ArrayList<>();
         }
+        Connection conn = dataSource.getConnection();
         String rawQuery = queryConstructor.byReceiverPage();
-        ResultSet rs = queryExecutor.execute(String.format(rawQuery, orderStrategy.getOrder(sortType)), id, limit, offset);
-        List<Transaction> payments = new ArrayList<>();
-        if (rs != null) {
-            while (rs.next()) {
-                payments.add(buildInstance(rs));
-            }
-            rs.close();
-        }
-        return payments;
+        String query = String.format(rawQuery, orderStrategy.getOrder(sortType));
+        ResultSet rs = queryExecutor.execute(conn, query, id, limit, offset);
+        return retrievePayments(conn, rs);
     }
 
     @Override
     public int countPayments() throws SQLException {
+        Connection conn = dataSource.getConnection();
         String query = queryConstructor.countAll();
-        ResultSet rs = queryExecutor.execute(query);
-        int amount = 0;
-        if (rs != null && rs.next()) {
-            amount = rs.getInt(1);
-            rs.close();
-        }
-        return amount;
+        ResultSet rs = queryExecutor.execute(conn, query);
+        return retrievePaymentsNumber(conn, rs);
     }
 
     @Override
     public int countPaymentsByPayer(BigInteger id) throws SQLException {
+        Connection conn = dataSource.getConnection();
         String rawQuery = queryConstructor.countByPayer();
-        ResultSet rs = queryExecutor.execute(rawQuery, id);
-        int amount = 0;
-        if (rs != null && rs.next()) {
-            amount = rs.getInt(1);
-            rs.close();
-        }
-        return amount;
+        ResultSet rs = queryExecutor.execute(conn, rawQuery, id);
+        return retrievePaymentsNumber(conn, rs);
     }
 
     @Override
     public int countPaymentsByReceiver(BigInteger id) throws SQLException {
+        Connection conn = dataSource.getConnection();
         String rawQuery = queryConstructor.countByReceiver();
-        ResultSet rs = queryExecutor.execute(rawQuery, id);
-        int amount = 0;
-        if (rs != null && rs.next()) {
-            amount = rs.getInt(1);
-            rs.close();
-        }
-        return amount;
+        ResultSet rs = queryExecutor.execute(conn, rawQuery, id);
+        return retrievePaymentsNumber(conn, rs);
     }
 
     @Override
@@ -191,20 +158,22 @@ public class PaymentDaoImpl implements PaymentDao {
         if (days < 0) {
             return BigDecimal.ZERO;
         }
+        Connection conn = dataSource.getConnection();
         String rawQuery = queryConstructor.totalReceiverIncomeByPayer();
         Timestamp past = Timestamp.valueOf(LocalDateTime.now().minusDays(days));
         BigDecimal amount = BigDecimal.ZERO;
-        ResultSet rs = queryExecutor.execute(rawQuery, payerId, receiverId, past);
+        ResultSet rs = queryExecutor.execute(conn, rawQuery, payerId, receiverId, past);
         if (rs != null && rs.next() && rs.getBigDecimal(1) != null) {
             amount = rs.getBigDecimal(1);
-            rs.close();
+            rs.getStatement().close();
         }
+        conn.close();
         return amount;
     }
 
-    private Transaction buildInstance(ResultSet rs) throws SQLException {
+    private Payment buildInstance(ResultSet rs) throws SQLException {
         try {
-            return new Transaction(
+            return new Payment(
                     new BigInteger(rs.getString(ID_COLUMN_NAME)),
                     rs.getBigDecimal(AMOUNT_COLUMN_NAME),
                     new BigInteger(rs.getString(PAYER_COLUMN_NAME)),
@@ -212,9 +181,32 @@ public class PaymentDaoImpl implements PaymentDao {
                     rs.getTimestamp(DATE_COLUMN_NAME).toLocalDateTime()
             );
         } catch (IllegalArgumentException e) {
-            logger.log(Level.WARN, String.format("Invalid field values were obtained from database (%s)",
+            logger.log(Level.WARN, String.format("Invalid field values were obtained from database (method: %s)",
                     Thread.currentThread().getStackTrace()[1].getMethodName()), e);
-            throw new SQLException("Cannot create payment instance (invalid field values were obtained from database)", e);
+            throw new SQLException("Cannot create payment instance (invalid field values were obtained from database)",
+                    INVALID_PARAM_SQLSTATE, CustomSQLCode.INVALID_DB_PARAMETER.getCode(), e);
         }
+    }
+
+    private List<Payment> retrievePayments(Connection conn, ResultSet rs) throws SQLException {
+        List<Payment> payments = new ArrayList<>();
+        if (rs != null) {
+            while (rs.next()) {
+                payments.add(buildInstance(rs));
+            }
+            rs.getStatement().close();
+        }
+        conn.close();
+        return payments;
+    }
+
+    private int retrievePaymentsNumber(Connection conn, ResultSet rs) throws SQLException {
+        int amount = 0;
+        if (rs != null && rs.next()) {
+            amount = rs.getInt(1);
+            rs.getStatement().close();
+        }
+        conn.close();
+        return amount;
     }
 }

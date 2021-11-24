@@ -4,7 +4,7 @@ import com.epam.upskillproject.controller.LocaleDispatcher;
 import com.epam.upskillproject.controller.ParamReader;
 import com.epam.upskillproject.model.dto.Account;
 import com.epam.upskillproject.model.service.CustomerService;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.TransactionSortType;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PaymentSortType;
 import jakarta.inject.Inject;
 import jakarta.security.enterprise.SecurityContext;
 import jakarta.servlet.RequestDispatcher;
@@ -58,7 +58,7 @@ public class MyAccountOutgoingServlet extends HttpServlet {
         if (principal != null) {
             int pageNumber = paramReader.readPageNumber(req);
             int pageSize = paramReader.readPageSize(req);
-            Optional<TransactionSortType> sortType = paramReader.readPaymentSort(req, SORT_PARAM);
+            Optional<PaymentSortType> sortType = paramReader.readPaymentSort(req, SORT_PARAM);
             try {
                 BigInteger accountId = getIdFromRequestUri(req);
                 Account account = customerService.getUserAccountById(principal, accountId);

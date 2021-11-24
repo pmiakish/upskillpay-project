@@ -1,5 +1,8 @@
 package com.epam.upskillproject.exceptions;
 
+import jakarta.ejb.ApplicationException;
+
+@ApplicationException
 public class PaymentParamException extends IllegalArgumentException {
 
     public PaymentParamException() {

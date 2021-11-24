@@ -23,7 +23,7 @@ public interface CardDao {
     boolean updateCardStatus(BigInteger id, StatusType statusType) throws SQLException;
     Optional<StatusType> getCardStatus(BigInteger id) throws SQLException;
     Optional<BigInteger> getCardAccountId(BigInteger cardId) throws SQLException;
-    String addCard(Connection conn, BigInteger ownerId, BigInteger accountId, CardNetworkType cardNetworkType) throws SQLException;
+    String addCard(Connection conn, Card cardDto) throws SQLException;
     boolean deleteCardById(BigInteger id) throws SQLException;
     boolean deleteCardByIdAndOwner(BigInteger cardId, BigInteger ownerId) throws SQLException;
     boolean deleteCardsByAccount(BigInteger id) throws SQLException;

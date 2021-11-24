@@ -5,6 +5,7 @@ import com.epam.upskillproject.model.dao.AccountDao;
 import com.epam.upskillproject.model.dao.queryhandlers.FinancialTransactionsPerformer;
 import com.epam.upskillproject.model.dao.PersonDao;
 import com.epam.upskillproject.model.dto.*;
+import com.epam.upskillproject.util.ParamsValidator;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import org.apache.logging.log4j.Level;
@@ -22,17 +23,18 @@ public class SystemService {
 
     private static final BigInteger SYSTEM_INCOME_ID = BigInteger.ZERO;
     private static final BigDecimal INITIAL_BALANCE_AMOUNT = BigDecimal.valueOf(50.00);
-    private static final String EMAIL_PATTERN = "^\\w+@\\w+\\.\\w+$";
 
     private final PersonDao personDao;
     private final AccountDao accountDao;
+    private final ParamsValidator paramsValidator;
     private final FinancialTransactionsPerformer financialTransactionsPerformer;
 
     @Inject
-    public SystemService(PersonDao personDao, AccountDao accountDao,
+    public SystemService(PersonDao personDao, AccountDao accountDao, ParamsValidator paramsValidator,
                          FinancialTransactionsPerformer financialTransactionsPerformer) {
         this.personDao = personDao;
         this.accountDao = accountDao;
+        this.paramsValidator = paramsValidator;
         this.financialTransactionsPerformer = financialTransactionsPerformer;
     }
 
@@ -43,7 +45,7 @@ public class SystemService {
      * @throws SQLException
      */
     public Person getPerson(String email) throws SQLException {
-        if (!checkParams(email) || !email.matches(EMAIL_PATTERN)) {
+        if (!paramsValidator.validateEmail(email)) {
             logger.log(Level.WARN, String.format("Cannot get person (invalid email parameter - %s)", email));
             return null;
         }
@@ -63,27 +65,29 @@ public class SystemService {
      */
     public synchronized boolean addCustomer(String email, String password, String firstName, String lastName) throws
             SQLException, TransactionException {
-        if (!checkParams(email, password, firstName, lastName) || !email.matches(EMAIL_PATTERN)) {
-            logger.log(Level.WARN, String.format("Cannot add new customer (invalid parameters) [email: %s]", email));
+        if (!paramsValidator.validatePersonAddParams(email, password, firstName, lastName)) {
+            logger.log(Level.WARN, String.format("Cannot add new customer (invalid parameters) [email: %s, password " +
+                    "not null: %s, name: %s %s]", email, (password != null), firstName, lastName));
             return false;
         }
-        Person newCustomer = personDao.addPerson(PermissionType.CUSTOMER, email, password, firstName, lastName,
-                StatusType.ACTIVE);
-        if (newCustomer != null) {
-            logger.log(Level.INFO, String.format("New customer created (id: %s, email: %s)", newCustomer.getId(), email));
-            Account newAccount = accountDao.addAccount(newCustomer.getId(), BigDecimal.ZERO, StatusType.ACTIVE);
-            if (newAccount != null) {
+        Person personDto = new Person(PermissionType.CUSTOMER, email, password, firstName, lastName, StatusType.ACTIVE);
+        Person createdCustomer = personDao.addPerson(personDto);
+        if (createdCustomer != null) {
+            logger.log(Level.INFO, String.format("New customer created (id: %s, email: %s)", createdCustomer.getId(), email));
+            Account accountDto = new Account(createdCustomer.getId(), BigDecimal.ZERO, StatusType.ACTIVE);
+            Account createdAccount = accountDao.addAccount(accountDto);
+            if (createdAccount != null) {
                 logger.log(Level.INFO, String.format("Set new account initial balance (user id: %s, account id: %s, " +
-                        "balance: %s)", newCustomer.getId(), newAccount.getId(), INITIAL_BALANCE_AMOUNT));
-                financialTransactionsPerformer.makePayment(INITIAL_BALANCE_AMOUNT, SYSTEM_INCOME_ID, newAccount.getId());
+                        "balance: %s)", createdCustomer.getId(), createdAccount.getId(), INITIAL_BALANCE_AMOUNT));
+                financialTransactionsPerformer.makePayment(INITIAL_BALANCE_AMOUNT, SYSTEM_INCOME_ID, createdAccount.getId());
             } else {
                 logger.log(Level.WARN, String.format("An account of a new customer was not created (user id: %s)",
-                        newCustomer.getId()));
+                        createdCustomer.getId()));
             }
             return true;
         } else {
-            logger.log(Level.WARN, String.format("Cannot add new customer (returned null from data access object) " +
-                    "[email: %s]", email));
+            logger.log(Level.WARN, String.format("Cannot add new customer (returned null from DAO) [email: %s, " +
+                    "password not null: %s, name %s %s]", email, (password != null), firstName, lastName));
             return false;
         }
     }
@@ -95,7 +99,7 @@ public class SystemService {
      * @throws SQLException
      */
     public boolean checkActiveStatus(String email) throws SQLException {
-        if (!checkParams(email) || !email.matches(EMAIL_PATTERN)) {
+        if (!paramsValidator.validateEmail(email)) {
             logger.log(Level.WARN, String.format("Cannot check person's status (invalid email parameter) [email: %s]",
                     email));
             return false;
@@ -112,7 +116,7 @@ public class SystemService {
      * @throws SQLException
      */
     public boolean checkPersonHash(String email, int hash) throws SQLException {
-        if (!checkParams(email) || !email.matches(EMAIL_PATTERN)) {
+        if (!paramsValidator.validateEmail(email)) {
             logger.log(Level.WARN, String.format("Cannot check person's hash (invalid email parameter) [email: %s]",
                     email));
             return false;
@@ -132,9 +136,9 @@ public class SystemService {
      */
     public synchronized boolean updateUser(String email, String newPassword, String newFirstName, String newLastName)
             throws SQLException {
-        if (!checkParams(email, newFirstName, newLastName) || !email.matches(EMAIL_PATTERN)) {
-            logger.log(Level.WARN, String.format("Cannot update user's record (invalid parameters) [email: %s]",
-                    email));
+        if (!paramsValidator.validatePersonAddParams(email, newPassword, newFirstName, newLastName)) {
+            logger.log(Level.WARN, String.format("Cannot update user's record (invalid parameters) [email: %s, " +
+                    "password not null: %s, name: %s %s]", email, (newPassword != null), newFirstName, newLastName));
             return false;
         }
         Person person = personDao.getSinglePersonByEmail(email).orElse(null);
@@ -143,8 +147,9 @@ public class SystemService {
                 newPassword = person.getPassword();
             }
             logger.log(Level.INFO, String.format("Try to update user's record [email: %s]", email));
-            return personDao.updatePerson(person.getId(), person.getPermission(), person.getEmail(), newPassword,
+            Person personDto = new Person(person.getId(), person.getPermission(), person.getEmail(), newPassword,
                     newFirstName, newLastName, person.getStatus(), person.getRegDate());
+            return personDao.updatePerson(personDto);
         } else {
             logger.log(Level.WARN, String.format("Cannot update user's record (related person not found) [email: %s]",
                     email));
@@ -152,23 +157,4 @@ public class SystemService {
         }
     }
 
-    private boolean checkParams(Object... params) {
-        if (params == null) {
-            logger.log(Level.WARN, String.format("Parameters array passed to %s is null",
-                    Thread.currentThread().getStackTrace()[1].getMethodName()));
-            return false;
-        }
-        for (Object p : params) {
-            if (
-                    p == null ||
-                            (p instanceof String && ((String) p).trim().length() == 0) ||
-                            (p instanceof Integer && ((Integer) p) < 0)
-            ) {
-                logger.log(Level.WARN, String.format("At least one of the passed parameters to %s is not valid",
-                        Thread.currentThread().getStackTrace()[1].getMethodName()));
-                return false;
-            }
-        }
-        return true;
-    }
 }

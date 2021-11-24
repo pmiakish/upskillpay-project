@@ -1,6 +1,6 @@
 package com.epam.upskillproject.controller;
 
-import com.epam.upskillproject.init.PropertiesKeeper;
+import com.epam.upskillproject.util.init.PropertiesKeeper;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,4 +1,4 @@
-package com.epam.upskillproject.init;
+package com.epam.upskillproject.util.init;
 
 import jakarta.annotation.security.DeclareRoles;
 import jakarta.enterprise.context.ApplicationScoped;

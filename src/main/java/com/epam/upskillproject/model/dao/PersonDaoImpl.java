@@ -1,5 +1,6 @@
 package com.epam.upskillproject.model.dao;
 
+import com.epam.upskillproject.exceptions.CustomSQLCode;
 import com.epam.upskillproject.model.dao.queryhandlers.QueryExecutor;
 import com.epam.upskillproject.model.dao.queryhandlers.constructors.PersonQueryConstructor;
 import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.OrderStrategy;
@@ -7,15 +8,16 @@ import com.epam.upskillproject.model.dto.PermissionType;
 import com.epam.upskillproject.model.dto.Person;
 import com.epam.upskillproject.model.dto.StatusType;
 import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PersonSortType;
+import jakarta.annotation.Resource;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import javax.sql.DataSource;
 import java.math.BigInteger;
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -34,7 +36,10 @@ public class PersonDaoImpl implements PersonDao {
     private static final String REGDATE_COLUMN_NAME = "REGDATE";
     private static final String PERMISSION_COLUMN_ALIAS = "prmName";
     private static final String STATUS_COLUMN_ALIAS = "statName";
+    private static final String INVALID_PARAM_SQLSTATE = "22023";
 
+    @Resource(lookup = "java:global/customProjectDB")
+    private DataSource dataSource;
     private final PersonQueryConstructor queryConstructor;
     private final QueryExecutor queryExecutor;
     private final OrderStrategy orderStrategy;
@@ -51,7 +56,7 @@ public class PersonDaoImpl implements PersonDao {
     @Override
     public Optional<Person> getSinglePersonById(BigInteger id) throws SQLException {
         String rawQuery = queryConstructor.singleById();
-        return executeQuerySingleById(rawQuery, id);
+        return findSingleById(rawQuery, id);
     }
 
     @Override
@@ -60,13 +65,13 @@ public class PersonDaoImpl implements PersonDao {
             return Optional.empty();
         }
         String rawQuery = queryConstructor.singleById(permission);
-        return executeQuerySingleById(rawQuery, id);
+        return findSingleById(rawQuery, id);
     }
 
     @Override
     public Optional<Person> getSinglePersonByEmail(String email) throws SQLException {
         String rawQuery = queryConstructor.singleByEmail();
-        return executeQuerySingleByEmail(rawQuery, email);
+        return findSingleByEmail(rawQuery, email);
     }
 
     @Override
@@ -75,13 +80,13 @@ public class PersonDaoImpl implements PersonDao {
             return Optional.empty();
         }
         String rawQuery = queryConstructor.singleByEmail(permission);
-        return executeQuerySingleByEmail(rawQuery, email);
+        return findSingleByEmail(rawQuery, email);
     }
 
     @Override
     public List<Person> getAllPersons(PersonSortType sortType) throws SQLException {
         String rawQuery = queryConstructor.all();
-        return executeQueryAll(String.format(rawQuery, orderStrategy.getOrder(sortType)));
+        return findAll(String.format(rawQuery, orderStrategy.getOrder(sortType)));
     }
 
     @Override
@@ -90,7 +95,7 @@ public class PersonDaoImpl implements PersonDao {
             return new ArrayList<>();
         }
         String rawQuery = queryConstructor.all(permission);
-        return executeQueryAll(String.format(rawQuery, orderStrategy.getOrder(sortType)));
+        return findAll(String.format(rawQuery, orderStrategy.getOrder(sortType)));
     }
 
     @Override
@@ -99,7 +104,7 @@ public class PersonDaoImpl implements PersonDao {
             return new ArrayList<>();
         }
         String rawQuery = queryConstructor.page();
-        return executeQueryPage(rawQuery, limit, offset, sortType);
+        return findPage(rawQuery, limit, offset, sortType);
     }
 
     @Override
@@ -109,13 +114,13 @@ public class PersonDaoImpl implements PersonDao {
             return new ArrayList<>();
         }
         String rawQuery = queryConstructor.page(permission);
-        return executeQueryPage(rawQuery, limit, offset, sortType);
+        return findPage(rawQuery, limit, offset, sortType);
     }
 
     @Override
     public int countPersons() throws SQLException {
         String query = queryConstructor.count();
-        return executeQueryCount(query);
+        return retrievePersonsNumber(query);
     }
 
     @Override
@@ -124,13 +129,15 @@ public class PersonDaoImpl implements PersonDao {
             return 0;
         }
         String query = queryConstructor.count(permission);
-        return executeQueryCount(query);
+        return retrievePersonsNumber(query);
     }
 
     @Override
     public Optional<StatusType> getPersonStatus(String email) throws SQLException {
+        Connection conn = dataSource.getConnection();
         String rawQuery = queryConstructor.status();
-        ResultSet rs = queryExecutor.execute(String.format(rawQuery, email));
+        String query = String.format(rawQuery, email);
+        ResultSet rs = queryExecutor.execute(conn, query);
         StatusType statusType = null;
         if (rs != null && rs.next()) {
             try {
@@ -138,9 +145,10 @@ public class PersonDaoImpl implements PersonDao {
             } catch (IllegalArgumentException e) {
                 return Optional.empty();
             } finally {
-                rs.close();
+                rs.getStatement().close();
             }
         }
+        conn.close();
         return (statusType != null) ? Optional.of(statusType) : Optional.empty();
     }
 
@@ -151,100 +159,76 @@ public class PersonDaoImpl implements PersonDao {
     }
 
     @Override
-    public synchronized boolean updatePerson(BigInteger id,
-                                             PermissionType newPermission,
-                                             String newEmail,
-                                             String newPassword,
-                                             String newFirstName,
-                                             String newLastName,
-                                             StatusType newStatusType,
-                                             LocalDate newRegDate) throws SQLException {
+    public synchronized boolean updatePerson(Person personDto) throws SQLException {
         String rawQuery = queryConstructor.update();
-        try {
-            int result = queryExecutor.executeUpdate(
-                    rawQuery,
-                    Objects.requireNonNull(newPermission, "newPermission is null").getId(),
-                    Objects.requireNonNull(newEmail, "newPermission is null").trim(),
-                    newPassword,
-                    Objects.requireNonNull(newFirstName, "newFirstName is null").trim(),
-                    Objects.requireNonNull(newLastName, "newLastName is null").trim(),
-                    Objects.requireNonNull(newStatusType, "newStatusType is null").getId(),
-                    Date.valueOf(newRegDate),
-                    id
-            );
-            return (result != 0);
+        try (Connection conn = dataSource.getConnection()) {
+            return executeUpdatePerson(personDto, conn, rawQuery);
         } catch (NullPointerException e) {
             logger.log(Level.WARN, String.format("Incorrect parameters passed to %s, cannot update person (id %s)",
-                    Thread.currentThread().getStackTrace()[1].getMethodName(), id), e);
-            throw new SQLException("Cannot update person (incorrect parameters passed)", e);
+                    Thread.currentThread().getStackTrace()[1].getMethodName(), personDto.getId()), e);
+            throw new SQLException("Cannot update person (incorrect parameters passed)", INVALID_PARAM_SQLSTATE,
+                    CustomSQLCode.INVALID_STATEMENT_PARAMETER.getCode(), e);
         }
     }
 
     @Override
-    public synchronized boolean updatePerson(PermissionType permission,
-                                             BigInteger id,
-                                             PermissionType newPermission,
-                                             String newEmail,
-                                             String newPassword,
-                                             String newFirstName,
-                                             String newLastName,
-                                             StatusType newStatusType,
-                                             LocalDate newRegDate) throws SQLException {
+    public synchronized boolean updatePerson(PermissionType permission, Person personDto) throws SQLException {
         if (permission == null) {
             logger.log(Level.WARN, String.format("Incorrect parameters passed to %s - permission is null, cannot " +
                             "update person (id %s)",
-                    Thread.currentThread().getStackTrace()[1].getMethodName(), id));
-            throw new SQLException("Cannot update person (permission is not specified)");
+                    Thread.currentThread().getStackTrace()[1].getMethodName(),
+                    (personDto != null) ? personDto.getId() : null));
+            throw new SQLException("Cannot update person (permission is not specified)", INVALID_PARAM_SQLSTATE,
+                    CustomSQLCode.INVALID_STATEMENT_PARAMETER.getCode());
         }
-        String rawQuery = queryConstructor.update(permission);
-        try {
-            int result = queryExecutor.executeUpdate(
-                    rawQuery,
-                    id,
-                    Objects.requireNonNull(newPermission, "newPermission is null").getId(),
-                    Objects.requireNonNull(newEmail, "newEmail is null").trim(),
-                    newPassword,
-                    Objects.requireNonNull(newFirstName, "newFirstName is null").trim(),
-                    Objects.requireNonNull(newLastName, "newLastName is null").trim(),
-                    Objects.requireNonNull(newStatusType, "newStatusType is null").getId(),
-                    Date.valueOf(newRegDate)
-            );
-            return (result != 0);
+        try (Connection conn = dataSource.getConnection()) {
+            String rawQuery = queryConstructor.update(permission);
+            return executeUpdatePerson(personDto, conn, rawQuery);
         } catch (NullPointerException e) {
             logger.log(Level.WARN, String.format("Incorrect parameters passed to %s, cannot update person (id %s)",
-                    Thread.currentThread().getStackTrace()[1].getMethodName(), id), e);
-            throw new SQLException("Cannot update person (incorrect parameters passed)", e);
+                    Thread.currentThread().getStackTrace()[1].getMethodName(), personDto.getId()), e);
+            throw new SQLException("Cannot update person (incorrect parameters passed)", INVALID_PARAM_SQLSTATE,
+                    CustomSQLCode.INVALID_STATEMENT_PARAMETER.getCode(), e);
         }
     }
 
     @Override
-    public synchronized Person addPerson(PermissionType permission,
-                                         String email,
-                                         String password,
-                                         String firstName,
-                                         String lastName,
-                                         StatusType statusType) throws SQLException {
+    public synchronized Person addPerson(Person personDto) throws SQLException {
+        if (personDto == null) {
+            logger.log(Level.WARN, String.format("Incorrect DTO passed to %s - personDto is null, cannot " +
+                            "add person", Thread.currentThread().getStackTrace()[1].getMethodName()));
+            throw new SQLException("Cannot add person (permission is not specified)", INVALID_PARAM_SQLSTATE,
+                    CustomSQLCode.INVALID_STATEMENT_PARAMETER.getCode());
+        }
         String rawQuery = queryConstructor.add();
-        try {
-            queryExecutor.executeUpdate(
-                    rawQuery,
-                    Objects.requireNonNull(permission, "permission is null").getId(),
-                    Objects.requireNonNull(email, "email is null").trim(),
-                    password,
-                    Objects.requireNonNull(firstName, "firstName is null").trim(),
-                    Objects.requireNonNull(lastName, "lastName is null").trim(),
-                    Objects.requireNonNull(statusType, "statusType is null").getId(),
+        try (Connection conn = dataSource.getConnection()) {
+            queryExecutor.executeUpdate(conn, rawQuery,
+                    Objects.requireNonNull(personDto.getPermission(), "permission is null").getId(),
+                    Objects.requireNonNull(personDto.getEmail(), "email is null").trim(),
+                    Objects.requireNonNull(personDto.getPassword(), "password is null").trim(),
+                    Objects.requireNonNull(personDto.getFirstName(), "first name is null").trim(),
+                    Objects.requireNonNull(personDto.getLastName(), "last name is null").trim(),
+                    Objects.requireNonNull(personDto.getStatus(), "statusType is null").getId(),
                     new Date(System.currentTimeMillis())
             );
         } catch (NullPointerException e) {
             logger.log(Level.WARN, String.format("Incorrect parameters passed to %s, cannot add person",
                     Thread.currentThread().getStackTrace()[1].getMethodName()), e);
-            throw new SQLException("Cannot add person (incorrect parameters passed)", e);
+            throw new SQLException("Cannot add person (incorrect parameters passed)", INVALID_PARAM_SQLSTATE,
+                    CustomSQLCode.INVALID_STATEMENT_PARAMETER.getCode(), e);
         }
-        return getSinglePersonByEmail(email).orElse(null);
+        return getSinglePersonByEmail(personDto.getEmail()).orElse(null);
     }
 
-    // should use the method as a transaction part after removing all the cards and accounts of the person
+    /**
+     * Removes a person which has a specified id. The method is intended for use as a part of a transaction after
+     * removing all the cards and accounts associated with the person to avoid database constraints.
+     * Notice that the passed connection will not be closed after execution of the method
+     * @param conn a valid java.sql.Connection (auto-commit mode of passed connection must be set to false)
+     * @param id a person id (a positive BigInteger)
+     * @return true in case of success, otherwise false
+     * @throws SQLException
+     */
     @Override
     public synchronized boolean deletePersonById(Connection conn, BigInteger id) throws SQLException {
         String rawQuery = queryConstructor.delSingleById();
@@ -252,58 +236,64 @@ public class PersonDaoImpl implements PersonDao {
         return (result != 0);
     }
 
-    private Optional<Person> executeQuerySingleById(String rawQuery, BigInteger id) throws SQLException {
-        ResultSet rs = queryExecutor.execute(rawQuery, id);
+    private Optional<Person> findSingleById(String rawQuery, BigInteger id) throws SQLException {
+        Connection conn = dataSource.getConnection();
+        ResultSet rs = queryExecutor.execute(conn, rawQuery, id);
+        return retrievePerson(conn, rs);
+    }
+
+    private Optional<Person> findSingleByEmail(String rawQuery, String email) throws SQLException {
+        Connection conn = dataSource.getConnection();
+        String query = String.format(rawQuery, email);
+        ResultSet rs = queryExecutor.execute(conn, query);
+        return retrievePerson(conn, rs);
+    }
+
+    private Optional<Person> retrievePerson(Connection conn, ResultSet rs) throws SQLException {
         Person person = null;
         if (rs != null && rs.next()) {
             person = buildInstance(rs);
-            rs.close();
+            rs.getStatement().close();
         }
+        conn.close();
         return (person != null) ? Optional.of(person) : Optional.empty();
     }
 
-    private Optional<Person> executeQuerySingleByEmail(String rawQuery, String email) throws SQLException {
-        ResultSet rs = queryExecutor.execute(String.format(rawQuery, email));
-        Person person = null;
-        if (rs != null && rs.next()) {
-            person = buildInstance(rs);
-            rs.close();
-        }
-        return (person != null) ? Optional.of(person) : Optional.empty();
+    private List<Person> findAll(String query) throws SQLException {
+        Connection conn = dataSource.getConnection();
+        ResultSet rs = queryExecutor.execute(conn, query);
+        return retrievePersonList(conn, rs);
     }
 
-    private List<Person> executeQueryAll(String query) throws SQLException {
-        ResultSet rs = queryExecutor.execute(query);
-        List<Person> persons = new ArrayList<>();
-        if (rs != null) {
-            while (rs.next()) {
-                persons.add(buildInstance(rs));
-            }
-            rs.close();
-        }
-        return persons;
-    }
-
-    private List<Person> executeQueryPage(String rawQuery, int limit, int offset, PersonSortType sortType)
+    private List<Person> findPage(String rawQuery, int limit, int offset, PersonSortType sortType)
             throws SQLException {
-        ResultSet rs = queryExecutor.execute(String.format(rawQuery, orderStrategy.getOrder(sortType)), limit, offset);
+        Connection conn = dataSource.getConnection();
+        String query = String.format(rawQuery, orderStrategy.getOrder(sortType));
+        ResultSet rs = queryExecutor.execute(conn, query, limit, offset);
+        return retrievePersonList(conn, rs);
+    }
+
+    private List<Person> retrievePersonList(Connection conn, ResultSet rs) throws SQLException {
         List<Person> persons = new ArrayList<>();
         if (rs != null) {
             while (rs.next()) {
                 persons.add(buildInstance(rs));
             }
-            rs.close();
+            rs.getStatement().close();
         }
+        conn.close();
         return persons;
     }
 
-    private int executeQueryCount(String query) throws SQLException {
-        ResultSet rs = queryExecutor.execute(query);
+    private int retrievePersonsNumber(String query) throws SQLException {
+        Connection conn = dataSource.getConnection();
+        ResultSet rs = queryExecutor.execute(conn, query);
         int amount = 0;
         if (rs != null && rs.next()) {
             amount = rs.getInt(1);
-            rs.close();
+            rs.getStatement().close();
         }
+        conn.close();
         return amount;
     }
 
@@ -320,9 +310,25 @@ public class PersonDaoImpl implements PersonDao {
                     rs.getDate(REGDATE_COLUMN_NAME).toLocalDate()
             );
         } catch (IllegalArgumentException e) {
-            logger.log(Level.WARN, String.format("Invalid field values were obtained from database (%s)",
+            logger.log(Level.WARN, String.format("Invalid field values were obtained from database (method: %s)",
                     Thread.currentThread().getStackTrace()[1].getMethodName()), e);
-            throw new SQLException("Cannot create person instance (invalid field values were obtained from database)", e);
+            throw new SQLException("Cannot create person instance (invalid field values were obtained from database)",
+                    INVALID_PARAM_SQLSTATE, CustomSQLCode.INVALID_DB_PARAMETER.getCode(), e);
         }
+    }
+
+    private boolean executeUpdatePerson(Person personDto, Connection conn, String rawQuery) throws SQLException,
+            NullPointerException {
+        int result = queryExecutor.executeUpdate(conn, rawQuery,
+                Objects.requireNonNull(personDto.getPermission(), "permission is null").getId(),
+                Objects.requireNonNull(personDto.getEmail(), "email is null").trim(),
+                personDto.getPassword(),
+                Objects.requireNonNull(personDto.getFirstName(), "first name is null").trim(),
+                Objects.requireNonNull(personDto.getLastName(), "last name is null").trim(),
+                Objects.requireNonNull(personDto.getStatus(), "status type is null").getId(),
+                Date.valueOf(personDto.getRegDate()),
+                personDto.getId()
+        );
+        return (result != 0);
     }
 }

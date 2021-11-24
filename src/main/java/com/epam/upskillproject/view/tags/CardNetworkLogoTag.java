@@ -1,6 +1,6 @@
 package com.epam.upskillproject.view.tags;
 
-import com.epam.upskillproject.init.PropertiesKeeper;
+import com.epam.upskillproject.util.init.PropertiesKeeper;
 import com.epam.upskillproject.model.dto.CardNetworkType;
 import jakarta.inject.Inject;
 import jakarta.servlet.jsp.JspException;

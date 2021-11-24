@@ -7,7 +7,6 @@ import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PersonSortT
 import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,13 +24,8 @@ public interface PersonDao {
     int countPersons(PermissionType permission) throws SQLException;
     Optional<StatusType> getPersonStatus(String email) throws SQLException ;
     Optional<Integer> getPersonHash(String email) throws SQLException;
-    boolean updatePerson(BigInteger personId, PermissionType newPermission, String newEmail, String newPassword,
-                      String newFirstName, String newLastName, StatusType newStatusType,
-                      LocalDate newRegDate) throws SQLException;
-    boolean updatePerson(PermissionType permission, BigInteger personId, PermissionType newPermission, String newEmail,
-                      String newPassword, String newFirstName, String newLastName, StatusType newStatusType,
-                      LocalDate newRegDate) throws SQLException;
-    Person addPerson(PermissionType permission, String email, String password, String firstName, String lastName,
-                     StatusType newStatusType) throws SQLException;
+    boolean updatePerson(Person personDto) throws SQLException;
+    boolean updatePerson(PermissionType permission, Person personDto) throws SQLException;
+    Person addPerson(Person personDto) throws SQLException;
     boolean deletePersonById(Connection conn, BigInteger id) throws SQLException;
 }

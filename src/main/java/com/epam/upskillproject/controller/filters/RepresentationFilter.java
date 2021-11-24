@@ -1,6 +1,6 @@
 package com.epam.upskillproject.controller.filters;
 
-import com.epam.upskillproject.init.PropertiesKeeper;
+import com.epam.upskillproject.util.init.PropertiesKeeper;
 import jakarta.inject.Inject;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;

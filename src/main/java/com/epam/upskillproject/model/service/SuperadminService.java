@@ -7,6 +7,7 @@ import com.epam.upskillproject.model.dao.IncomeDao;
 import com.epam.upskillproject.model.dao.PersonDao;
 import com.epam.upskillproject.model.dto.*;
 import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PersonSortType;
+import com.epam.upskillproject.util.ParamsValidator;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import org.apache.logging.log4j.Level;
@@ -25,19 +26,20 @@ public class SuperadminService {
     private static final Logger logger = LogManager.getLogger(SuperadminService.class.getName());
 
     private static final PersonSortType DEFAULT_PERSON_SORT_TYPE = PersonSortType.ID;
-    private static final String EMAIL_PATTERN = "^\\w+@\\w+\\.\\w+$";
 
     private final PersonDao personDao;
     private final CardDao cardDao;
     private final IncomeDao incomeDao;
+    private final ParamsValidator paramsValidator;
     private final FinancialTransactionsPerformer financialTransactionsPerformer;
 
     @Inject
-    public SuperadminService(PersonDao personDao, CardDao cardDao, IncomeDao incomeDao,
+    public SuperadminService(PersonDao personDao, CardDao cardDao, IncomeDao incomeDao, ParamsValidator paramsValidator,
                              FinancialTransactionsPerformer financialTransactionsPerformer) {
         this.personDao = personDao;
         this.cardDao = cardDao;
         this.incomeDao = incomeDao;
+        this.paramsValidator = paramsValidator;
         this.financialTransactionsPerformer = financialTransactionsPerformer;
     }
 
@@ -50,7 +52,7 @@ public class SuperadminService {
      * @throws SQLException
      */
     public Page<Person> getAdmins(int amount, int pageNumber, PersonSortType sortType) throws SQLException {
-        if (!checkParams(amount, pageNumber)) {
+        if (!paramsValidator.validatePageParams(amount, pageNumber)) {
             logger.log(Level.WARN, "Cannot get page of admins (invalid page parameters)");
             return null;
         }
@@ -71,7 +73,7 @@ public class SuperadminService {
      * @throws SQLException
      */
     public Person getAdmin(String email) throws SQLException {
-        if (!checkParams(email) || !email.matches(EMAIL_PATTERN)) {
+        if (!paramsValidator.validateEmail(email)) {
             logger.log(Level.WARN, String.format("Cannot get admin (invalid email parameter - %s)", email));
             return null;
         }
@@ -86,7 +88,7 @@ public class SuperadminService {
      * @throws SQLException
      */
     public Person getAdmin(BigInteger id) throws SQLException {
-        if (!checkParams(id)) {
+        if (!paramsValidator.validateId(id)) {
             logger.log(Level.WARN, String.format("Cannot get admin (invalid id parameter - %s)", id));
             return null;
         }
@@ -115,8 +117,9 @@ public class SuperadminService {
                                             String newLastName,
                                             StatusType statusType,
                                             LocalDate newRegDate) throws SQLException {
-        if (!checkParams(id, newEmail, newFirstName, newLastName, statusType, newRegDate)) {
-            logger.log(Level.WARN, "Cannot update admin (bad parameters passed)");
+        if (!paramsValidator.validatePersonUpdateParams(id, newEmail, newPassword, newFirstName, newLastName, statusType,
+                newRegDate)) {
+            logger.log(Level.WARN, String.format("Cannot update admin (bad parameters passed) [id: %s]", id));
             return false;
         }
         Optional<Person> person = personDao.getSinglePersonById(PermissionType.ADMIN, id);
@@ -127,8 +130,9 @@ public class SuperadminService {
             if (newPassword == null) {
                 newPassword = person.get().getPassword();
             }
-            return personDao.updatePerson(PermissionType.ADMIN, id, newPermissionType, newEmail, newPassword,
-                    newFirstName, newLastName, statusType, newRegDate);
+            Person personDto = new Person(id, newPermissionType, newEmail, newPassword, newFirstName, newLastName,
+                    statusType, newRegDate);
+            return personDao.updatePerson(PermissionType.ADMIN, personDto);
         } else {
             logger.log(Level.WARN, String.format("Cannot update admin (person with id %s not found)", id));
             return false;
@@ -141,7 +145,7 @@ public class SuperadminService {
      * @return true if a person was deleted, otherwise false
      */
     public boolean deletePerson(BigInteger id) throws TransactionException {
-        if (!checkParams(id)) {
+        if (!paramsValidator.validateId(id)) {
             logger.log(Level.WARN, String.format("Cannot delete person (bad id parameter passed: %s)", id));
             return false;
         }
@@ -159,7 +163,7 @@ public class SuperadminService {
      * @return true if an account was deleted, otherwise false
      */
     public boolean deleteAccount(BigInteger id) throws TransactionException {
-        if (!checkParams(id)) {
+        if (!paramsValidator.validateId(id)) {
             logger.log(Level.WARN, String.format("Cannot delete account (bad id parameter passed: %s)", id));
             return false;
         }
@@ -172,7 +176,7 @@ public class SuperadminService {
      * @return true if a card was deleted, otherwise false
      */
     public boolean deleteCard(BigInteger id) throws SQLException {
-        if (!checkParams(id)) {
+        if (!paramsValidator.validateId(id)) {
             logger.log(Level.WARN, String.format("Cannot delete card (bad id parameter passed: %s)", id));
             return false;
         }
@@ -186,26 +190,5 @@ public class SuperadminService {
      */
     public BigDecimal getIncomeBalance() throws SQLException {
         return incomeDao.getBalance();
-    }
-
-    private boolean checkParams(Object... params) {
-        if (params == null) {
-            logger.log(Level.WARN, String.format("Parameters array passed to %s is null",
-                    Thread.currentThread().getStackTrace()[1].getMethodName()));
-            return false;
-        }
-        for (Object p : params) {
-            if (
-                    p == null ||
-                            (p instanceof String && ((String) p).trim().length() == 0) ||
-                            (p instanceof Integer && ((Integer) p) < 0) ||
-                            (p instanceof BigInteger && ((BigInteger) p).compareTo(BigInteger.ZERO) < 0)
-            ) {
-                logger.log(Level.WARN, String.format("At least one of the passed parameters to %s is not valid",
-                        Thread.currentThread().getStackTrace()[1].getMethodName()));
-                return false;
-            }
-        }
-        return true;
     }
 }

@@ -2,7 +2,7 @@ package com.epam.upskillproject.controller.servlets.admin;
 
 import com.epam.upskillproject.controller.LocaleDispatcher;
 import com.epam.upskillproject.controller.ParamReader;
-import com.epam.upskillproject.init.PropertiesKeeper;
+import com.epam.upskillproject.util.init.PropertiesKeeper;
 import com.epam.upskillproject.model.dto.Person;
 import com.epam.upskillproject.model.dto.StatusType;
 import com.epam.upskillproject.model.service.SuperadminService;

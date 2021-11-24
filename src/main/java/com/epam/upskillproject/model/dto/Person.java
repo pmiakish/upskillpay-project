@@ -28,6 +28,32 @@ public class Person {
         this.hash = hashCode();
     }
 
+    public Person(BigInteger id, PermissionType permission, String email, String firstName, String lastName,
+                  StatusType statusType, LocalDate regDate) {
+        this.id = id;
+        this.permission = permission;
+        this.email = email;
+        this.password = null;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.status = statusType;
+        this.regDate = regDate;
+        this.hash = hashCode();
+    }
+
+    public Person(PermissionType permission, String email, String password, String firstName, String lastName,
+                  StatusType statusType) {
+        this.id = null;
+        this.permission = permission;
+        this.email = email;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.status = statusType;
+        this.regDate = null;
+        this.hash = hashCode();
+    }
+
     public BigInteger getId() {
         return id;
     }
@@ -69,9 +95,14 @@ public class Person {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Person person = (Person) o;
-        return id.equals(person.id) && permission == person.permission && email.equals(person.email) &&
-                password.equals(person.password) && firstName.equals(person.firstName) &&
-                lastName.equals(person.lastName) && status == person.status && regDate.equals(person.regDate);
+        return Objects.equals(id, person.id) &&
+                permission == person.permission &&
+                Objects.equals(email, person.email) &&
+                Objects.equals(password, person.password) &&
+                Objects.equals(firstName, person.firstName) &&
+                Objects.equals(lastName, person.lastName) &&
+                status == person.status &&
+                Objects.equals(regDate, person.regDate);
     }
 
     @Override

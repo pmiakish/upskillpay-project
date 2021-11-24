@@ -1,6 +1,6 @@
 package com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort;
 
-public enum TransactionSortType implements SortType {
+public enum PaymentSortType implements SortType {
 
     ID("ID"),
     ID_DESC("ID DESC"),
@@ -15,7 +15,7 @@ public enum TransactionSortType implements SortType {
 
     private final String sqlName;
 
-    TransactionSortType(String sqlName) {
+    PaymentSortType(String sqlName) {
         this.sqlName = sqlName;
     }
 

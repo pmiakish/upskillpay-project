@@ -1,5 +1,8 @@
 package com.epam.upskillproject.exceptions;
 
+import jakarta.ejb.ApplicationException;
+
+@ApplicationException
 public class AccountLimitException extends IllegalStateException {
 
     public AccountLimitException() {

@@ -3,14 +3,13 @@ package com.epam.upskillproject.controller.servlets.admin;
 import com.epam.upskillproject.controller.LocaleDispatcher;
 import com.epam.upskillproject.controller.ParamReader;
 import com.epam.upskillproject.exceptions.TransactionException;
-import com.epam.upskillproject.init.PropertiesKeeper;
+import com.epam.upskillproject.util.init.PropertiesKeeper;
 import com.epam.upskillproject.model.dto.PermissionType;
 import com.epam.upskillproject.model.dto.Person;
 import com.epam.upskillproject.model.dto.StatusType;
 import com.epam.upskillproject.model.service.AdminService;
 import com.epam.upskillproject.model.service.SuperadminService;
 import com.epam.upskillproject.view.tags.OperationType;
-import jakarta.ejb.EJBException;
 import jakarta.inject.Inject;
 import jakarta.security.enterprise.SecurityContext;
 import jakarta.security.enterprise.identitystore.Pbkdf2PasswordHash;
@@ -133,13 +132,10 @@ public class CustomerProfileServlet extends HttpServlet {
                             HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                     putCustomerToRequest(req, id.get());
                     view.forward(req, resp);
-                } catch (EJBException e) {
-                    if (e.getCause() instanceof TransactionException) {
-                        TransactionException tEx = (TransactionException) e.getCause();
-                        logger.log(Level.WARN, String.format("Cannot delete customer (%s) [id: %s]", tEx.getMessage(),
-                                id.orElse(null)));
-                        sendOperationError(req, resp, view, OperationType.DELETE, tEx.getStatusCode(), tEx.getMessage());
-                    }
+                } catch (TransactionException e) {
+                    logger.log(Level.WARN, String.format("Cannot delete customer (%s) [id: %s]", e.getMessage(),
+                            id.orElse(null)));
+                    sendOperationError(req, resp, view, OperationType.DELETE, e.getStatusCode(), e.getMessage());
                 }
             } else {
                 logger.log(Level.WARN, String.format("Cannot delete customer (bad id parameter) [id: %s]",

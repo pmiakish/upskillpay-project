@@ -25,7 +25,7 @@ public interface AccountDao {
     Optional<BigDecimal> getBalance(BigInteger id) throws SQLException;
     boolean increaseBalance(Connection conn, BigInteger id, BigDecimal amount) throws SQLException, PaymentParamException;
     boolean decreaseBalance(Connection conn, BigInteger id, BigDecimal amount) throws SQLException, PaymentParamException;
-    Account addAccount(BigInteger ownerId, BigDecimal initialBalance, StatusType statusType) throws SQLException;
+    Account addAccount(Account account) throws SQLException;
     boolean deleteSingleAccountById(Connection conn, BigInteger id) throws SQLException;
     boolean deleteSingleAccountByIdAndOwner(Connection conn, BigInteger accountId, BigInteger ownerId) throws SQLException;
     boolean deleteAccountsByOwner(Connection conn, BigInteger id) throws SQLException;

@@ -7,7 +7,8 @@ import com.epam.upskillproject.model.dao.*;
 import com.epam.upskillproject.model.dao.queryhandlers.FinancialTransactionsPerformer;
 import com.epam.upskillproject.model.dto.*;
 import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.AccountSortType;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.TransactionSortType;
+import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PaymentSortType;
+import com.epam.upskillproject.util.ParamsValidator;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import org.apache.logging.log4j.Level;
@@ -28,7 +29,7 @@ public class CustomerService {
     private static final Logger logger = LogManager.getLogger(CustomerService.class.getName());
 
     private static final AccountSortType DEFAULT_ACCOUNT_SORT_TYPE = AccountSortType.ID;
-    private static final TransactionSortType DEFAULT_PAYMENT_SORT_TYPE = TransactionSortType.ID_DESC;
+    private static final PaymentSortType DEFAULT_PAYMENT_SORT_TYPE = PaymentSortType.ID_DESC;
     private static final BigInteger SYSTEM_INCOME_ID = BigInteger.ZERO;
     private static final int MAX_ACCOUNTS_PER_CUSTOMER = 5;
     private static final int MAX_CARDS_PER_ACCOUNT = 3;
@@ -39,16 +40,19 @@ public class CustomerService {
     private final AccountDao accountDao;
     private final CardDao cardDao;
     private final PaymentDao paymentDao;
+    private final ParamsValidator paramsValidator;
     private final FinancialTransactionsPerformer financialTransactionsPerformer;
     private final CardValidator cardValidator;
 
     @Inject
     public CustomerService(PersonDao personDao, AccountDao accountDao, CardDao cardDao, PaymentDao paymentDao,
-                           FinancialTransactionsPerformer financialTransactionsPerformer, CardValidator cardValidator) {
+                           ParamsValidator paramsValidator, FinancialTransactionsPerformer financialTransactionsPerformer,
+                           CardValidator cardValidator) {
         this.personDao = personDao;
         this.accountDao = accountDao;
         this.cardDao = cardDao;
         this.paymentDao = paymentDao;
+        this.paramsValidator = paramsValidator;
         this.financialTransactionsPerformer = financialTransactionsPerformer;
         this.cardValidator = cardValidator;
     }
@@ -60,7 +64,7 @@ public class CustomerService {
      * @throws SQLException
      */
     public Person getUserPerson(Principal principal) throws SQLException {
-        if (!checkParams(principal)) {
+        if (principal == null) {
             logger.log(Level.WARN, "Cannot get user's person (invalid principal)");
             return null;
         }
@@ -75,9 +79,9 @@ public class CustomerService {
      * @throws SQLException
      */
     public Account getUserAccountById(Principal principal, BigInteger accountId) throws SQLException {
-       if (!checkParams(principal, accountId)) {
-           logger.log(Level.WARN, String.format("Cannot get user's account (invalid principal or account id: %s)",
-                   accountId));
+       if (principal == null || !paramsValidator.validateId(accountId)) {
+           logger.log(Level.WARN, String.format("Cannot get user's account (invalid principal %s or account id: %s)",
+                   principal, accountId));
            return null;
         }
         Optional<Person> person = personDao.getSinglePersonByEmail(principal.getName());
@@ -102,8 +106,9 @@ public class CustomerService {
      */
     public Page<Account> getUserAccountsPage(Principal principal, int amount, int pageNumber, AccountSortType sortType)
             throws SQLException {
-        if (!checkParams(principal, amount, pageNumber)) {
-            logger.log(Level.WARN, "Cannot get page of user's accounts (invalid page parameters or principal)");
+        if (principal == null || !paramsValidator.validatePageParams(amount, pageNumber)) {
+            logger.log(Level.WARN, String.format("Cannot get page of user's accounts - invalid page parameters " +
+                    "(amount: %d, pageNumber: %d) or principal (%s)", amount, pageNumber, principal));
             return null;
         }
         if (sortType == null) {
@@ -130,9 +135,9 @@ public class CustomerService {
      * @throws SQLException
      */
     public List<Card> getUserCardsByAccount(Principal principal, BigInteger accountId) throws SQLException {
-        if (!checkParams(principal, accountId)) {
-            logger.log(Level.WARN, String.format("Cannot get user's cards (invalid principal or account id: %s)",
-                    accountId));
+        if (principal == null || !paramsValidator.validateId(accountId)) {
+            logger.log(Level.WARN, String.format("Cannot get user's cards (invalid principal %s or account id: %s)",
+                    principal, accountId));
             return new ArrayList<>();
         }
         Optional<Person> person = personDao.getSinglePersonByEmail(principal.getName());
@@ -156,10 +161,12 @@ public class CustomerService {
      * @return a Page of user's accounts or null if parameters are invalid
      * @throws SQLException
      */
-    public Page<Transaction> getUserIncomingPaymentsByAccount(Principal principal, BigInteger accountId, int amount,
-                                                              int pageNumber, TransactionSortType sortType) throws SQLException {
-        if (!checkParams(principal, accountId, amount, pageNumber)) {
-            logger.log(Level.WARN, "Cannot get page of incoming payments (invalid page parameters or principal)");
+    public Page<Payment> getUserIncomingPaymentsByAccount(Principal principal, BigInteger accountId, int amount,
+                                                          int pageNumber, PaymentSortType sortType) throws SQLException {
+        if (principal == null || !paramsValidator.validateId(accountId) ||
+                !paramsValidator.validatePageParams(amount, pageNumber)) {
+            logger.log(Level.WARN, String.format("Cannot get page of incoming payments - invalid parameters " +
+                    "(principal %s, accountId: %s, amount: %d, pageNumber: %d)", principal, accountId, amount, pageNumber));
             return null;
         }
         if (sortType == null) {
@@ -170,7 +177,7 @@ public class CustomerService {
                 person.get().getId() : BigInteger.valueOf(-1L));
         if (person.isPresent() && account.isPresent()) {
             int offset = amount * (pageNumber - 1);
-            List<Transaction> entries = paymentDao.getPaymentsByReceiverPage(account.get().getId(), amount, offset, sortType);
+            List<Payment> entries = paymentDao.getPaymentsByReceiverPage(account.get().getId(), amount, offset, sortType);
             int total = paymentDao.countPaymentsByReceiver(account.get().getId());
             return new Page<>(entries, pageNumber, amount, total, sortType);
         } else {
@@ -190,10 +197,12 @@ public class CustomerService {
      * @return a Page of user's accounts or null if parameters are invalid
      * @throws SQLException
      */
-    public Page<Transaction> getUserOutgoingPaymentsByAccount(Principal principal, BigInteger accountId, int amount,
-                                                              int pageNumber, TransactionSortType sortType) throws SQLException {
-        if (!checkParams(principal, accountId, amount, pageNumber)) {
-            logger.log(Level.WARN, "Cannot get page of outgoing payments (invalid page parameters or principal)");
+    public Page<Payment> getUserOutgoingPaymentsByAccount(Principal principal, BigInteger accountId, int amount,
+                                                          int pageNumber, PaymentSortType sortType) throws SQLException {
+        if (principal == null || !paramsValidator.validateId(accountId) ||
+                !paramsValidator.validatePageParams(amount, pageNumber)) {
+            logger.log(Level.WARN, String.format("Cannot get page of outgoing payments - invalid parameters " +
+                    "(principal %s, accountId: %s, amount: %d, pageNumber: %d)", principal, accountId, amount, pageNumber));
             return null;
         }
         if (sortType == null) {
@@ -204,7 +213,7 @@ public class CustomerService {
                 person.get().getId() : BigInteger.valueOf(-1L));
         if (person.isPresent() && account.isPresent()) {
             int offset = amount * (pageNumber - 1);
-            List<Transaction> entries = paymentDao.getPaymentsByPayerPage(account.get().getId(), amount, offset, sortType);
+            List<Payment> entries = paymentDao.getPaymentsByPayerPage(account.get().getId(), amount, offset, sortType);
             int total = paymentDao.countPaymentsByPayer(account.get().getId());
             return new Page<>(entries, pageNumber, amount, total, sortType);
         } else {
@@ -222,9 +231,9 @@ public class CustomerService {
      * @throws SQLException
      */
     public synchronized boolean blockUserAccount(Principal principal, BigInteger accountId) throws SQLException {
-        if (!checkParams(principal, accountId)) {
-            logger.log(Level.WARN, String.format("Cannot block user's account (invalid principal or account id: %s)",
-                    accountId));
+        if (principal == null || !paramsValidator.validateId(accountId)) {
+            logger.log(Level.WARN, String.format("Cannot block user's account (invalid principal %s or account id: %s)",
+                    principal, accountId));
             return false;
         }
         Optional<Person> person = personDao.getSinglePersonByEmail(principal.getName());
@@ -253,9 +262,9 @@ public class CustomerService {
      * @throws SQLException
      */
     public boolean blockUserCard(Principal principal, BigInteger cardId) throws SQLException {
-        if (!checkParams(principal, cardId)) {
-            logger.log(Level.WARN, String.format("Cannot block user's card (invalid principal or card id: %s)",
-                    cardId));
+        if (principal == null || !paramsValidator.validateId(cardId)) {
+            logger.log(Level.WARN, String.format("Cannot block user's card (invalid principal %s or card id: %s)",
+                    principal, cardId));
             return false;
         }
         Optional<Person> person = personDao.getSinglePersonByEmail(principal.getName());
@@ -286,9 +295,9 @@ public class CustomerService {
      */
     public synchronized boolean topUpAccount(Principal principal, BigInteger accountId, BigDecimal amount) throws
             SQLException, AccountLimitException, PaymentParamException, TransactionException {
-        if (!checkParams(principal, accountId, amount)) {
-            logger.log(Level.WARN, String.format("Cannot top up account: incorrect payment parameters (principal " +
-                    "name: %s, accountId: %s, amount: %s)", principal.getName(), accountId, amount));
+        if (principal == null || !paramsValidator.validateId(accountId) || !paramsValidator.validatePaymentAmount(amount)) {
+            logger.log(Level.WARN, String.format("Cannot top up account: incorrect payment parameters (principal %s, " +
+                    "accountId: %s, amount: %s)", principal, accountId, amount));
             throw new PaymentParamException("Cannot top up account: incorrect payment parameters");
         }
         Optional<Person> person = personDao.getSinglePersonByEmail(principal.getName());
@@ -323,7 +332,7 @@ public class CustomerService {
      * @throws AccountLimitException if the maximum number of customer's accounts exceeded
      */
     public synchronized boolean addUserAccount(Principal principal) throws SQLException, AccountLimitException {
-        if (!checkParams(principal)) {
+        if (principal == null) {
             logger.log(Level.WARN, "Cannot add user's account (invalid principal)");
             return false;
         }
@@ -332,7 +341,8 @@ public class CustomerService {
             if (accountDao.countAccountsByOwner(person.get().getId()) < MAX_ACCOUNTS_PER_CUSTOMER) {
                 logger.log(Level.TRACE, String.format("Try to create a new user's account (user id: %s)",
                         person.get().getId()));
-                return (accountDao.addAccount(person.get().getId(), BigDecimal.ZERO, StatusType.ACTIVE) != null);
+                Account accountDto = new Account(person.get().getId(), BigDecimal.ZERO, StatusType.ACTIVE);
+                return (accountDao.addAccount(accountDto) != null);
             } else {
                 logger.log(Level.INFO, String.format("Cannot create a new user's account (user id: %s): the maximum " +
                         "number of customer's accounts (%s) exceeded", person.get().getId(), MAX_ACCOUNTS_PER_CUSTOMER));
@@ -354,9 +364,9 @@ public class CustomerService {
      */
     public synchronized boolean deleteUserAccount(Principal principal, BigInteger accountId) throws SQLException,
             TransactionException {
-        if (!checkParams(principal, accountId)) {
+        if (principal == null || !paramsValidator.validateId(accountId)) {
             logger.log(Level.WARN, String.format("Cannot delete a user's account: incorrect parameters (principal " +
-                    "name: %s, account id: %s)", principal.getName(), accountId));
+                    "%s, account id: %s)", principal, accountId));
             return false;
         }
         Optional<Person> person = personDao.getSinglePersonByEmail(principal.getName());
@@ -381,8 +391,9 @@ public class CustomerService {
      */
     public synchronized String addUserCard(Principal principal, BigInteger accountId, CardNetworkType cardNetworkType)
             throws SQLException, AccountLimitException, TransactionException {
-        if (!checkParams(principal, accountId, cardNetworkType)) {
-            logger.log(Level.WARN, "Cannot add user's card (incorrect parameters)");
+        if (principal == null || cardNetworkType == null || !paramsValidator.validateId(accountId)) {
+            logger.log(Level.WARN, String.format("Cannot add user's card - incorrect parameters (principal %s, " +
+                    "cardNetworkType: %s, accountId: %s)", principal, cardNetworkType, accountId));
             return "";
         }
         Optional<Person> person = personDao.getSinglePersonByEmail(principal.getName());
@@ -412,9 +423,9 @@ public class CustomerService {
      * @throws SQLException
      */
     public synchronized boolean deleteUserCard(Principal principal, BigInteger cardId) throws SQLException {
-        if (!checkParams(principal, cardId)) {
-            logger.log(Level.WARN, String.format("Cannot delete a user's card: incorrect parameters (principal " +
-                    "name: %s, card id: %s)", principal.getName(), cardId));
+        if (principal == null || !paramsValidator.validateId(cardId)) {
+            logger.log(Level.WARN, String.format("Cannot delete a user's card: incorrect parameters (principal %s, " +
+                            "card id: %s", principal, cardId));
             return false;
         }
         Optional<Person> person = personDao.getSinglePersonByEmail(principal.getName());
@@ -443,10 +454,11 @@ public class CustomerService {
     public synchronized void performPayment(Principal principal, BigInteger payerCardId, String cvc,
                                             BigInteger receiverAccountId, BigDecimal amount)
             throws SQLException, PaymentParamException, TransactionException {
-        if (!checkParams(principal, payerCardId, receiverAccountId, amount)) {
-            logger.log(Level.WARN, String.format("Cannot perform payment: incorrect parameters (principal " +
-                    "name: %s, payer's card id: %s, receiver's account id: %s, amount: %s)", principal.getName(),
-                    payerCardId, receiverAccountId, amount));
+        if (principal == null || !paramsValidator.validateId(payerCardId) ||
+                !paramsValidator.validatePaymentId(receiverAccountId) || !paramsValidator.validatePaymentAmount(amount)) {
+            logger.log(Level.WARN, String.format("Cannot perform payment: incorrect parameters (principal %s, " +
+                            "payer's card id: %s, receiver's account id: %s, amount: %s)", principal, payerCardId,
+                    receiverAccountId, amount));
             throw new PaymentParamException("Cannot perform payment: incorrect parameters passed");
         }
         Optional<Person> person = personDao.getSinglePersonByEmail(principal.getName());
@@ -463,22 +475,5 @@ public class CustomerService {
                 throw new PaymentParamException("Cannot perform payment: the card is not valid");
             }
         }
-    }
-
-    private boolean checkParams(Object... params) {
-        if (params == null) {
-            return false;
-        }
-        for (Object p : params) {
-            if (p == null ||
-                    (p instanceof String && ((String) p).trim().length() == 0) ||
-                    (p instanceof Integer && ((Integer) p) < 0) ||
-                    (p instanceof BigInteger && ((BigInteger) p).compareTo(BigInteger.ZERO) < 0) ||
-                    (p instanceof BigDecimal && ((BigDecimal) p).compareTo(BigDecimal.ZERO) < 0)
-            ) {
-                return false;
-            }
-        }
-        return true;
     }
 }

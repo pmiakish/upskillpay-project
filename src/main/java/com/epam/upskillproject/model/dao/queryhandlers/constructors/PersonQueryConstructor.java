@@ -1,6 +1,6 @@
 package com.epam.upskillproject.model.dao.queryhandlers.constructors;
 
-import com.epam.upskillproject.init.PropertiesKeeper;
+import com.epam.upskillproject.util.init.PropertiesKeeper;
 import com.epam.upskillproject.model.dto.PermissionType;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
