@@ -4,7 +4,7 @@ import com.epam.upskillproject.exceptions.CustomSQLCode;
 import com.epam.upskillproject.model.dao.queryhandlers.QueryExecutor;
 import com.epam.upskillproject.model.dao.queryhandlers.constructors.PersonQueryConstructor;
 import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.OrderStrategy;
-import com.epam.upskillproject.model.dto.PermissionType;
+import com.epam.upskillproject.util.PermissionType;
 import com.epam.upskillproject.model.dto.Person;
 import com.epam.upskillproject.model.dto.StatusType;
 import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PersonSortType;
@@ -321,7 +321,6 @@ public class PersonDaoImpl implements PersonDao {
             NullPointerException {
         int result = queryExecutor.executeUpdate(conn, rawQuery,
                 Objects.requireNonNull(personDto.getPermission(), "permission is null").getId(),
-                Objects.requireNonNull(personDto.getEmail(), "email is null").trim(),
                 personDto.getPassword(),
                 Objects.requireNonNull(personDto.getFirstName(), "first name is null").trim(),
                 Objects.requireNonNull(personDto.getLastName(), "last name is null").trim(),

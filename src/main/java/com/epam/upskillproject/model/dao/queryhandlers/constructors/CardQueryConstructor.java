@@ -25,8 +25,12 @@ public class CardQueryConstructor {
     private final String DEL_SINGLE_BY_ID_AND_OWNER_PROP = "query.card.deleteSingleByIdAndOwner";
     private final String DEL_BY_ACCOUNT_PROP = "query.card.deleteByAccount";
 
+    private final PropertiesKeeper propertiesKeeper;
+
     @Inject
-    PropertiesKeeper propertiesKeeper;
+    public CardQueryConstructor(PropertiesKeeper propertiesKeeper) {
+        this.propertiesKeeper = propertiesKeeper;
+    }
 
     public String singleById() {
         return propertiesKeeper.getString(SINGLE_BY_ID_PROP);

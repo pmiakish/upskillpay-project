@@ -9,6 +9,8 @@
         <meta name="keywords" content="платеж, клиент, счет" />
         <meta name="author" content="P. Miakish" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="${pageContext.request.contextPath}/img/favicon.ico" rel="icon" type="image/x-icon" />
+        <link href="${pageContext.request.contextPath}/img/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
               integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
         <title>Профиль клиента - UpSkillPAY</title>
@@ -19,7 +21,7 @@
             <div class="row">
                 <div class="col-3 align-self-center" >
                     <a href="/" title="UpSkillPAY">
-                        <img src="../img/logo.png" class="img-fluid" width="150" height="91" alt="UpSkillPAY лого">
+                        <img src="${pageContext.request.contextPath}/img/logo.png" class="img-fluid" width="150" height="91" alt="UpSkillPAY лого">
                     </a>
                 </div>
                 <div class="col align-self-center">
@@ -27,14 +29,12 @@
                 </div>
                 <div class="col-3">
                     <c:if test="${user != null}">
-                        <p>
-                            <br /><strong>Администратор:</strong><br />
-                            <a href="/profile" title="Редактировать профиль">${user.email}</a><br />
-                            ${user.firstName} ${user.lastName}<br />
-                            <div class="d-grid gap-1 col-6 mx-auto">
-                                <a href="/logout" class="btn btn-outline-dark btn-sm" role="button">Выйти</a>
-                            </div>
-                        </p>
+                        <br /><br /><strong>Администратор:</strong><br />
+                        <a href="/profile" title="Редактировать профиль">${user.email}</a><br />
+                        ${user.firstName} ${user.lastName}<br />
+                        <div class="d-grid gap-1 col-6 mx-auto">
+                            <a href="/logout" class="btn btn-outline-dark btn-sm" role="button">Выйти</a>
+                        </div><br />
                     </c:if>
                 </div>
             </div>
@@ -75,7 +75,7 @@
             </nav>
         </div>
         <div class="container">
-            <%-- Operation status message --%>
+            <%-- Operation status errorMessage --%>
             <project:status operation="${opName}" result="${opStat}" message="${errMsg}" locale="${sessionScope.sessLoc}" />
             <br />
             <c:if test="${customer != null}">
@@ -110,15 +110,26 @@
                     </tbody>
                 </table>
                 <br />
-                <p><h3>Edit customer's profile:</h3></p>
+                <br /><h3>Edit customer's profile:</h3><br />
                 <br />
                 <form method="POST" action="/customer/${customer.id}" class="row g-3 needs-validation" novalidate
                       oninput='cPass.setCustomValidity(cPass.value != pass.value ? "Пароли не совпадают" : "")'>
-                    <input type="hidden" id="inputHash" value="${customer.hash}" name="hash" />
+                    <input type="hidden" name="id" value="${customer.id}" />
+                    <input type="hidden" name="command" value="UPDATE_PERSON" />
+                    <input type="hidden" name="hash" value="${customer.hash}" />
                     <div class="mb-3 row">
                         <label for="staticID" class="col-sm-2 col-form-label"><strong>ID</strong></label>
                         <div class="col-sm-10">
                             <input type="text" readonly class="form-control-plaintext" id="staticID" value="${customer.id}" name="id" />
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="staticEmail" class="col-sm-2 col-form-label">
+                            <strong>Электронная почта (логин)</strong>
+                        </label>
+                        <div class="col-sm-10">
+                            <input type="text" readonly class="form-control-plaintext" id="staticEmail"
+                                   value="${customer.email}" name="email" />
                         </div>
                     </div>
                     <div class="mb-3 row">
@@ -130,13 +141,6 @@
                                 <option value="ADMIN">Администратор</option>
                                 <option value="SUPERADMIN">Главный администратор</option>
                             </select>
-                        </div>
-                    </div>
-                    <div class="mb-3 row">
-                        <label for="inputEmail" class="col-sm-2 col-form-label"><strong>Электронная почта</strong></label>
-                        <div class="col-sm-10">
-                            <input type="email" class="form-control" id="inputEmail" value="${customer.email}"
-                                   name="email" maxlength="100" required />
                         </div>
                     </div>
                     <div class="mb-3 row">
@@ -187,14 +191,15 @@
                 <c:if test="${user.permission == 'SUPERADMIN'}">
                     <form method="POST" action="/customer/${customer.id}" onsubmit="return confirm('Вы уверены, что ' +
                      'хотите удалить профиль? Данное действие не может быть отменено!');">
-                        <input type="hidden" id="delete" value="true" name="delete" />
-                        <input type="hidden" id="delCustomer" value="${customer.id}" name="id" />
+                        <input type="hidden" name="id" value="${customer.id}" />
+                        <input type="hidden" name="command" value="DELETE_PERSON" />
                         <div class="col-12">
                             <button type="submit" class="btn btn-danger">Удалить клиента</button>
                         </div>
                     </form>
                     <br />
                 </c:if>
+
             </c:if>
             <c:if test="${customer == null}">
                 <div class="alert alert-danger" role="alert">
@@ -217,7 +222,7 @@
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
                 integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
-        <script>
+        <script type="text/javascript">
             (function () {
                 'use strict'
                 var forms = document.querySelectorAll('.needs-validation')

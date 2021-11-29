@@ -1,6 +1,6 @@
 package com.epam.upskillproject.model.dao;
 
-import com.epam.upskillproject.model.dto.PermissionType;
+import com.epam.upskillproject.util.PermissionType;
 import com.epam.upskillproject.model.dto.Person;
 import com.epam.upskillproject.model.dto.StatusType;
 import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PersonSortType;

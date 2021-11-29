@@ -40,4 +40,8 @@ public class TransactionException extends RuntimeException {
     public int getStatusCode() {
         return statusCode;
     }
+
+    public TransactionExceptionType getType() {
+        return type;
+    }
 }

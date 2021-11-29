@@ -33,27 +33,27 @@ public class CustomerService {
     private static final BigInteger SYSTEM_INCOME_ID = BigInteger.ZERO;
     private static final int MAX_ACCOUNTS_PER_CUSTOMER = 5;
     private static final int MAX_CARDS_PER_ACCOUNT = 3;
-    private static final BigDecimal MAX_TOP_UP_AMOUNT_PER_PERIOD = new BigDecimal(100.00);
+    private static final BigDecimal MAX_TOP_UP_AMOUNT_PER_PERIOD = new BigDecimal("100.00");
     private static final int TOP_UP_PERIOD_DAYS = 1;
 
     private final PersonDao personDao;
     private final AccountDao accountDao;
     private final CardDao cardDao;
     private final PaymentDao paymentDao;
-    private final ParamsValidator paramsValidator;
     private final FinancialTransactionsPerformer financialTransactionsPerformer;
+    private final ParamsValidator paramsValidator;
     private final CardValidator cardValidator;
 
     @Inject
     public CustomerService(PersonDao personDao, AccountDao accountDao, CardDao cardDao, PaymentDao paymentDao,
-                           ParamsValidator paramsValidator, FinancialTransactionsPerformer financialTransactionsPerformer,
-                           CardValidator cardValidator) {
+                           FinancialTransactionsPerformer financialTransactionsPerformer,
+                           ParamsValidator paramsValidator, CardValidator cardValidator) {
         this.personDao = personDao;
         this.accountDao = accountDao;
         this.cardDao = cardDao;
         this.paymentDao = paymentDao;
-        this.paramsValidator = paramsValidator;
         this.financialTransactionsPerformer = financialTransactionsPerformer;
+        this.paramsValidator = paramsValidator;
         this.cardValidator = cardValidator;
     }
 
@@ -255,7 +255,7 @@ public class CustomerService {
     }
 
     /**
-     * Blocks a user's account
+     * Blocks a user's card
      * @param principal java.security.Principal (from security context)
      * @param cardId a positive BigInteger
      * @return true if a card was blocked, otherwise false
@@ -326,7 +326,7 @@ public class CustomerService {
 
     /**
      * Adds a new user's account
-     * @param principal java.security.Principal (from security context)
+     * @param principal java.security.Principal
      * @return true if a new account was added, otherwise false
      * @throws SQLException
      * @throws AccountLimitException if the maximum number of customer's accounts exceeded

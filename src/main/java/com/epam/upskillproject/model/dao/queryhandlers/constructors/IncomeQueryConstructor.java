@@ -11,8 +11,12 @@ public class IncomeQueryConstructor {
     private static final String INCOME_INCREASE_PROP = "query.income.increase";
     private static final String INCOME_DECREASE_PROP = "query.income.decrease";
 
+    private final PropertiesKeeper propertiesKeeper;
+
     @Inject
-    PropertiesKeeper propertiesKeeper;
+    public IncomeQueryConstructor(PropertiesKeeper propertiesKeeper) {
+        this.propertiesKeeper = propertiesKeeper;
+    }
 
     public String getBalance() {
         return propertiesKeeper.getString(INCOME_GET_PROP);

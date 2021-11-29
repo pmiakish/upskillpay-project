@@ -9,6 +9,8 @@
         <meta name="keywords" content="payment, customer, account" />
         <meta name="author" content="P. Miakish" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="${pageContext.request.contextPath}/img/favicon.ico" rel="icon" type="image/x-icon" />
+        <link href="${pageContext.request.contextPath}/img/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
               integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous" />
         <title>My account service<c:if test="${account != null}"> (account ${account.id})</c:if> - UpSkillPAY</title>
@@ -19,7 +21,7 @@
             <div class="row">
                 <div class="col-3 align-self-center" >
                     <a href="/" title="UpSkillPAY">
-                        <img src="../../img/logo.png" class="img-fluid" width="150" height="91" alt="UpSkillPAY logo">
+                        <img src="${pageContext.request.contextPath}/img/logo.png" class="img-fluid" width="150" height="91" alt="UpSkillPAY logo">
                     </a>
                 </div>
                 <div class="col align-self-center">
@@ -27,14 +29,12 @@
                 </div>
                 <div class="col-3">
                     <c:if test="${user != null}">
-                        <p>
-                            <br /><strong>Customer:</strong><br />
-                            <a href="/profile" title="Edit profile">${user.email}</a><br />
-                                ${user.firstName} ${user.lastName}<br />
+                        <br /><br /><strong>Customer:</strong><br />
+                        <a href="/profile" title="Edit profile">${user.email}</a><br />
+                        ${user.firstName} ${user.lastName}<br />
                         <div class="d-grid gap-1 col-6 mx-auto">
                             <a href="/logout" class="btn btn-outline-dark btn-sm" role="button">Logout</a>
-                        </div>
-                        </p>
+                        </div><br />
                     </c:if>
                 </div>
             </div>
@@ -58,7 +58,7 @@
             </nav>
         </div>
         <div class="container">
-            <%-- Operation status message --%>
+            <%-- Operation status errorMessage --%>
             <project:status operation="${opName}" result="${opStat}" message="${errMsg}" locale="${sessionScope.sessLoc}" />
                 <c:if test="${createdCvc != null}">
                     <div class="alert alert-success" role="alert">
@@ -103,15 +103,15 @@
                                     <form style="display: inline;" method="POST"
                                           action="${requestScope['jakarta.servlet.forward.request_uri']}"
                                           onsubmit="return confirm('Are you sure? Account may be unblocked only by administrator');">
-                                        <input type="hidden" name="id" value="${account.id}" />
-                                        <input type="hidden" name="target" value="accBlock" />
+                                        <input type="hidden" name="accountId" value="${account.id}" />
+                                        <input type="hidden" name="command" value="BLOCK_ACCOUNT" />
                                         <button type="submit" class="btn btn-outline-danger">&nbsp;&nbsp;BLOCK&nbsp;&nbsp;</button>
                                     </form>
                                     <form style="display: inline;" method="POST"
                                           action="${requestScope['jakarta.servlet.forward.request_uri']}"
                                           onsubmit="return confirm('Are you sure? Action cannot be canceled');">
-                                        <input type="hidden" name="id" value="${account.id}" />
-                                        <input type="hidden" name="target" value="accDelete" />
+                                        <input type="hidden" name="accountId" value="${account.id}" />
+                                        <input type="hidden" name="command" value="DELETE_ACCOUNT" />
                                         <button type="submit" class="btn btn-danger">&nbsp;&nbsp;DELETE&nbsp;&nbsp;</button>
                                     </form>
                                 </td>
@@ -121,7 +121,7 @@
                 </table>
                 <br />
                 <c:if test="${cards != null}">
-                    <p><h3>Сards:</h3></p>
+                    <br /><h3>Сards:</h3><br />
                     <table class="table">
                         <thead class="table-light">
                         <tr>
@@ -149,15 +149,15 @@
                                         <form style="display: inline;"  method="POST"
                                               action="${requestScope['jakarta.servlet.forward.request_uri']}"
                                               onsubmit="return confirm('Are you sure? Card may be unblocked only by administrator');">
-                                            <input type="hidden" name="target" value="cardBlock" />
-                                            <input type="hidden" name="id" value="${card.id}" />
+                                            <input type="hidden" name="cardId" value="${card.id}" />
+                                            <input type="hidden" name="command" value="BLOCK_CARD" />
                                             <button type="submit" class="btn btn-outline-danger">&nbsp;&nbsp;BLOCK&nbsp;&nbsp;</button>
                                         </form>
                                         <form style="display: inline;" method="POST"
                                               action="${requestScope['jakarta.servlet.forward.request_uri']}"
                                               onsubmit="return confirm('Are you sure? Action cannot be canceled');">
-                                            <input type="hidden" name="id" value="${card.id}" />
-                                            <input type="hidden" name="target" value="cardDelete" />
+                                            <input type="hidden" name="cardId" value="${card.id}" />
+                                            <input type="hidden" name="command" value="DELETE_CARD" />
                                             <button type="submit" class="btn btn-danger">&nbsp;&nbsp;DELETE&nbsp;&nbsp;</button>
                                         </form>
                                     </td>
@@ -170,7 +170,8 @@
                         <div class="col-6">
                             <form method="POST" action="${requestScope['jakarta.servlet.forward.request_uri']}"
                                   onsubmit="return confirm('Are you sure?');">
-                                <input type="hidden" name="target" value="addCard" />
+                                <input type="hidden" name="accountId" value="${account.id}" />
+                                <input type="hidden" name="command" value="ADD_CARD" />
                                 <div class="input-group mb-3">
                                     <label class="input-group-text" for="inputNewCard">Card</label>
                                     <select class="form-select" id="inputNewCard" name="cardNet" required>
@@ -189,14 +190,14 @@
                     </div>
                     <br />
                     <c:if test="${cards.size() > 0 && account.status == 'ACTIVE'}">
-                        <p><h3>Make payment:</h3></p>
+                        <br /><h3>Make payment:</h3><br />
                         <form method="POST" action="${requestScope['jakarta.servlet.forward.request_uri']}"
                               class="needs-validation" novalidate onsubmit="return confirm('Are you sure? The total ' +
                                'amount with the commission is ' + getTotal());">
-                            <input type="hidden" name="target" value="payment" />
+                            <input type="hidden" name="command" value="PAYMENT" />
                             <div class="input-group mb-3">
                                 <label class="input-group-text" for="inputCard">Card</label>
-                                <select class="form-select" id="inputCard" name="id" required>
+                                <select class="form-select" id="inputCard" name="cardId" required>
                                     <option selected>Choose ...</option>
                                     <c:forEach items="${cards}" var="card">
                                         <c:if test="${card.status == 'ACTIVE'}">

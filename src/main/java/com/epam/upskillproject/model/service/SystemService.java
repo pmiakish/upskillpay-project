@@ -6,6 +6,7 @@ import com.epam.upskillproject.model.dao.queryhandlers.FinancialTransactionsPerf
 import com.epam.upskillproject.model.dao.PersonDao;
 import com.epam.upskillproject.model.dto.*;
 import com.epam.upskillproject.util.ParamsValidator;
+import com.epam.upskillproject.util.PermissionType;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import org.apache.logging.log4j.Level;
@@ -109,7 +110,7 @@ public class SystemService {
     }
 
     /**
-     * Checks if a person's hash is present and is not changed (passed and DB values are equal)
+     * Checks if a person's hash is present and is not changed (passed value and db-stored value are equal)
      * @param email a valid email value
      * @param hash person's hash
      * @return true if a person's hash is present and is not changed, otherwise false
@@ -126,7 +127,7 @@ public class SystemService {
     }
 
     /**
-     * Updates a user's record (having any permission type)
+     * Updates a user's record (with any permission type)
      * @param email a valid email value
      * @param newPassword not null string (hashed password)
      * @param newFirstName not null string

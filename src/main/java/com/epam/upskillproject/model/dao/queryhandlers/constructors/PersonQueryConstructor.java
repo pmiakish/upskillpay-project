@@ -1,7 +1,7 @@
 package com.epam.upskillproject.model.dao.queryhandlers.constructors;
 
 import com.epam.upskillproject.util.init.PropertiesKeeper;
-import com.epam.upskillproject.model.dto.PermissionType;
+import com.epam.upskillproject.util.PermissionType;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 
@@ -22,8 +22,12 @@ public class PersonQueryConstructor {
     private final String ID_PARAM_NAME = "Id";
     private final String EMAIL_PARAM_NAME = "Email";
 
+    private final PropertiesKeeper propertiesKeeper;
+
     @Inject
-    PropertiesKeeper propertiesKeeper;
+    public PersonQueryConstructor(PropertiesKeeper propertiesKeeper) {
+        this.propertiesKeeper = propertiesKeeper;
+    }
 
     public String singleByEmail(PermissionType permission) {
         String propertyName = String.format(SINGLE_PROP_PATTERN, permissionToString(permission), EMAIL_PARAM_NAME);

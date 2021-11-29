@@ -9,6 +9,8 @@
         <meta name="keywords" content="payment, customer, account" />
         <meta name="author" content="P. Miakish" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="${pageContext.request.contextPath}/img/favicon.ico" rel="icon" type="image/x-icon" />
+        <link href="${pageContext.request.contextPath}/img/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
               integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
         <title>UpSkillPAY - welcome</title>
@@ -18,7 +20,7 @@
             <br />
             <div class="row">
                 <div class="col-3 align-self-center">
-                    <img src="../../../img/logo.png" class="img-fluid" width="150" height="91" alt="UpSkillPAY logo" />
+                    <img src="${pageContext.request.contextPath}/img/logo.png" class="img-fluid" width="150" height="91" alt="UpSkillPAY logo" />
                 </div>
                 <div class="col align-self-center">
                     <h1>UpSkill Payments</h1>
@@ -29,7 +31,7 @@
         <div class="container">
             <div class="row">
                 <div class="col">
-                    <img src="../../../img/welcome.png" class="img-fluid" width="620" height="398" alt="UpSkillPAY welcome" />
+                    <img src="${pageContext.request.contextPath}/img/welcome.png" class="img-fluid" width="620" height="398" alt="UpSkillPAY welcome" />
                 </div>
                 <c:if test="${user == null}">
                     <div class="col">
@@ -73,6 +75,7 @@
                                               accept-charset="utf-8" novalidate
                                               oninput='cPass.setCustomValidity(cPass.value != pass.value ?
                                                "Passwords do not match" : "")'>
+                                            <input type="hidden" name="command" value="ADD_PERSON" />
                                             <div class="col-12">
                                                 <label for="inputEmail" class="form-label">Email <sup>*</sup></label>
                                                 <input type="email" class="form-control" id="inputEmail" name="email" required

@@ -9,6 +9,8 @@
         <meta name="keywords" content="платеж, клиент, счет" />
         <meta name="author" content="P. Miakish" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="${pageContext.request.contextPath}/img/favicon.ico" rel="icon" type="image/x-icon" />
+        <link href="${pageContext.request.contextPath}/img/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
               integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous" />
         <title>Приходные операции<c:if test="${account != null}"> (счет ${account.id})</c:if> - UpSkillPAY</title>
@@ -19,7 +21,8 @@
             <div class="row">
                 <div class="col-3 align-self-center" >
                     <a href="/" title="UpSkillPAY">
-                        <img src="../../img/logo.png" class="img-fluid" width="150" height="91" alt="UpSkillPAY лого">
+                        <img src="${pageContext.request.contextPath}/img/logo.png" class="img-fluid" width="150"
+                             height="91" alt="UpSkillPAY лого" />
                     </a>
                 </div>
                 <div class="col align-self-center">
@@ -27,14 +30,12 @@
                 </div>
                 <div class="col-3">
                     <c:if test="${user != null}">
-                        <p>
-                            <br /><strong>Клиент:</strong><br />
-                            <a href="/profile" title="Редактировать профиль">${user.email}</a><br />
-                                ${user.firstName} ${user.lastName}<br />
-                            <div class="d-grid gap-1 col-6 mx-auto">
-                                <a href="/logout" class="btn btn-outline-dark btn-sm" role="button">Выйти</a>
-                            </div>
-                        </p>
+                        <br /><br /><strong>Клиент:</strong><br />
+                        <a href="/profile" title="Редактировать профиль">${user.email}</a><br />
+                        ${user.firstName} ${user.lastName}<br />
+                        <div class="d-grid gap-1 col-6 mx-auto">
+                            <a href="/logout" class="btn btn-outline-dark btn-sm" role="button">Выйти</a>
+                        </div><br />
                     </c:if>
                 </div>
             </div>
@@ -58,7 +59,7 @@
             </nav>
         </div>
         <div class="container">
-            <%-- Operation status message --%>
+            <%-- Operation status errorMessage --%>
             <project:status operation="${opName}" result="${opStat}" message="${errMsg}" locale="${sessionScope.sessLoc}" />
                 <c:if test="${createdCvc != null}">
                     <div class="alert alert-success" role="alert">
@@ -72,7 +73,9 @@
                         <a class="nav-link" href="/payservice/my_account_service/${account.id}">Счет ${account.id}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="/payservice/my_account_incoming/${account.id}">Приходные операции</a>
+                        <a class="nav-link active" aria-current="page" href="/payservice/my_account_incoming/${account.id}">
+                            Приходные операции
+                        </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/payservice/my_account_outgoing/${account.id}">Расходные операции</a>
@@ -103,7 +106,7 @@
                 </table>
                 <br />
                 <div class="container">
-                    <p><h3>Приходные операции:</h3></p>
+                    <br /><h3>Приходные операции:</h3><br />
                     <p class="lead">Всего найдено: ${page.total} записей</p>
                     <br />
                     <table class="table">

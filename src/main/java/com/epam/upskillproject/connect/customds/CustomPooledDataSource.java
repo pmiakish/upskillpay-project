@@ -2,13 +2,13 @@ package com.epam.upskillproject.connect.customds;
 
 import com.epam.upskillproject.exceptions.CustomSQLCode;
 import com.epam.upskillproject.util.init.PropertiesKeeper;
+import com.mysql.cj.jdbc.MysqlDataSource;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hsqldb.jdbc.JDBCDataSource;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -18,11 +18,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Singleton(name = "customProjectDB")
-public class CustomPooledDataSource extends JDBCDataSource {
+public class CustomPooledDataSource extends MysqlDataSource {
 
     private static final Logger logger = LogManager.getLogger(CustomPooledDataSource.class.getName());
 
-    // Database an ConnectionPool properties
+    // Database and ConnectionPool properties
     private static final String DB_URL_PROP = "db.url";
     private static final String DB_NAME_PROP = "db.name";
     private static final String DB_PASSWORD_PROP = "db.password";
@@ -151,7 +151,7 @@ public class CustomPooledDataSource extends JDBCDataSource {
     }
 
     @Override
-    public synchronized Connection getConnection() throws SQLException {
+    public synchronized Connection getConnection() throws SQLException, IllegalStateException {
         if (connectionPool == null || activeConnections == null) {
             throw new IllegalStateException("Connection pool is shut down");
         }
@@ -243,7 +243,7 @@ public class CustomPooledDataSource extends JDBCDataSource {
 
     private void closeOldConnections() throws SQLException {
         int closedConnections = 0;
-        while (connectionPool.size() >= minConnectionsNumber) {
+        while (connectionPool.size() > minConnectionsNumber) {
             Optional<PoolConnection> oldConnection = connectionPool.stream().filter(c ->
                     System.currentTimeMillis() - c.getLastUsageTimeStamp() > inactivityTimeLimitMillis).findAny();
             if (oldConnection.isPresent()) {
@@ -256,7 +256,7 @@ public class CustomPooledDataSource extends JDBCDataSource {
             }
         }
         if (closedConnections > 0) {
-            logger.log(Level.TRACE, String.format("%d old connections from Connection pool were closed",
+            logger.log(Level.DEBUG, String.format("%d old connections from Connection pool were closed",
                     closedConnections));
         }
     }
