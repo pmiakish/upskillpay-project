@@ -15,9 +15,9 @@ The application is developed on the *Jakarta EE* platform (v.9.1.0), implements 
 
 ### Data storage
 
-- The application uses an in-memory relational database *HSQLDB* to store the data
+- The application stores its data in a relational database configured using *MySQL Connector/J 8.0*
 - *JDBC API* is used for connection to the database
-- Access to the database is maintained using a custom connection pool
+- Access to the database is maintained using a *custom connection pool*
 - Interaction with the data storage in the application is carried out using the *DAO-pattern* and *Service layer*
 - HTTP-session is used to store user information between requests 
 
@@ -36,7 +36,9 @@ The application is developed on the *Jakarta EE* platform (v.9.1.0), implements 
 
 ### Used patterns
 
-- The application uses the behavioral design pattern '*Strategy*' and the factory method to produce suitable combinations of column names for result set ordering in generated SQL-queries
+The application uses the behavioral, creational and structural design patterns:
+- '*Command*', '*Decorator*' and '*factory method*' for HTTP-requests handling in a controller
+- '*Strategy*' and the '*factory method*' to create suitable column names combinations for complex ordering in generated SQL-queries
 
 ## Program features 
 
@@ -56,4 +58,4 @@ The admin's interface provides the ability to view and edit customer's profiles,
 
 ### Superadmin's interface
 
-Superadmins have all the admin's permissions. In addition, superadmins can manage admins' profiles, get system balance information and perform delete operations (with profiles, accounts and cards).
+Superadmins have all the admin's permissions. In addition, superadmins can manage admins' profiles, get system balance information and perform delete operations (with users' profiles, accounts and cards).

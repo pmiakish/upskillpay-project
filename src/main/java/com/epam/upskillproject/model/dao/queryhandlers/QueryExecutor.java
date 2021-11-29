@@ -1,12 +1,10 @@
 package com.epam.upskillproject.model.dao.queryhandlers;
 
 import com.epam.upskillproject.model.dto.StatusType;
-import jakarta.annotation.Resource;
 import jakarta.ejb.Stateless;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import javax.sql.DataSource;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.*;
@@ -17,9 +15,6 @@ public class QueryExecutor {
     private static final Logger logger = LogManager.getLogger(QueryExecutor.class.getName());
 
     private static final int VALIDATION_TIMEOUT_VALUE_SEC = 3;
-
-    @Resource(lookup = "java:global/customProjectDB")
-    private DataSource dataSource;
 
     /**
      * Creates a statement and executes passed query.
@@ -101,7 +96,7 @@ public class QueryExecutor {
             }
         }
     }
-    // TODO decomposition?
+
     private boolean checkParams(Object... params) throws SQLException {
         if (params == null) {
             logger.log(Level.INFO, String.format("Parameters array passed to %s is null",

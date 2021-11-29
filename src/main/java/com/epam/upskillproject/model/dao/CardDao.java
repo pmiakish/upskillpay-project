@@ -1,7 +1,6 @@
 package com.epam.upskillproject.model.dao;
 
 import com.epam.upskillproject.model.dto.Card;
-import com.epam.upskillproject.model.dto.CardNetworkType;
 import com.epam.upskillproject.model.dto.StatusType;
 import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.CardSortType;
 import java.math.BigInteger;

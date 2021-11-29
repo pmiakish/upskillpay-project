@@ -3,7 +3,6 @@ package com.epam.upskillproject.view.tags;
 import com.epam.upskillproject.util.init.PropertiesKeeper;
 import com.epam.upskillproject.model.dto.Page;
 import jakarta.inject.Inject;
-import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.JspWriter;
 import jakarta.servlet.jsp.tagext.SimpleTagSupport;
 import java.io.IOException;
@@ -26,7 +25,7 @@ public class SortLinkTag<T> extends SimpleTagSupport {
     private String description;
 
     @Override
-    public void doTag() throws JspException, IOException {
+    public void doTag() throws IOException {
         int pageSize = page.getPageSize();
         String currentSort = page.getSort();
         String columnName = (description != null && description.length() > 0) ? description : target;

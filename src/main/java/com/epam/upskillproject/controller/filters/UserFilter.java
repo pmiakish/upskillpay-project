@@ -1,5 +1,6 @@
 package com.epam.upskillproject.controller.filters;
 
+import com.epam.upskillproject.controller.servlet.util.LocaleDispatcher;
 import com.epam.upskillproject.model.dto.Person;
 import com.epam.upskillproject.model.service.SystemService;
 import jakarta.inject.Inject;
@@ -21,17 +22,21 @@ public class UserFilter implements Filter {
 
     private static final Logger logger = LogManager.getLogger(UserFilter.class.getName());
 
+    private static final String VIEW_PROP = "servlet.view.blocked";
+    private static final String DEFAULT_VIEW = "/WEB-INF/view/en/blocked.jsp";
     private static final String HOME_ENDPOINT = "/";
     private static final String LOGOUT_ENDPOINT = "/logout";
-    private static final String IMG_ENDPOINT_PATTERN = "\\/img\\/.*";
-    private static final String BLOCKED_VIEW = "/WEB-INF/view/blocked.jsp";
+    private static final String LANG_ENDPOINT = "/lang";
+    private static final String IMG_ENDPOINT_PATTERN = "/img/.*";
     private static final String USER_ATTR = "user";
     private static final String BLOCKED_ATTR = "blocked";
 
     @Inject
     private SecurityContext securityContext;
     @Inject
-    SystemService systemService;
+    private LocaleDispatcher localeDispatcher;
+    @Inject
+    private SystemService systemService;
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
@@ -68,10 +73,13 @@ public class UserFilter implements Filter {
         }
         if (!isActive) {
             session.setAttribute(BLOCKED_ATTR, true);
-            if (!HOME_ENDPOINT.equals(httpReq.getRequestURI()) && !LOGOUT_ENDPOINT.equals(httpReq.getRequestURI()) &&
-                    !httpReq.getRequestURI().matches(IMG_ENDPOINT_PATTERN)) {
+            String uri = httpReq.getRequestURI();
+            if (!HOME_ENDPOINT.equals(uri) && !LOGOUT_ENDPOINT.equals(uri) && !LANG_ENDPOINT.equals(uri) &&
+                    !uri.matches(IMG_ENDPOINT_PATTERN)) {
+                String localizedView = localeDispatcher.getLocalizedView(httpReq, VIEW_PROP);
+                String viewPath = (localizedView.length() > 0) ? localizedView : DEFAULT_VIEW;
                 httpResp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                httpReq.getRequestDispatcher(BLOCKED_VIEW).forward(httpReq, httpResp);
+                httpReq.getRequestDispatcher(viewPath).forward(httpReq, httpResp);
                 logger.log(Level.INFO, String.format("Attempt to access the resource %s of blocked user has been " +
                         "prevented (principal: %s)", httpReq.getRequestURI(), principal.getName()));
             }

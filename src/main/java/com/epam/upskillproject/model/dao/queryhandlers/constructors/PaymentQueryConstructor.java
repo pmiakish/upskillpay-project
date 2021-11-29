@@ -19,8 +19,12 @@ public class PaymentQueryConstructor {
     private final String COUNT_BY_RECEIVER_PROP = "query.payment.countByReceiver";
     private final String RECEIVER_INCOME_BY_PAYER_PROP = "query.payment.getTotalReceiverIncomeByPayer";
 
+    private final PropertiesKeeper propertiesKeeper;
+
     @Inject
-    PropertiesKeeper propertiesKeeper;
+    public PaymentQueryConstructor(PropertiesKeeper propertiesKeeper) {
+        this.propertiesKeeper = propertiesKeeper;
+    }
 
     public String singleById() {
         return propertiesKeeper.getString(SINGLE_BY_ID_PROP);

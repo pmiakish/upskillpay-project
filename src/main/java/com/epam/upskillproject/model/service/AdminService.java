@@ -7,6 +7,7 @@ import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.CardSortTyp
 import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PersonSortType;
 import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PaymentSortType;
 import com.epam.upskillproject.util.ParamsValidator;
+import com.epam.upskillproject.util.PermissionType;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import org.apache.logging.log4j.Level;
@@ -28,7 +29,6 @@ public class AdminService {
     private static final AccountSortType DEFAULT_ACCOUNT_SORT_TYPE = AccountSortType.ID;
     private static final CardSortType DEFAULT_CARD_SORT_TYPE = CardSortType.ID;
     private static final PaymentSortType DEFAULT_PAYMENT_SORT_TYPE = PaymentSortType.ID_DESC;
-    private static final String EMAIL_PATTERN = "^\\w+@\\w+\\.\\w+$";
 
     private final PersonDao personDao;
     private final AccountDao accountDao;
@@ -104,7 +104,7 @@ public class AdminService {
      * Updates customer's profile
      * @param id a positive BigInteger
      * @param newPermissionType might be null (in this case will be used old person's permission type)
-     * @param newEmail an unique valid email
+     * @param email an unique valid email
      * @param newPassword might be null (in this case will be used old person's password)
      * @param newFirstName not null String value
      * @param newLastName not null String value
@@ -115,15 +115,15 @@ public class AdminService {
      */
     public synchronized boolean updateCustomer(BigInteger id,
                                                PermissionType newPermissionType,
-                                               String newEmail,
+                                               String email,
                                                String newPassword,
                                                String newFirstName,
                                                String newLastName,
                                                StatusType statusType,
                                                LocalDate newRegDate) throws SQLException {
-        if (!paramsValidator.validatePersonUpdateParams(id, newEmail, newPassword, newFirstName, newLastName, statusType,
+        if (!paramsValidator.validatePersonUpdateParams(id, email, newPassword, newFirstName, newLastName, statusType,
                 newRegDate)) {
-            logger.log(Level.WARN, String.format("Cannot update admin (bad parameters passed) [id: %s]", id));
+            logger.log(Level.WARN, String.format("Cannot update customer (bad parameters passed) [id: %s]", id));
             return false;
         }
         Optional<Person> person = personDao.getSinglePersonById(PermissionType.CUSTOMER, id);
@@ -134,7 +134,7 @@ public class AdminService {
             if (newPassword == null) {
                 newPassword = person.get().getPassword();
             }
-            Person personDto = new Person(id, newPermissionType, newEmail, newPassword, newFirstName, newLastName,
+            Person personDto = new Person(id, newPermissionType, email, newPassword, newFirstName, newLastName,
                     statusType, newRegDate);
             return personDao.updatePerson(PermissionType.CUSTOMER, personDto);
         } else {
@@ -210,6 +210,7 @@ public class AdminService {
         Optional<StatusType> statusType = accountDao.getAccountStatus(id);
         return statusType.orElse(null);
     }
+
     /**
      * Updates an account status
      * @param id a positive BigInteger

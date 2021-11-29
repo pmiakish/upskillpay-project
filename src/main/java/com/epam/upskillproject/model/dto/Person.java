@@ -1,5 +1,6 @@
 package com.epam.upskillproject.model.dto;
 
+import com.epam.upskillproject.util.PermissionType;
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.Objects;

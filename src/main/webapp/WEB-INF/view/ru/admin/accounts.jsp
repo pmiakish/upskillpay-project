@@ -9,6 +9,8 @@
         <meta name="keywords" content="платеж, клиент, счет" />
         <meta name="author" content="P. Miakish" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="${pageContext.request.contextPath}/img/favicon.ico" rel="icon" type="image/x-icon" />
+        <link href="${pageContext.request.contextPath}/img/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
               integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
         <title>Список счетов - UpSkillPAY</title>
@@ -19,7 +21,7 @@
             <div class="row">
                 <div class="col-3 align-self-center" >
                     <a href="/" title="UpSkillPAY">
-                        <img src="../img/logo.png" class="img-fluid" width="150" height="91" alt="UpSkillPAY лого">
+                        <img src="${pageContext.request.contextPath}/img/logo.png" class="img-fluid" width="150" height="91" alt="UpSkillPAY лого">
                     </a>
                 </div>
                 <div class="col align-self-center">
@@ -27,14 +29,12 @@
                 </div>
                 <div class="col-3">
                     <c:if test="${user != null}">
-                        <p>
-                            <br /><strong>Администратор:</strong><br />
-                            <a href="/profile" title="Редактировать профиль">${user.email}</a><br />
-                            ${user.firstName} ${user.lastName}<br />
-                            <div class="d-grid gap-1 col-6 mx-auto">
-                                <a href="/logout" class="btn btn-outline-dark btn-sm" role="button">Выйти</a>
-                            </div>
-                        </p>
+                        <br /><br /><strong>Администратор:</strong><br />
+                        <a href="/profile" title="Редактировать профиль">${user.email}</a><br />
+                        ${user.firstName} ${user.lastName}<br />
+                        <div class="d-grid gap-1 col-6 mx-auto">
+                            <a href="/logout" class="btn btn-outline-dark btn-sm" role="button">Выйти</a>
+                        </div><br />
                     </c:if>
                 </div>
             </div>
@@ -75,7 +75,7 @@
             </nav>
         </div>
         <div class="container">
-            <%-- Operation status message --%>
+            <%-- Operation status errorMessage --%>
             <project:status operation="${opName}" result="${opStat}" message="${errMsg}" locale="${sessionScope.sessLoc}" />
             <br />
             <p class="lead">Всего найдено: ${page.total} записей</p>
@@ -113,7 +113,7 @@
                             <td>
                                 <form method="POST" action="/accounts?page=${page.pageNumber}&entries=${page.pageSize}&sort=${page.sort}">
                                     <input type="hidden" name="id" value="${account.id}" />
-                                    <input type="hidden" name="currentStatus" value="${account.status}" />
+                                    <input type="hidden" name="command" value="ACTIVATE_ACCOUNT" />
                                     <button type="submit" class="btn btn-outline-primary">АКТИВИРОВАТЬ</button>
                                 </form>
                             </td>
@@ -123,7 +123,7 @@
                             <td>
                                 <form method="POST" action="/accounts?page=${page.pageNumber}&entries=${page.pageSize}&sort=${page.sort}">
                                     <input type="hidden" name="id" value="${account.id}" />
-                                    <input type="hidden" name="currentStatus" value="${account.status}" />
+                                    <input type="hidden" name="command" value="BLOCK_ACCOUNT" />
                                     <button type="submit" class="btn btn-outline-danger">БЛОКИРОВАТЬ</button>
                                 </form>
                             </td>

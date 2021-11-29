@@ -3,7 +3,6 @@ package com.epam.upskillproject.view.tags;
 import com.epam.upskillproject.util.init.PropertiesKeeper;
 import jakarta.ejb.EJBException;
 import jakarta.inject.Inject;
-import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.JspWriter;
 import jakarta.servlet.jsp.tagext.SimpleTagSupport;
 import java.io.IOException;
@@ -35,7 +34,7 @@ public class OperationStatusMessageTag extends SimpleTagSupport {
     private String locale;
 
     @Override
-    public void doTag() throws JspException, IOException {
+    public void doTag() throws IOException {
         if (operation != null) {
             String contentPattern = propertiesKeeper.getString((result) ? ALERT_SUCCESS_PROP : ALERT_FAILED_PROP);
             StringBuilder tagBody = new StringBuilder();

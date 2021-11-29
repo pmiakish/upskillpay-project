@@ -2,16 +2,15 @@ package com.epam.upskillproject.util;
 
 import com.epam.upskillproject.model.dto.StatusType;
 import jakarta.ejb.Stateless;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDate;
 
 @Stateless
 public class ParamsValidator {
-    private static final String EMAIL_PATTERN = "^\\w+@\\w+\\.\\w+$";
+    private static final String EMAIL_PATTERN = "^[\\w\\.]+@\\w+\\.[A-Za-z]{2,6}$";
     private static final String NAME_PATTERN = "^[\\p{Lu}][-\\p{L} ]+$";
-    private static final int MAX_PASSWORD_LENGTH = 100;
+    private static final int MAX_PASSWORD_LENGTH = 255;
     private static final int MAX_NAME_LENGTH = 30;
 
     public boolean validateEmail(String email) {

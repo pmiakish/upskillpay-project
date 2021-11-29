@@ -34,7 +34,7 @@ public class PropertiesKeeper {
     private Properties properties = new Properties();
 
     @PostConstruct
-    private void collectProperties() {
+    public void collectProperties() {
         Properties collectedProperties = new Properties();
         Arrays.stream(resources).forEach(resource -> collectedProperties.putAll(readPropertiesFromFile(resource)));
         this.properties = collectedProperties;
@@ -52,17 +52,11 @@ public class PropertiesKeeper {
         return readProperties;
     }
 
-    public Properties getProperties() {
-        collectProperties();
-        return properties;
-    }
-
     public String getString(String key) throws IllegalArgumentException {
         if (key == null) {
             logger.log(Level.WARN, "Passed property key is null");
             throw new IllegalArgumentException("Property key may not be null");
         }
-        collectProperties();
         String propValue = properties.getProperty(key);
         if (propValue != null) {
             return propValue;
@@ -77,7 +71,6 @@ public class PropertiesKeeper {
             logger.log(Level.WARN, "Passed property key or default value is null");
             throw new IllegalArgumentException("Property key and default value may not be null");
         }
-        collectProperties();
         String propValue = properties.getProperty(key);
         return (propValue != null) ? propValue : defaultValue;
     }
@@ -87,7 +80,6 @@ public class PropertiesKeeper {
             logger.log(Level.WARN, "Passed property key is null");
             throw new IllegalArgumentException("Property key may not be null");
         }
-        collectProperties();
         String propStrValue = properties.getProperty(key);
         if (propStrValue != null) {
             try {
@@ -107,7 +99,6 @@ public class PropertiesKeeper {
             logger.log(Level.WARN, "Passed property key is null");
             throw new IllegalArgumentException("Property key may not be null");
         }
-        collectProperties();
         String propStrValue = properties.getProperty(key);
         try {
             return Integer.parseInt(propStrValue);
@@ -121,7 +112,6 @@ public class PropertiesKeeper {
             logger.log(Level.WARN, "Passed property key is null");
             throw new IllegalArgumentException("Property key may not be null");
         }
-        collectProperties();
         String propStrValue = properties.getProperty(key);
         if (propStrValue != null) {
             try {
@@ -141,7 +131,6 @@ public class PropertiesKeeper {
             logger.log(Level.WARN, "Passed property key or default value is null");
             throw new IllegalArgumentException("Property key and default value may not be null");
         }
-        collectProperties();
         String propStrValue = properties.getProperty(key);
         try {
             return new BigDecimal(propStrValue);
@@ -155,7 +144,6 @@ public class PropertiesKeeper {
             logger.log(Level.WARN, "Passed property key is null");
             throw new IllegalArgumentException("Property key may not be null");
         }
-        collectProperties();
         String propStrValue = properties.getProperty(key);
         if (propStrValue != null) {
             try {
@@ -175,13 +163,17 @@ public class PropertiesKeeper {
             logger.log(Level.WARN, "Passed property key or default value is null");
             throw new IllegalArgumentException("Property key and default value cannot be null");
         }
-        collectProperties();
         String propStrValue = properties.getProperty(key);
         try {
             return TimeUnit.valueOf(propStrValue);
         } catch (IllegalArgumentException e) {
             return defaultValue;
         }
+    }
+
+    public Properties getProperties() {
+        collectProperties();
+        return properties;
     }
 
     public static String[] getResources() {

@@ -35,6 +35,7 @@ public class FinancialTransactionsPerformer {
     private static final RoundingMode DEFAULT_ROUNDING_MODE = RoundingMode.HALF_UP;
     private static final BigInteger SYSTEM_INCOME_ID = BigInteger.ZERO;
     private static final String COMMISSION_RATE_PROP = "system.payments.commissionRate";
+    private static final int MYSQL_CONSTRAINT_VIOLATED_ERROR = 3819;
 
     @Resource(lookup = "java:global/customProjectDB")
     private DataSource dataSource;
@@ -277,11 +278,20 @@ public class FinancialTransactionsPerformer {
             if (!success) {
                 conn.rollback();
                 logger.log(Level.WARN, "Rollback transaction");
-                throw (throwable != null) ?
-                        new TransactionException(TransactionExceptionType.PERFORM,
-                                HttpServletResponse.SC_INTERNAL_SERVER_ERROR, throwable.getMessage()) :
-                        new TransactionException(TransactionExceptionType.PERFORM,
-                                HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                if (throwable instanceof SQLException &&
+                        ((SQLException) throwable).getErrorCode() == MYSQL_CONSTRAINT_VIOLATED_ERROR) {
+                    throw new TransactionException(TransactionExceptionType.LOW_BALANCE,
+                            HttpServletResponse.SC_BAD_REQUEST, throwable.getMessage());
+                } else if (throwable instanceof IllegalStateException) {
+                    throw new TransactionException(TransactionExceptionType.FORBIDDEN_STATUS,
+                            HttpServletResponse.SC_BAD_REQUEST, throwable.getMessage());
+                } else if (throwable != null) {
+                    throw new TransactionException(TransactionExceptionType.PERFORM,
+                            HttpServletResponse.SC_INTERNAL_SERVER_ERROR, throwable.getMessage());
+                } else {
+                    throw new TransactionException(TransactionExceptionType.PERFORM,
+                            HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                }
             }
         } catch (SQLException rollbackEx) {
             logger.log(Level.ERROR, "Cannot rollback transaction properly because of throwing exception", rollbackEx);

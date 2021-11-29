@@ -8,6 +8,7 @@ import com.epam.upskillproject.model.dao.PersonDao;
 import com.epam.upskillproject.model.dto.*;
 import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PersonSortType;
 import com.epam.upskillproject.util.ParamsValidator;
+import com.epam.upskillproject.util.PermissionType;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import org.apache.logging.log4j.Level;
@@ -100,7 +101,7 @@ public class SuperadminService {
      * Updates admin's profile
      * @param id a positive BigInteger
      * @param newPermissionType might be null (in this case will be used old person's permission type)
-     * @param newEmail an unique valid email
+     * @param email an unique valid email
      * @param newPassword might be null (in this case will be used old person's password)
      * @param newFirstName not null String value
      * @param newLastName not null String value
@@ -111,13 +112,13 @@ public class SuperadminService {
      */
     public synchronized boolean updateAdmin(BigInteger id,
                                             PermissionType newPermissionType,
-                                            String newEmail,
+                                            String email,
                                             String newPassword,
                                             String newFirstName,
                                             String newLastName,
                                             StatusType statusType,
                                             LocalDate newRegDate) throws SQLException {
-        if (!paramsValidator.validatePersonUpdateParams(id, newEmail, newPassword, newFirstName, newLastName, statusType,
+        if (!paramsValidator.validatePersonUpdateParams(id, email, newPassword, newFirstName, newLastName, statusType,
                 newRegDate)) {
             logger.log(Level.WARN, String.format("Cannot update admin (bad parameters passed) [id: %s]", id));
             return false;
@@ -130,7 +131,7 @@ public class SuperadminService {
             if (newPassword == null) {
                 newPassword = person.get().getPassword();
             }
-            Person personDto = new Person(id, newPermissionType, newEmail, newPassword, newFirstName, newLastName,
+            Person personDto = new Person(id, newPermissionType, email, newPassword, newFirstName, newLastName,
                     statusType, newRegDate);
             return personDao.updatePerson(PermissionType.ADMIN, personDto);
         } else {
@@ -143,6 +144,7 @@ public class SuperadminService {
      * Removes the specified person. All the related accounts and cards will be also removed
      * @param id a positive BigInteger
      * @return true if a person was deleted, otherwise false
+     * @throws TransactionException
      */
     public boolean deletePerson(BigInteger id) throws TransactionException {
         if (!paramsValidator.validateId(id)) {
@@ -161,6 +163,7 @@ public class SuperadminService {
      * Removes the specified account. All the related cards will be also removed
      * @param id a positive BigInteger
      * @return true if an account was deleted, otherwise false
+     * @throws TransactionException
      */
     public boolean deleteAccount(BigInteger id) throws TransactionException {
         if (!paramsValidator.validateId(id)) {
@@ -174,6 +177,7 @@ public class SuperadminService {
      * Removes the specified card
      * @param id a positive BigInteger
      * @return true if a card was deleted, otherwise false
+     * @throws SQLException
      */
     public boolean deleteCard(BigInteger id) throws SQLException {
         if (!paramsValidator.validateId(id)) {
