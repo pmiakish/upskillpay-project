@@ -20,7 +20,8 @@
             <div class="row">
                 <div class="col-3 align-self-center" >
                     <a href="/" title="UpSkillPAY">
-                        <img src="${pageContext.request.contextPath}/img/logo.png" class="img-fluid" width="150" height="91" alt="UpSkillPAY лого">
+                        <img src="${pageContext.request.contextPath}/img/logo.png" class="img-fluid" width="150"
+                             height="91" alt="UpSkillPAY лого" />
                     </a>
                 </div>
                 <div class="col align-self-center">
