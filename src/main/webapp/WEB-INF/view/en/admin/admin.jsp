@@ -126,11 +126,11 @@
                     </div>
                 </div>
                 <div class="mb-3 row">
-                    <label for="selectPermission" class="col-sm-2 col-form-label"><strong>Permission</strong></label>
+                    <label for="selectRole" class="col-sm-2 col-form-label"><strong>Role</strong></label>
                     <div class="col-sm-10">
-                        <select class="form-select" id="selectPermission" name="permission">
-                            <option value="ADMIN"<c:if test="${admin.permission == 'ADMIN'}"> selected</c:if>>ADMIN</option>
-                            <option value="SUPERADMIN"<c:if test="${admin.permission == 'SUPERADMIN'}"> selected</c:if>>SUPERADMIN</option>
+                        <select class="form-select" id="selectRole" name="role">
+                            <option value="ADMIN"<c:if test="${admin.role == 'ADMIN'}"> selected</c:if>>ADMIN</option>
+                            <option value="SUPERADMIN"<c:if test="${admin.role == 'SUPERADMIN'}"> selected</c:if>>SUPERADMIN</option>
                             <option value="CUSTOMER">CUSTOMER</option>
                         </select>
                     </div>

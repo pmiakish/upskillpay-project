@@ -5,9 +5,9 @@ import com.epam.upskillproject.controller.servlet.util.ParamReader;
 import com.epam.upskillproject.controller.command.CommandResult;
 import com.epam.upskillproject.controller.command.impl.AbstractCommand;
 import com.epam.upskillproject.model.service.SystemService;
-import com.epam.upskillproject.util.PermissionType;
+import com.epam.upskillproject.util.RoleType;
 import com.epam.upskillproject.util.init.PropertiesKeeper;
-import com.epam.upskillproject.view.tags.OperationType;
+import com.epam.upskillproject.view.tag.OperationType;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
@@ -42,8 +42,8 @@ public class UserUpdateCommand extends AbstractCommand {
     private static final String OPERATION_NAME_ATTR = "opName";
     private static final String OPERATION_STATUS_ATTR = "opStat";
 
-    private static final PermissionType[] permissions = {PermissionType.SUPERADMIN, PermissionType.ADMIN,
-            PermissionType.CUSTOMER};
+    private static final RoleType[] roles = {RoleType.SUPERADMIN, RoleType.ADMIN,
+            RoleType.CUSTOMER};
 
     private final PropertiesKeeper propertiesKeeper;
     private final SystemService systemService;
@@ -108,8 +108,8 @@ public class UserUpdateCommand extends AbstractCommand {
     }
 
     @Override
-    public PermissionType[] getPermissions() {
-        return permissions;
+    public RoleType[] getRoles() {
+        return roles;
     }
 
     @PostConstruct

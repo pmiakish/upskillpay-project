@@ -6,7 +6,7 @@ import com.epam.upskillproject.controller.command.CommandResult;
 import com.epam.upskillproject.controller.command.impl.AbstractCommand;
 import com.epam.upskillproject.model.dto.Person;
 import com.epam.upskillproject.model.service.SystemService;
-import com.epam.upskillproject.util.PermissionType;
+import com.epam.upskillproject.util.RoleType;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import jakarta.security.enterprise.SecurityContext;
@@ -30,8 +30,8 @@ public class UserProfileCommand extends AbstractCommand {
     private static final String VIEW_PROP = "servlet.view.profile";
     private static final String DEFAULT_VIEW = "/WEB-INF/view/en/profile.jsp";
 
-    private static final PermissionType[] permissions = {PermissionType.SUPERADMIN, PermissionType.ADMIN,
-            PermissionType.CUSTOMER};
+    private static final RoleType[] roles = {RoleType.SUPERADMIN, RoleType.ADMIN,
+            RoleType.CUSTOMER};
 
     private final SystemService systemService;
     private final SecurityContext securityContext;
@@ -76,7 +76,7 @@ public class UserProfileCommand extends AbstractCommand {
     }
 
     @Override
-    public PermissionType[] getPermissions() {
-        return permissions;
+    public RoleType[] getRoles() {
+        return roles;
     }
 }

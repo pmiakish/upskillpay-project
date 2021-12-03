@@ -4,12 +4,12 @@ import com.epam.upskillproject.controller.servlet.util.LocaleDispatcher;
 import com.epam.upskillproject.controller.servlet.util.ParamReader;
 import com.epam.upskillproject.controller.command.CommandResult;
 import com.epam.upskillproject.controller.command.impl.AbstractCommand;
-import com.epam.upskillproject.exceptions.CustomSQLCode;
-import com.epam.upskillproject.exceptions.TransactionException;
+import com.epam.upskillproject.exception.CustomSQLCode;
+import com.epam.upskillproject.exception.TransactionException;
 import com.epam.upskillproject.model.service.SystemService;
-import com.epam.upskillproject.util.PermissionType;
+import com.epam.upskillproject.util.RoleType;
 import com.epam.upskillproject.util.init.PropertiesKeeper;
-import com.epam.upskillproject.view.tags.OperationType;
+import com.epam.upskillproject.view.tag.OperationType;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
@@ -45,7 +45,7 @@ public class SignUpCommand extends AbstractCommand {
     private static final String OPERATION_STATUS_ATTR = "opStat";
     private static final String DEFAULT_VIEW = "/WEB-INF/view/en/signup.jsp";
 
-    private static final PermissionType[] permissions = {};
+    private static final RoleType[] roles = {};
 
     private final PropertiesKeeper propertiesKeeper;
     private final SystemService systemService;
@@ -107,8 +107,8 @@ public class SignUpCommand extends AbstractCommand {
     }
 
     @Override
-    public PermissionType[] getPermissions() {
-        return permissions;
+    public RoleType[] getRoles() {
+        return roles;
     }
 
     @PostConstruct

@@ -140,16 +140,16 @@
                         <p>
                             <strong>Welcome, ${user.firstName} ${user.lastName}</strong><br />
                             <div class="d-grid gap-2">
-                                <c:if test="${user.permission == 'SUPERADMIN' || user.permission == 'ADMIN'}">
+                                <c:if test="${user.role == 'SUPERADMIN' || user.role == 'ADMIN'}">
                                     <a href="/customers" class="btn btn-outline-primary" role="button">Customers management</a>
                                     <a href="/accounts" class="btn btn-outline-primary" role="button">Accounts management</a>
                                     <a href="/cards" class="btn btn-outline-primary" role="button">Cards management</a>
                                     <a href="/payments" class="btn btn-outline-primary" role="button">Payments</a>
                                 </c:if>
-                                <c:if test="${user.permission == 'SUPERADMIN'}">
+                                <c:if test="${user.role == 'SUPERADMIN'}">
                                     <a href="/admins" class="btn btn-outline-danger" role="button">Admins management</a>
                                 </c:if>
-                                <c:if test="${user.permission == 'CUSTOMER'}">
+                                <c:if test="${user.role == 'CUSTOMER'}">
                                     <a href="/payservice/my_accounts" class="btn btn-outline-primary" role="button">My accounts</a>
                                 </c:if>
                                 <a href="/profile" class="btn btn-outline-secondary" role="button">My profile</a>

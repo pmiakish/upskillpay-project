@@ -5,7 +5,7 @@ import com.epam.upskillproject.controller.servlet.util.ParamReader;
 import com.epam.upskillproject.controller.command.CommandResult;
 import com.epam.upskillproject.controller.command.impl.AbstractCommand;
 import com.epam.upskillproject.model.service.SuperadminService;
-import com.epam.upskillproject.util.PermissionType;
+import com.epam.upskillproject.util.RoleType;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import jakarta.servlet.RequestDispatcher;
@@ -26,7 +26,7 @@ public class SystemIncomeCommand extends AbstractCommand {
     private static final String INCOME_BALANCE_ATTR = "balance";
     private static final String DEFAULT_VIEW = "/WEB-INF/view/en/admin/income.jsp";
 
-    private static final PermissionType[] permissions = {PermissionType.SUPERADMIN};
+    private static final RoleType[] roles = {RoleType.SUPERADMIN};
 
     private final SuperadminService superadminService;
 
@@ -51,7 +51,7 @@ public class SystemIncomeCommand extends AbstractCommand {
     }
 
     @Override
-    public PermissionType[] getPermissions() {
-        return permissions;
+    public RoleType[] getRoles() {
+        return roles;
     }
 }

@@ -61,7 +61,7 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="/payments">Payments</a>
                             </li>
-                            <c:if test="${user != null && user.permission == 'SUPERADMIN'}">
+                            <c:if test="${user != null && user.role == 'SUPERADMIN'}">
                                 <li class="nav-item">
                                     <a class="nav-link" href="/admins">Admins</a>
                                 </li>
@@ -131,10 +131,10 @@
                         </div>
                     </div>
                     <div class="mb-3 row">
-                        <label for="selectPermission" class="col-sm-2 col-form-label"><strong>Permission</strong></label>
+                        <label for="selectRole" class="col-sm-2 col-form-label"><strong>Role</strong></label>
                         <div class="col-sm-10">
-                            <select class="form-select" id="selectPermission"
-                                    name="permission"<c:if test="${user == null || user.permission != 'SUPERADMIN'}"> disabled</c:if>>
+                            <select class="form-select" id="selectRole"
+                                    name="role"<c:if test="${user == null || user.role != 'SUPERADMIN'}"> disabled</c:if>>
                                 <option value="CUSTOMER" selected>CUSTOMER</option>
                                 <option value="ADMIN">ADMIN</option>
                                 <option value="SUPERADMIN">SUPERADMIN</option>
@@ -186,7 +186,7 @@
                     </div>
                 </form>
                 <br />
-                <c:if test="${user.permission == 'SUPERADMIN'}">
+                <c:if test="${user.role == 'SUPERADMIN'}">
                     <form method="POST" action="/customer/${customer.id}" onsubmit="return confirm('Are you sure you ' +
                      'want to delete profile? This action cannot be canceled!');">
                         <input type="hidden" name="id" value="${customer.id}" />

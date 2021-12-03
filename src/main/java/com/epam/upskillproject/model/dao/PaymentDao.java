@@ -1,7 +1,7 @@
 package com.epam.upskillproject.model.dao;
 
 import com.epam.upskillproject.model.dto.Payment;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PaymentSortType;
+import com.epam.upskillproject.model.dao.queryhandler.sqlorder.sort.PaymentSortType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.SQLException;

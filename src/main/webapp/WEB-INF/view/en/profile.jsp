@@ -49,7 +49,7 @@
                     </button>
                     <div class="collapse navbar-collapse" id="adminNavbar">
                         <ul class="navbar-nav">
-                            <c:if test="${user != null && (user.permission == 'SUPERADMIN' || user.permission == 'ADMIN')}">
+                            <c:if test="${user != null && (user.role == 'SUPERADMIN' || user.role == 'ADMIN')}">
                                 <li class="nav-item">
                                     <a class="nav-link" href="/customers">Customers</a>
                                 </li>
@@ -63,7 +63,7 @@
                                     <a class="nav-link" href="/payments">Payments</a>
                                 </li>
                             </c:if>
-                            <c:if test="${user != null && user.permission == 'SUPERADMIN'}">
+                            <c:if test="${user != null && user.role == 'SUPERADMIN'}">
                                 <li class="nav-item">
                                     <a class="nav-link" href="/admins">Admins</a>
                                 </li>

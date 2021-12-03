@@ -1,6 +1,8 @@
 package com.epam.upskillproject.util.init;
 
+import com.epam.upskillproject.connect.customds.CustomPooledDataSource;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import jakarta.annotation.Resource;
 import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
@@ -53,5 +55,10 @@ public class DataBaseInitializer {
             logger.log(Level.FATAL, "Cannot read SQL-resource for database initialization", e);
             return "";
         }
+    }
+
+    @PreDestroy
+    public void destroy() throws SQLException {
+        ((CustomPooledDataSource) dataSource).shutdown();
     }
 }

@@ -2,7 +2,7 @@ package com.epam.upskillproject.model.dao;
 
 import com.epam.upskillproject.model.dto.Card;
 import com.epam.upskillproject.model.dto.StatusType;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.CardSortType;
+import com.epam.upskillproject.model.dao.queryhandler.sqlorder.sort.CardSortType;
 import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.SQLException;

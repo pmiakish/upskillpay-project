@@ -1,12 +1,12 @@
 package com.epam.upskillproject.model.service;
 
-import com.epam.upskillproject.exceptions.TransactionException;
+import com.epam.upskillproject.exception.TransactionException;
 import com.epam.upskillproject.model.dao.AccountDao;
-import com.epam.upskillproject.model.dao.queryhandlers.FinancialTransactionsPerformer;
+import com.epam.upskillproject.model.dao.queryhandler.FinancialTransactionsPerformer;
 import com.epam.upskillproject.model.dao.PersonDao;
 import com.epam.upskillproject.model.dto.*;
 import com.epam.upskillproject.util.ParamsValidator;
-import com.epam.upskillproject.util.PermissionType;
+import com.epam.upskillproject.util.RoleType;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import org.apache.logging.log4j.Level;
@@ -71,7 +71,7 @@ public class SystemService {
                     "not null: %s, name: %s %s]", email, (password != null), firstName, lastName));
             return false;
         }
-        Person personDto = new Person(PermissionType.CUSTOMER, email, password, firstName, lastName, StatusType.ACTIVE);
+        Person personDto = new Person(RoleType.CUSTOMER, email, password, firstName, lastName, StatusType.ACTIVE);
         Person createdCustomer = personDao.addPerson(personDto);
         if (createdCustomer != null) {
             logger.log(Level.INFO, String.format("New customer created (id: %s, email: %s)", createdCustomer.getId(), email));
@@ -127,7 +127,7 @@ public class SystemService {
     }
 
     /**
-     * Updates a user's record (with any permission type)
+     * Updates a user's record (with any role type)
      * @param email a valid email value
      * @param newPassword not null string (hashed password)
      * @param newFirstName not null string
@@ -148,7 +148,7 @@ public class SystemService {
                 newPassword = person.getPassword();
             }
             logger.log(Level.INFO, String.format("Try to update user's record [email: %s]", email));
-            Person personDto = new Person(person.getId(), person.getPermission(), person.getEmail(), newPassword,
+            Person personDto = new Person(person.getId(), person.getrole(), person.getEmail(), newPassword,
                     newFirstName, newLastName, person.getStatus(), person.getRegDate());
             return personDao.updatePerson(personDto);
         } else {

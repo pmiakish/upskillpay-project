@@ -3,7 +3,8 @@ package com.epam.upskillproject.controller.servlet;
 import com.epam.upskillproject.controller.command.ActionFactory;
 import com.epam.upskillproject.controller.command.Command;
 import com.epam.upskillproject.controller.command.CommandResult;
-import com.epam.upskillproject.util.PermissionType;
+import com.epam.upskillproject.exception.CommandNotFoundException;
+import com.epam.upskillproject.util.RoleType;
 import jakarta.inject.Inject;
 import jakarta.security.enterprise.SecurityContext;
 import jakarta.servlet.RequestDispatcher;
@@ -37,25 +38,27 @@ public class ControllerServlet extends HttpServlet {
     }
 
     private void processRequest(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-        Command command = actionFactory.produce(req, resp);
-        if (command != null && command.getPermissions().length > 0) {
-            req.authenticate(resp);
-            if (checkCallerPermissions(command)) {
-                applyCommand(req, resp, command);
+        try {
+            Command command = actionFactory.produce(req, resp);
+            if (command.getRoles().length > 0) {
+                req.authenticate(resp);
+                if (checkCallerRoles(command)) {
+                    applyCommand(req, resp, command);
+                } else {
+                    resp.sendError(HttpServletResponse.SC_FORBIDDEN, "You do not have sufficient privileges to " +
+                            "view this page");
+                }
             } else {
-                resp.sendError(HttpServletResponse.SC_FORBIDDEN, "You do not have sufficient privileges to " +
-                        "view this page");
+                applyCommand(req, resp, command);
             }
-        } else if (command != null && command.getPermissions().length == 0) {
-            applyCommand(req, resp, command);
-        } else {
+        } catch (CommandNotFoundException e) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Page not found");
         }
     }
 
-    private boolean checkCallerPermissions(Command command) {
-        PermissionType[] allowedPermissions = command.getPermissions();
-        for (PermissionType role : allowedPermissions) {
+    private boolean checkCallerRoles(Command command) {
+        RoleType[] allowedRoles = command.getRoles();
+        for (RoleType role : allowedRoles) {
             if (securityContext.isCallerInRole(role.getType())) {
                 return true;
             }

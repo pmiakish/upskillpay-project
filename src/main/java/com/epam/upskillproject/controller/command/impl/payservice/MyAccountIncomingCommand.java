@@ -4,11 +4,12 @@ import com.epam.upskillproject.controller.servlet.util.LocaleDispatcher;
 import com.epam.upskillproject.controller.servlet.util.ParamReader;
 import com.epam.upskillproject.controller.command.CommandResult;
 import com.epam.upskillproject.controller.command.impl.AbstractCommand;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PaymentSortType;
+import com.epam.upskillproject.model.dao.queryhandler.sqlorder.sort.PaymentSortType;
 import com.epam.upskillproject.model.dto.Account;
 import com.epam.upskillproject.model.dto.Person;
 import com.epam.upskillproject.model.service.CustomerService;
-import com.epam.upskillproject.util.PermissionType;
+import com.epam.upskillproject.util.RoleType;
+import com.epam.upskillproject.util.init.PropertiesKeeper;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import jakarta.security.enterprise.SecurityContext;
@@ -30,7 +31,7 @@ public class MyAccountIncomingCommand extends AbstractCommand {
 
     private static final Logger logger = LogManager.getLogger(MyAccountIncomingCommand.class.getName());
 
-    private static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
+    private static final String DATE_TIME_PATTERN_PROP = "system.datetime.pattern";
     private static final String VIEW_PROP = "servlet.view.myAccountIncoming";
     private static final String SORT_PARAM = "sort";
     private static final String PAGE_ATTR = "page";
@@ -39,15 +40,18 @@ public class MyAccountIncomingCommand extends AbstractCommand {
     private static final String DEFAULT_VIEW = "/WEB-INF/view/en/payservice/myAccountIncoming.jsp";
     private static final String BASE_PATH = "/controller/payservice/my_account_incoming/";
 
-    private static final PermissionType[] permissions = {PermissionType.CUSTOMER};
+    private static final RoleType[] roles = {RoleType.CUSTOMER};
 
+    private final PropertiesKeeper propertiesKeeper;
     private final CustomerService customerService;
     private final SecurityContext securityContext;
 
     @Inject
     public MyAccountIncomingCommand(LocaleDispatcher localeDispatcher, ParamReader paramReader,
-                                    CustomerService customerService, SecurityContext securityContext) {
+                                    PropertiesKeeper propertiesKeeper, CustomerService customerService,
+                                    SecurityContext securityContext) {
         super(localeDispatcher, paramReader);
+        this.propertiesKeeper = propertiesKeeper;
         this.customerService = customerService;
         this.securityContext = securityContext;
     }
@@ -66,7 +70,8 @@ public class MyAccountIncomingCommand extends AbstractCommand {
                     try {
                         BigInteger accountId = getIdFromRequestUri(req);
                         Account account = customerService.getUserAccountById(principal, accountId);
-                        req.setAttribute(FORMATTER_ATTR, DateTimeFormatter.ofPattern(DATE_TIME_PATTERN));
+                        req.setAttribute(FORMATTER_ATTR,
+                                DateTimeFormatter.ofPattern(propertiesKeeper.getString(DATE_TIME_PATTERN_PROP)));
                         if (account != null) {
                             req.setAttribute(ACCOUNT_ATTR, account);
                             req.setAttribute(PAGE_ATTR, customerService.getUserIncomingPaymentsByAccount(principal,
@@ -117,7 +122,7 @@ public class MyAccountIncomingCommand extends AbstractCommand {
     }
 
     @Override
-    public PermissionType[] getPermissions() {
-        return permissions;
+    public RoleType[] getRoles() {
+        return roles;
     }
 }

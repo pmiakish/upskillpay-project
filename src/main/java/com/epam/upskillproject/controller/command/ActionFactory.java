@@ -4,9 +4,10 @@ import com.epam.upskillproject.controller.servlet.util.ParamReader;
 import com.epam.upskillproject.controller.command.impl.CommandWrapper;
 import com.epam.upskillproject.controller.command.impl.admin.*;
 import com.epam.upskillproject.controller.command.impl.common.*;
-import com.epam.upskillproject.controller.command.enums.EndpointEnum;
-import com.epam.upskillproject.controller.command.enums.TargetType;
+import com.epam.upskillproject.controller.command.enumeration.EndpointEnum;
+import com.epam.upskillproject.controller.command.enumeration.TargetType;
 import com.epam.upskillproject.controller.command.impl.payservice.*;
+import com.epam.upskillproject.exception.CommandNotFoundException;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
@@ -154,7 +155,7 @@ public class ActionFactory {
         this.changeLangCommand = changeLangCommand;
     }
 
-    public Command produce(HttpServletRequest req, HttpServletResponse resp) {
+    public Command produce(HttpServletRequest req, HttpServletResponse resp) throws CommandNotFoundException {
         if (req != null && resp != null) {
             try {
                 Optional<TargetType> target = paramReader.readTargetTypeParamOrAttr(req, TARGET_PARAM);
@@ -175,7 +176,7 @@ public class ActionFactory {
             logger.log(Level.INFO, String.format("Bad parameters passed - request is present: %s, response is " +
                             "present: %s", (req != null), (resp != null)));
         }
-        return null;
+        throw new CommandNotFoundException("Command not found");
     }
 
     @PostConstruct

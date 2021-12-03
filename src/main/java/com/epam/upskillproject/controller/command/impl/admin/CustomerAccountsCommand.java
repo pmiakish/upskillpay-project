@@ -8,7 +8,7 @@ import com.epam.upskillproject.model.dto.Account;
 import com.epam.upskillproject.model.dto.Card;
 import com.epam.upskillproject.model.dto.Person;
 import com.epam.upskillproject.model.service.AdminService;
-import com.epam.upskillproject.util.PermissionType;
+import com.epam.upskillproject.util.RoleType;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import jakarta.servlet.RequestDispatcher;
@@ -34,7 +34,7 @@ public class CustomerAccountsCommand extends AbstractCommand {
     private static final String DEFAULT_VIEW = "/WEB-INF/view/en/admin/customerAccounts.jsp";
     private static final String BASE_PATH = "/controller/customer/accounts/";
 
-    private static final PermissionType[] permissions = {PermissionType.SUPERADMIN, PermissionType.ADMIN};
+    private static final RoleType[] roles = {RoleType.SUPERADMIN, RoleType.ADMIN};
 
     private final AdminService adminService;
 
@@ -101,7 +101,7 @@ public class CustomerAccountsCommand extends AbstractCommand {
     }
 
     @Override
-    public PermissionType[] getPermissions() {
-        return permissions;
+    public RoleType[] getRoles() {
+        return roles;
     }
 }

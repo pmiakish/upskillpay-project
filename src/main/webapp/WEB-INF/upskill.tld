@@ -8,7 +8,7 @@
     <uri>/WEB-INF/upskill.tld</uri>
     <tag>
         <name>pagination</name>
-        <tag-class>com.epam.upskillproject.view.tags.PaginationTag</tag-class>
+        <tag-class>com.epam.upskillproject.view.tag.PaginationTag</tag-class>
         <body-content>empty</body-content>
         <attribute>
             <name>page</name>
@@ -23,7 +23,7 @@
     </tag>
     <tag>
         <name>sortlink</name>
-        <tag-class>com.epam.upskillproject.view.tags.SortLinkTag</tag-class>
+        <tag-class>com.epam.upskillproject.view.tag.SortLinkTag</tag-class>
         <body-content>empty</body-content>
         <attribute>
             <name>page</name>
@@ -46,7 +46,7 @@
     </tag>
     <tag>
         <name>cardnet</name>
-        <tag-class>com.epam.upskillproject.view.tags.CardNetworkLogoTag</tag-class>
+        <tag-class>com.epam.upskillproject.view.tag.CardNetworkLogoTag</tag-class>
         <body-content>empty</body-content>
         <attribute>
             <name>network</name>
@@ -56,7 +56,7 @@
     </tag>
     <tag>
         <name>status</name>
-        <tag-class>com.epam.upskillproject.view.tags.OperationStatusMessageTag</tag-class>
+        <tag-class>com.epam.upskillproject.view.tag.OperationStatusMessageTag</tag-class>
         <body-content>empty</body-content>
         <attribute>
             <name>operation</name>

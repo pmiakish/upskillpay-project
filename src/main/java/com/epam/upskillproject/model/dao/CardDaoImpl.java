@@ -1,14 +1,14 @@
 package com.epam.upskillproject.model.dao;
 
-import com.epam.upskillproject.exceptions.CustomSQLCode;
+import com.epam.upskillproject.exception.CustomSQLCode;
 import com.epam.upskillproject.util.init.PropertiesKeeper;
-import com.epam.upskillproject.model.dao.queryhandlers.QueryExecutor;
-import com.epam.upskillproject.model.dao.queryhandlers.constructors.CardQueryConstructor;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.OrderStrategy;
+import com.epam.upskillproject.model.dao.queryhandler.QueryExecutor;
+import com.epam.upskillproject.model.dao.queryhandler.constructors.CardQueryConstructor;
+import com.epam.upskillproject.model.dao.queryhandler.sqlorder.OrderStrategy;
 import com.epam.upskillproject.model.dto.Card;
 import com.epam.upskillproject.model.dto.CardNetworkType;
 import com.epam.upskillproject.model.dto.StatusType;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.CardSortType;
+import com.epam.upskillproject.model.dao.queryhandler.sqlorder.sort.CardSortType;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import jakarta.ejb.Singleton;

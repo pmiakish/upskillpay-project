@@ -4,10 +4,10 @@ import com.epam.upskillproject.controller.servlet.util.LocaleDispatcher;
 import com.epam.upskillproject.controller.servlet.util.ParamReader;
 import com.epam.upskillproject.controller.command.CommandResult;
 import com.epam.upskillproject.controller.command.impl.AbstractCommand;
-import com.epam.upskillproject.exceptions.TransactionException;
+import com.epam.upskillproject.exception.TransactionException;
 import com.epam.upskillproject.model.service.SuperadminService;
-import com.epam.upskillproject.util.PermissionType;
-import com.epam.upskillproject.view.tags.OperationType;
+import com.epam.upskillproject.util.RoleType;
+import com.epam.upskillproject.view.tag.OperationType;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,7 +27,7 @@ public class AccountDeleteCommand extends AbstractCommand {
     private static final String OPERATION_NAME_ATTR = "opName";
     private static final String OPERATION_STATUS_ATTR = "opStat";
 
-    private static final PermissionType[] permissions = {PermissionType.SUPERADMIN};
+    private static final RoleType[] roles = {RoleType.SUPERADMIN};
 
     private final SuperadminService superadminService;
 
@@ -63,7 +63,7 @@ public class AccountDeleteCommand extends AbstractCommand {
     }
 
     @Override
-    public PermissionType[] getPermissions() {
-        return permissions;
+    public RoleType[] getRoles() {
+        return roles;
     }
 }

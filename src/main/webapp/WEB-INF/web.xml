@@ -28,15 +28,15 @@
 
     <filter>
         <filter-name>representationFilter</filter-name>
-        <filter-class>com.epam.upskillproject.controller.filters.RepresentationFilter</filter-class>
+        <filter-class>com.epam.upskillproject.controller.filter.RepresentationFilter</filter-class>
     </filter>
     <filter>
         <filter-name>userFilter</filter-name>
-        <filter-class>com.epam.upskillproject.controller.filters.UserFilter</filter-class>
+        <filter-class>com.epam.upskillproject.controller.filter.UserFilter</filter-class>
     </filter>
     <filter>
         <filter-name>routeFilter</filter-name>
-        <filter-class>com.epam.upskillproject.controller.filters.RouteFilter</filter-class>
+        <filter-class>com.epam.upskillproject.controller.filter.RouteFilter</filter-class>
     </filter>
 
     <filter-mapping>

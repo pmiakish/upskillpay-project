@@ -61,7 +61,7 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="/payments">Платежи</a>
                             </li>
-                            <c:if test="${user != null && user.permission == 'SUPERADMIN'}">
+                            <c:if test="${user != null && user.role == 'SUPERADMIN'}">
                                 <li class="nav-item">
                                     <a class="nav-link" href="/admins">Администраторы</a>
                                 </li>
@@ -133,10 +133,10 @@
                         </div>
                     </div>
                     <div class="mb-3 row">
-                        <label for="selectPermission" class="col-sm-2 col-form-label"><strong>Разрешения</strong></label>
+                        <label for="selectRole" class="col-sm-2 col-form-label"><strong>Разрешения</strong></label>
                         <div class="col-sm-10">
-                            <select class="form-select" id="selectPermission"
-                                    name="permission"<c:if test="${user == null || user.permission != 'SUPERADMIN'}"> disabled</c:if>>
+                            <select class="form-select" id="selectRole"
+                                    name="role"<c:if test="${user == null || user.role != 'SUPERADMIN'}"> disabled</c:if>>
                                 <option value="CUSTOMER" selected>Клиент</option>
                                 <option value="ADMIN">Администратор</option>
                                 <option value="SUPERADMIN">Главный администратор</option>
@@ -188,7 +188,7 @@
                     </div>
                 </form>
                 <br />
-                <c:if test="${user.permission == 'SUPERADMIN'}">
+                <c:if test="${user.role == 'SUPERADMIN'}">
                     <form method="POST" action="/customer/${customer.id}" onsubmit="return confirm('Вы уверены, что ' +
                      'хотите удалить профиль? Данное действие не может быть отменено!');">
                         <input type="hidden" name="id" value="${customer.id}" />

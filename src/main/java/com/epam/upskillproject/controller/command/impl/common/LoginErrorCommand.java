@@ -4,7 +4,7 @@ import com.epam.upskillproject.controller.servlet.util.LocaleDispatcher;
 import com.epam.upskillproject.controller.servlet.util.ParamReader;
 import com.epam.upskillproject.controller.command.CommandResult;
 import com.epam.upskillproject.controller.command.impl.AbstractCommand;
-import com.epam.upskillproject.util.PermissionType;
+import com.epam.upskillproject.util.RoleType;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import jakarta.servlet.RequestDispatcher;
@@ -17,7 +17,7 @@ public class LoginErrorCommand extends AbstractCommand {
 
     private static final String VIEW_PROP = "servlet.view.error";
     private static final String DEFAULT_VIEW = "/WEB-INF/view/en/error.jsp";
-    private static final PermissionType[] permissions = {};
+    private static final RoleType[] roles = {};
 
     @Inject
     public LoginErrorCommand(LocaleDispatcher localeDispatcher, ParamReader paramReader) {
@@ -31,7 +31,7 @@ public class LoginErrorCommand extends AbstractCommand {
     }
 
     @Override
-    public PermissionType[] getPermissions() {
-        return permissions;
+    public RoleType[] getRoles() {
+        return roles;
     }
 }

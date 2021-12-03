@@ -1,13 +1,13 @@
 package com.epam.upskillproject.model.dao;
 
-import com.epam.upskillproject.exceptions.CustomSQLCode;
-import com.epam.upskillproject.model.dao.queryhandlers.QueryExecutor;
-import com.epam.upskillproject.model.dao.queryhandlers.constructors.PersonQueryConstructor;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.OrderStrategy;
-import com.epam.upskillproject.util.PermissionType;
+import com.epam.upskillproject.exception.CustomSQLCode;
+import com.epam.upskillproject.model.dao.queryhandler.QueryExecutor;
+import com.epam.upskillproject.model.dao.queryhandler.constructors.PersonQueryConstructor;
+import com.epam.upskillproject.model.dao.queryhandler.sqlorder.OrderStrategy;
+import com.epam.upskillproject.util.RoleType;
 import com.epam.upskillproject.model.dto.Person;
 import com.epam.upskillproject.model.dto.StatusType;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PersonSortType;
+import com.epam.upskillproject.model.dao.queryhandler.sqlorder.sort.PersonSortType;
 import jakarta.annotation.Resource;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
@@ -34,7 +34,7 @@ public class PersonDaoImpl implements PersonDao {
     private static final String FIRSTNAME_COLUMN_NAME = "FIRSTNAME";
     private static final String LASTNAME_COLUMN_NAME = "LASTNAME";
     private static final String REGDATE_COLUMN_NAME = "REGDATE";
-    private static final String PERMISSION_COLUMN_ALIAS = "prmName";
+    private static final String ROLE_COLUMN_ALIAS = "roleName";
     private static final String STATUS_COLUMN_ALIAS = "statName";
     private static final String INVALID_PARAM_SQLSTATE = "22023";
 
@@ -60,11 +60,11 @@ public class PersonDaoImpl implements PersonDao {
     }
 
     @Override
-    public Optional<Person> getSinglePersonById(PermissionType permission, BigInteger id) throws SQLException {
-        if (permission == null) {
+    public Optional<Person> getSinglePersonById(RoleType role, BigInteger id) throws SQLException {
+        if (role == null) {
             return Optional.empty();
         }
-        String rawQuery = queryConstructor.singleById(permission);
+        String rawQuery = queryConstructor.singleById(role);
         return findSingleById(rawQuery, id);
     }
 
@@ -75,11 +75,11 @@ public class PersonDaoImpl implements PersonDao {
     }
 
     @Override
-    public Optional<Person> getSinglePersonByEmail(PermissionType permission, String email) throws SQLException {
-        if (permission == null) {
+    public Optional<Person> getSinglePersonByEmail(RoleType role, String email) throws SQLException {
+        if (role == null) {
             return Optional.empty();
         }
-        String rawQuery = queryConstructor.singleByEmail(permission);
+        String rawQuery = queryConstructor.singleByEmail(role);
         return findSingleByEmail(rawQuery, email);
     }
 
@@ -90,11 +90,11 @@ public class PersonDaoImpl implements PersonDao {
     }
 
     @Override
-    public List<Person> getAllPersons(PermissionType permission, PersonSortType sortType) throws SQLException {
-        if (permission == null) {
+    public List<Person> getAllPersons(RoleType role, PersonSortType sortType) throws SQLException {
+        if (role == null) {
             return new ArrayList<>();
         }
-        String rawQuery = queryConstructor.all(permission);
+        String rawQuery = queryConstructor.all(role);
         return findAll(String.format(rawQuery, orderStrategy.getOrder(sortType)));
     }
 
@@ -108,12 +108,12 @@ public class PersonDaoImpl implements PersonDao {
     }
 
     @Override
-    public List<Person> getPersonsPage(PermissionType permission, int limit, int offset, PersonSortType sortType)
+    public List<Person> getPersonsPage(RoleType role, int limit, int offset, PersonSortType sortType)
             throws SQLException {
-        if (permission == null || limit < 1) {
+        if (role == null || limit < 1) {
             return new ArrayList<>();
         }
-        String rawQuery = queryConstructor.page(permission);
+        String rawQuery = queryConstructor.page(role);
         return findPage(rawQuery, limit, offset, sortType);
     }
 
@@ -124,11 +124,11 @@ public class PersonDaoImpl implements PersonDao {
     }
 
     @Override
-    public int countPersons(PermissionType permission) throws SQLException {
-        if (permission == null) {
+    public int countPersons(RoleType role) throws SQLException {
+        if (role == null) {
             return 0;
         }
-        String query = queryConstructor.count(permission);
+        String query = queryConstructor.count(role);
         return retrievePersonsNumber(query);
     }
 
@@ -172,17 +172,17 @@ public class PersonDaoImpl implements PersonDao {
     }
 
     @Override
-    public synchronized boolean updatePerson(PermissionType permission, Person personDto) throws SQLException {
-        if (permission == null) {
-            logger.log(Level.WARN, String.format("Incorrect parameters passed to %s - permission is null, cannot " +
+    public synchronized boolean updatePerson(RoleType role, Person personDto) throws SQLException {
+        if (role == null) {
+            logger.log(Level.WARN, String.format("Incorrect parameters passed to %s - role is null, cannot " +
                             "update person (id %s)",
                     Thread.currentThread().getStackTrace()[1].getMethodName(),
                     (personDto != null) ? personDto.getId() : null));
-            throw new SQLException("Cannot update person (permission is not specified)", INVALID_PARAM_SQLSTATE,
+            throw new SQLException("Cannot update person (role is not specified)", INVALID_PARAM_SQLSTATE,
                     CustomSQLCode.INVALID_STATEMENT_PARAMETER.getCode());
         }
         try (Connection conn = dataSource.getConnection()) {
-            String rawQuery = queryConstructor.update(permission);
+            String rawQuery = queryConstructor.update(role);
             return executeUpdatePerson(personDto, conn, rawQuery);
         } catch (NullPointerException e) {
             logger.log(Level.WARN, String.format("Incorrect parameters passed to %s, cannot update person (id %s)",
@@ -197,13 +197,13 @@ public class PersonDaoImpl implements PersonDao {
         if (personDto == null) {
             logger.log(Level.WARN, String.format("Incorrect DTO passed to %s - personDto is null, cannot " +
                             "add person", Thread.currentThread().getStackTrace()[1].getMethodName()));
-            throw new SQLException("Cannot add person (permission is not specified)", INVALID_PARAM_SQLSTATE,
+            throw new SQLException("Cannot add person (role is not specified)", INVALID_PARAM_SQLSTATE,
                     CustomSQLCode.INVALID_STATEMENT_PARAMETER.getCode());
         }
         String rawQuery = queryConstructor.add();
         try (Connection conn = dataSource.getConnection()) {
             queryExecutor.executeUpdate(conn, rawQuery,
-                    Objects.requireNonNull(personDto.getPermission(), "permission is null").getId(),
+                    Objects.requireNonNull(personDto.getrole(), "role is null").getId(),
                     Objects.requireNonNull(personDto.getEmail(), "email is null").trim(),
                     Objects.requireNonNull(personDto.getPassword(), "password is null").trim(),
                     Objects.requireNonNull(personDto.getFirstName(), "first name is null").trim(),
@@ -301,7 +301,7 @@ public class PersonDaoImpl implements PersonDao {
         try {
             return new Person(
                     new BigInteger(rs.getString(ID_COLUMN_NAME)),
-                    PermissionType.valueOf(rs.getString(PERMISSION_COLUMN_ALIAS)),
+                    RoleType.valueOf(rs.getString(ROLE_COLUMN_ALIAS)),
                     rs.getString(EMAIL_COLUMN_NAME),
                     rs.getString(PASSWORD_COLUMN_NAME),
                     rs.getString(FIRSTNAME_COLUMN_NAME),
@@ -320,7 +320,7 @@ public class PersonDaoImpl implements PersonDao {
     private boolean executeUpdatePerson(Person personDto, Connection conn, String rawQuery) throws SQLException,
             NullPointerException {
         int result = queryExecutor.executeUpdate(conn, rawQuery,
-                Objects.requireNonNull(personDto.getPermission(), "permission is null").getId(),
+                Objects.requireNonNull(personDto.getrole(), "role is null").getId(),
                 personDto.getPassword(),
                 Objects.requireNonNull(personDto.getFirstName(), "first name is null").trim(),
                 Objects.requireNonNull(personDto.getLastName(), "last name is null").trim(),

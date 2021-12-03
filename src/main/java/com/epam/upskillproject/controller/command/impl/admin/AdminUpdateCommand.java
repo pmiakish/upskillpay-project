@@ -7,9 +7,9 @@ import com.epam.upskillproject.controller.command.CommandResult;
 import com.epam.upskillproject.model.dto.Person;
 import com.epam.upskillproject.model.dto.StatusType;
 import com.epam.upskillproject.model.service.SuperadminService;
-import com.epam.upskillproject.util.PermissionType;
+import com.epam.upskillproject.util.RoleType;
 import com.epam.upskillproject.util.init.PropertiesKeeper;
-import com.epam.upskillproject.view.tags.OperationType;
+import com.epam.upskillproject.view.tag.OperationType;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
@@ -35,7 +35,7 @@ public class AdminUpdateCommand extends AbstractCommand {
     private static final String STATUS_ACTIVE_VALUE = "on";
     private static final String ID_PARAM = "id";
     private static final String HASH_PARAM = "hash";
-    private static final String PERMISSION_PARAM = "permission";
+    private static final String ROLE_PARAM = "role";
     private static final String EMAIL_PARAM = "email";
     private static final String PASSWORD_PARAM = "pass";
     private static final String FIRST_NAME_PARAM = "firstName";
@@ -48,7 +48,7 @@ public class AdminUpdateCommand extends AbstractCommand {
     private static final String PASSWORD_HASH_KEY_SIZE_PROP = "Pbkdf2PasswordHash.KeySizeBytes";
     private static final String PASSWORD_HASH_SALT_SIZE_PROP = "Pbkdf2PasswordHash.SaltSizeBytes";
 
-    private static final PermissionType[] permissions = {PermissionType.SUPERADMIN};
+    private static final RoleType[] roles = {RoleType.SUPERADMIN};
 
     private final PropertiesKeeper propertiesKeeper;
     private final SuperadminService superadminService;
@@ -87,7 +87,7 @@ public class AdminUpdateCommand extends AbstractCommand {
                 } else {
                     updated = superadminService.updateAdmin(
                             paramReader.readBigInteger(req, ID_PARAM).orElseThrow(InvalidParameterException::new),
-                            paramReader.readPermissionType(req, PERMISSION_PARAM).orElse(null),
+                            paramReader.readRoleType(req, ROLE_PARAM).orElse(null),
                             paramReader.readString(req, EMAIL_PARAM).orElseThrow(InvalidParameterException::new),
                             paramReader.readString(req, PASSWORD_PARAM).isPresent() ?
                                     passwordHash.generate(paramReader.readString(req, PASSWORD_PARAM).get().toCharArray()) : null,
@@ -112,8 +112,8 @@ public class AdminUpdateCommand extends AbstractCommand {
     }
 
     @Override
-    public PermissionType[] getPermissions() {
-        return permissions;
+    public RoleType[] getRoles() {
+        return roles;
     }
 
     @PostConstruct

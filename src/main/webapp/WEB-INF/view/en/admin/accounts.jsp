@@ -60,7 +60,7 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="/payments">Payments</a>
                             </li>
-                            <c:if test="${user != null && user.permission == 'SUPERADMIN'}">
+                            <c:if test="${user != null && user.role == 'SUPERADMIN'}">
                                 <li class="nav-item">
                                     <a class="nav-link" href="/admins">Admins</a>
                                 </li>

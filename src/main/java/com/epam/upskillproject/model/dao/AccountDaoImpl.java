@@ -1,13 +1,13 @@
 package com.epam.upskillproject.model.dao;
 
-import com.epam.upskillproject.exceptions.CustomSQLCode;
-import com.epam.upskillproject.exceptions.PaymentParamException;
-import com.epam.upskillproject.model.dao.queryhandlers.QueryExecutor;
-import com.epam.upskillproject.model.dao.queryhandlers.constructors.AccountQueryConstructor;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.OrderStrategy;
+import com.epam.upskillproject.exception.CustomSQLCode;
+import com.epam.upskillproject.exception.PaymentParamException;
+import com.epam.upskillproject.model.dao.queryhandler.QueryExecutor;
+import com.epam.upskillproject.model.dao.queryhandler.constructors.AccountQueryConstructor;
+import com.epam.upskillproject.model.dao.queryhandler.sqlorder.OrderStrategy;
 import com.epam.upskillproject.model.dto.Account;
 import com.epam.upskillproject.model.dto.StatusType;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.AccountSortType;
+import com.epam.upskillproject.model.dao.queryhandler.sqlorder.sort.AccountSortType;
 import jakarta.annotation.Resource;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
