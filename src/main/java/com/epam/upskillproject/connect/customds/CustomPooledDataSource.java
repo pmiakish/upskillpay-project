@@ -155,7 +155,7 @@ public class CustomPooledDataSource extends MysqlDataSource {
 
     @Override
     public synchronized Connection getConnection() throws SQLException, IllegalStateException {
-        if (isActive()) {
+        if (!isActive()) {
             throw new IllegalStateException("Connection pool is shut down");
         }
         try {
