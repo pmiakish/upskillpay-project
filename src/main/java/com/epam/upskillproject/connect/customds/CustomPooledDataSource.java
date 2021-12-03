@@ -4,6 +4,7 @@ import com.epam.upskillproject.exception.CustomSQLCode;
 import com.epam.upskillproject.util.init.PropertiesKeeper;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import org.apache.logging.log4j.Level;
@@ -166,7 +167,7 @@ public class CustomPooledDataSource extends MysqlDataSource {
                 connection = createConnection();
             } else if (connection == null && totalConnections() < maxConnectionsNumber) {
                 connection = createConnection();
-            } else {
+            } else if (connection == null) {
                 logger.log(Level.WARN, String.format("Cannot get connection: connection pool exhausted, timeout: %s %s",
                         requestTimeoutValue, requestTimeoutUnit.name()));
                 throw new SQLException("Cannot get connection: connection pool exhausted", CONNECTION_FAILURE_SQLSTATE,
@@ -186,28 +187,6 @@ public class CustomPooledDataSource extends MysqlDataSource {
     @Override
     public Connection getConnection(String username, String password) throws UnsupportedOperationException {
         throw new UnsupportedOperationException("Not supported by CustomPooledDataSource");
-    }
-
-    public void shutdown() throws SQLException {
-        active = false;
-        for (Connection connection : activeConnections) {
-            long startTime = System.currentTimeMillis();
-            while (System.currentTimeMillis() < startTime + SHUTDOWN_TIMEOUT_VALUE_MS) {
-                if (connection == null || connection.isClosed()) {
-                    break;
-                }
-            }
-            if (connection != null && !connection.isClosed()) {
-                connection.close();
-            }
-        }
-        for (PoolConnection poolConnection : connectionPool) {
-            if (poolConnection != null && !poolConnection.isClosed()) {
-                poolConnection.shutdown();
-            }
-        }
-        activeConnections = null;
-        connectionPool = null;
     }
 
     public boolean isActive() {
@@ -233,8 +212,10 @@ public class CustomPooledDataSource extends MysqlDataSource {
             if (activeConnections.remove(poolConnection)) {
                 if (poolConnection.isValid(VALIDATION_TIMEOUT_VALUE_SEC) &&
                         connectionPool.size() < connectionPool.remainingCapacity()) {
-                    poolConnection.rollback();
-                    poolConnection.setAutoCommit(true);
+                    if (!poolConnection.getAutoCommit()) {
+                        poolConnection.rollback();
+                        poolConnection.setAutoCommit(true);
+                    }
                     added = connectionPool.add(poolConnection);
                 } else {
                     poolConnection.shutdown();
@@ -275,6 +256,30 @@ public class CustomPooledDataSource extends MysqlDataSource {
             logger.log(Level.DEBUG, String.format("%d old connections from Connection pool were closed",
                     closedConnections));
         }
+    }
+
+    @PreDestroy
+    public void shutdown() throws SQLException {
+        active = false;
+        for (Connection connection : activeConnections) {
+            long startTime = System.currentTimeMillis();
+            while (System.currentTimeMillis() < startTime + SHUTDOWN_TIMEOUT_VALUE_MS) {
+                if (connection == null || connection.isClosed()) {
+                    break;
+                }
+            }
+            if (connection != null && !connection.isClosed()) {
+                connection.close();
+            }
+        }
+        for (PoolConnection poolConnection : connectionPool) {
+            if (poolConnection != null && !poolConnection.isClosed()) {
+                poolConnection.shutdown();
+            }
+        }
+        activeConnections = null;
+        connectionPool = null;
+        logger.log(Level.DEBUG, "Connection Pool has been shut down");
     }
 
     private class PoolConnection implements Connection {

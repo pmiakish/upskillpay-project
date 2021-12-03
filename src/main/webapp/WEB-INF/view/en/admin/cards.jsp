@@ -21,7 +21,8 @@
             <div class="row">
                 <div class="col-3 align-self-center" >
                     <a href="/" title="UpSkillPAY">
-                        <img src="${pageContext.request.contextPath}/img/logo.png" class="img-fluid" width="150" height="91" alt="UpSkillPAY logo">
+                        <img src="${pageContext.request.contextPath}/img/logo.png" class="img-fluid" width="150"
+                             height="91" alt="UpSkillPAY logo" />
                     </a>
                 </div>
                 <div class="col align-self-center">
@@ -31,7 +32,7 @@
                     <c:if test="${user != null}">
                         <br /><br /><strong>Admin:</strong><br />
                         <a href="/profile" title="Edit profile">${user.email}</a><br />
-                        ${user.firstName} ${user.lastName}<br /><br />
+                        ${user.firstName} ${user.lastName}<br />
                         <div class="d-grid gap-1 col-6 mx-auto">
                             <a href="/logout" class="btn btn-outline-dark btn-sm" role="button">Logout</a>
                         </div><br />
