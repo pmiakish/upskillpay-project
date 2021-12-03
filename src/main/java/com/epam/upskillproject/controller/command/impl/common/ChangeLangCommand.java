@@ -4,7 +4,7 @@ import com.epam.upskillproject.controller.servlet.util.LocaleDispatcher;
 import com.epam.upskillproject.controller.servlet.util.ParamReader;
 import com.epam.upskillproject.controller.command.CommandResult;
 import com.epam.upskillproject.controller.command.impl.AbstractCommand;
-import com.epam.upskillproject.util.PermissionType;
+import com.epam.upskillproject.util.RoleType;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +19,7 @@ public class ChangeLangCommand extends AbstractCommand {
     private static final String URI_PARAM = "uri";
     private static final String LOCALE_PARAM = "locale";
     private static final String SESSION_LOCALE_ATTR = "sessLoc";
-    private static final PermissionType[] permissions = {};
+    private static final RoleType[] roles = {};
 
     @Inject
     public ChangeLangCommand(LocaleDispatcher localeDispatcher, ParamReader paramReader) {
@@ -43,7 +43,7 @@ public class ChangeLangCommand extends AbstractCommand {
     }
 
     @Override
-    public PermissionType[] getPermissions() {
-        return permissions;
+    public RoleType[] getRoles() {
+        return roles;
     }
 }

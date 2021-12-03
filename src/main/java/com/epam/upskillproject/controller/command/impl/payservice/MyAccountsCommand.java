@@ -4,12 +4,12 @@ import com.epam.upskillproject.controller.servlet.util.LocaleDispatcher;
 import com.epam.upskillproject.controller.servlet.util.ParamReader;
 import com.epam.upskillproject.controller.command.CommandResult;
 import com.epam.upskillproject.controller.command.impl.AbstractCommand;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.AccountSortType;
+import com.epam.upskillproject.model.dao.queryhandler.sqlorder.sort.AccountSortType;
 import com.epam.upskillproject.model.dto.Account;
 import com.epam.upskillproject.model.dto.Page;
 import com.epam.upskillproject.model.dto.Person;
 import com.epam.upskillproject.model.service.CustomerService;
-import com.epam.upskillproject.util.PermissionType;
+import com.epam.upskillproject.util.RoleType;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import jakarta.security.enterprise.SecurityContext;
@@ -34,7 +34,7 @@ public class MyAccountsCommand extends AbstractCommand {
     private static final String PAGE_ATTR = "page";
     private static final String DEFAULT_VIEW = "/WEB-INF/view/en/payservice/myAccounts.jsp";
 
-    private static final PermissionType[] permissions = {PermissionType.CUSTOMER};
+    private static final RoleType[] roles = {RoleType.CUSTOMER};
 
     private final CustomerService customerService;
     private final SecurityContext securityContext;
@@ -83,7 +83,7 @@ public class MyAccountsCommand extends AbstractCommand {
     }
 
     @Override
-    public PermissionType[] getPermissions() {
-        return permissions;
+    public RoleType[] getRoles() {
+        return roles;
     }
 }

@@ -6,7 +6,7 @@ import com.epam.upskillproject.controller.command.CommandResult;
 import com.epam.upskillproject.controller.command.impl.AbstractCommand;
 import com.epam.upskillproject.model.dto.*;
 import com.epam.upskillproject.model.service.CustomerService;
-import com.epam.upskillproject.util.PermissionType;
+import com.epam.upskillproject.util.RoleType;
 import com.epam.upskillproject.util.init.PropertiesKeeper;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.Singleton;
@@ -42,7 +42,7 @@ public class MyAccountsServiceCommand extends AbstractCommand {
     private static final int DEFAULT_SCALE = 2;
     private static final RoundingMode DEFAULT_ROUNDING_MODE = RoundingMode.HALF_UP;
 
-    private static final PermissionType[] permissions = {PermissionType.CUSTOMER};
+    private static final RoleType[] roles = {RoleType.CUSTOMER};
 
     private final PropertiesKeeper propertiesKeeper;
     private final CustomerService customerService;
@@ -117,8 +117,8 @@ public class MyAccountsServiceCommand extends AbstractCommand {
     }
 
     @Override
-    public PermissionType[] getPermissions() {
-        return permissions;
+    public RoleType[] getRoles() {
+        return roles;
     }
 
     @PostConstruct

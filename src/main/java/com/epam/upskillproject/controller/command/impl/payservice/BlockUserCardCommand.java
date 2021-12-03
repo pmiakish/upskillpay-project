@@ -6,8 +6,8 @@ import com.epam.upskillproject.controller.command.CommandResult;
 import com.epam.upskillproject.controller.command.impl.AbstractCommand;
 import com.epam.upskillproject.model.dto.Person;
 import com.epam.upskillproject.model.service.CustomerService;
-import com.epam.upskillproject.util.PermissionType;
-import com.epam.upskillproject.view.tags.OperationType;
+import com.epam.upskillproject.util.RoleType;
+import com.epam.upskillproject.view.tag.OperationType;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import jakarta.security.enterprise.SecurityContext;
@@ -31,7 +31,7 @@ public class BlockUserCardCommand extends AbstractCommand {
     private static final String OPERATION_NAME_ATTR = "opName";
     private static final String OPERATION_STATUS_ATTR = "opStat";
 
-    private static final PermissionType[] permissions = {PermissionType.CUSTOMER};
+    private static final RoleType[] roles = {RoleType.CUSTOMER};
 
     private final CustomerService customerService;
     private final SecurityContext securityContext;
@@ -86,7 +86,7 @@ public class BlockUserCardCommand extends AbstractCommand {
     }
 
     @Override
-    public PermissionType[] getPermissions() {
-        return permissions;
+    public RoleType[] getRoles() {
+        return roles;
     }
 }

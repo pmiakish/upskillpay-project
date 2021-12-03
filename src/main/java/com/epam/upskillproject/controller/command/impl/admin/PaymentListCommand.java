@@ -4,11 +4,12 @@ import com.epam.upskillproject.controller.servlet.util.LocaleDispatcher;
 import com.epam.upskillproject.controller.servlet.util.ParamReader;
 import com.epam.upskillproject.controller.command.CommandResult;
 import com.epam.upskillproject.controller.command.impl.AbstractCommand;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PaymentSortType;
+import com.epam.upskillproject.model.dao.queryhandler.sqlorder.sort.PaymentSortType;
 import com.epam.upskillproject.model.dto.Page;
 import com.epam.upskillproject.model.dto.Payment;
 import com.epam.upskillproject.model.service.AdminService;
-import com.epam.upskillproject.util.PermissionType;
+import com.epam.upskillproject.util.RoleType;
+import com.epam.upskillproject.util.init.PropertiesKeeper;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import jakarta.servlet.RequestDispatcher;
@@ -27,20 +28,23 @@ public class PaymentListCommand extends AbstractCommand {
 
     private static final Logger logger = LogManager.getLogger(PaymentListCommand.class.getName());
 
-    private static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
+    private static final String DATE_TIME_PATTERN_PROP = "system.datetime.pattern";
     private static final String VIEW_PROP = "servlet.view.payments";
     private static final String SORT_PARAM = "sort";
     private static final String PAGE_ATTR = "page";
     private static final String FORMATTER_ATTR = "formatter";
     private static final String DEFAULT_VIEW = "/WEB-INF/view/en/admin/payments.jsp";
 
-    private static final PermissionType[] permissions = {PermissionType.SUPERADMIN, PermissionType.ADMIN};
+    private static final RoleType[] roles = {RoleType.SUPERADMIN, RoleType.ADMIN};
 
+    private final PropertiesKeeper propertiesKeeper;
     private final AdminService adminService;
 
     @Inject
-    public PaymentListCommand(LocaleDispatcher localeDispatcher, ParamReader paramReader, AdminService adminService) {
+    public PaymentListCommand(LocaleDispatcher localeDispatcher, ParamReader paramReader,
+                              PropertiesKeeper propertiesKeeper, AdminService adminService) {
         super(localeDispatcher, paramReader);
+        this.propertiesKeeper = propertiesKeeper;
         this.adminService = adminService;
     }
 
@@ -48,7 +52,8 @@ public class PaymentListCommand extends AbstractCommand {
     public CommandResult execute(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
             RequestDispatcher view = getView(req, VIEW_PROP, DEFAULT_VIEW);
-            req.setAttribute(FORMATTER_ATTR, DateTimeFormatter.ofPattern(DATE_TIME_PATTERN));
+            req.setAttribute(FORMATTER_ATTR,
+                    DateTimeFormatter.ofPattern(propertiesKeeper.getString(DATE_TIME_PATTERN_PROP)));
             req.setAttribute(PAGE_ATTR, buildPaymentsPage(req));
             return new CommandResult(view);
         } catch (SQLException e) {
@@ -66,7 +71,7 @@ public class PaymentListCommand extends AbstractCommand {
     }
 
     @Override
-    public PermissionType[] getPermissions() {
-        return permissions;
+    public RoleType[] getRoles() {
+        return roles;
     }
 }

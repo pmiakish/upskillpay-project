@@ -1,14 +1,14 @@
 package com.epam.upskillproject.model.service;
 
-import com.epam.upskillproject.exceptions.TransactionException;
+import com.epam.upskillproject.exception.TransactionException;
 import com.epam.upskillproject.model.dao.CardDao;
-import com.epam.upskillproject.model.dao.queryhandlers.FinancialTransactionsPerformer;
+import com.epam.upskillproject.model.dao.queryhandler.FinancialTransactionsPerformer;
 import com.epam.upskillproject.model.dao.IncomeDao;
 import com.epam.upskillproject.model.dao.PersonDao;
 import com.epam.upskillproject.model.dto.*;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PersonSortType;
+import com.epam.upskillproject.model.dao.queryhandler.sqlorder.sort.PersonSortType;
 import com.epam.upskillproject.util.ParamsValidator;
-import com.epam.upskillproject.util.PermissionType;
+import com.epam.upskillproject.util.RoleType;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import org.apache.logging.log4j.Level;
@@ -60,10 +60,10 @@ public class SuperadminService {
         if (sortType == null) {
             sortType = DEFAULT_PERSON_SORT_TYPE;
         }
-        PermissionType permission = PermissionType.ADMIN;
+        RoleType role = RoleType.ADMIN;
         int offset = amount * (pageNumber - 1);
-        List<Person> entries = personDao.getPersonsPage(permission, amount, offset, sortType);
-        int total = personDao.countPersons(permission);
+        List<Person> entries = personDao.getPersonsPage(role, amount, offset, sortType);
+        int total = personDao.countPersons(role);
         return new Page<>(entries, pageNumber, amount, total, sortType);
     }
 
@@ -78,7 +78,7 @@ public class SuperadminService {
             logger.log(Level.WARN, String.format("Cannot get admin (invalid email parameter - %s)", email));
             return null;
         }
-        Optional<Person> person = personDao.getSinglePersonByEmail(PermissionType.ADMIN, email);
+        Optional<Person> person = personDao.getSinglePersonByEmail(RoleType.ADMIN, email);
         return person.orElse(null);
     }
 
@@ -93,14 +93,14 @@ public class SuperadminService {
             logger.log(Level.WARN, String.format("Cannot get admin (invalid id parameter - %s)", id));
             return null;
         }
-        Optional<Person> person = personDao.getSinglePersonById(PermissionType.ADMIN, id);
+        Optional<Person> person = personDao.getSinglePersonById(RoleType.ADMIN, id);
         return person.orElse(null);
     }
 
     /**
      * Updates admin's profile
      * @param id a positive BigInteger
-     * @param newPermissionType might be null (in this case will be used old person's permission type)
+     * @param newRoleType might be null (in this case will be used old person's role type)
      * @param email an unique valid email
      * @param newPassword might be null (in this case will be used old person's password)
      * @param newFirstName not null String value
@@ -111,7 +111,7 @@ public class SuperadminService {
      * @throws SQLException
      */
     public synchronized boolean updateAdmin(BigInteger id,
-                                            PermissionType newPermissionType,
+                                            RoleType newRoleType,
                                             String email,
                                             String newPassword,
                                             String newFirstName,
@@ -123,17 +123,17 @@ public class SuperadminService {
             logger.log(Level.WARN, String.format("Cannot update admin (bad parameters passed) [id: %s]", id));
             return false;
         }
-        Optional<Person> person = personDao.getSinglePersonById(PermissionType.ADMIN, id);
+        Optional<Person> person = personDao.getSinglePersonById(RoleType.ADMIN, id);
         if (person.isPresent()) {
-            if (newPermissionType == null) {
-                newPermissionType = person.get().getPermission();
+            if (newRoleType == null) {
+                newRoleType = person.get().getrole();
             }
             if (newPassword == null) {
                 newPassword = person.get().getPassword();
             }
-            Person personDto = new Person(id, newPermissionType, email, newPassword, newFirstName, newLastName,
+            Person personDto = new Person(id, newRoleType, email, newPassword, newFirstName, newLastName,
                     statusType, newRegDate);
-            return personDao.updatePerson(PermissionType.ADMIN, personDto);
+            return personDao.updatePerson(RoleType.ADMIN, personDto);
         } else {
             logger.log(Level.WARN, String.format("Cannot update admin (person with id %s not found)", id));
             return false;

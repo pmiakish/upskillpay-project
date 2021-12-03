@@ -1,8 +1,8 @@
 package com.epam.upskillproject.model.dao;
 
-import com.epam.upskillproject.exceptions.PaymentParamException;
-import com.epam.upskillproject.model.dao.queryhandlers.QueryExecutor;
-import com.epam.upskillproject.model.dao.queryhandlers.constructors.IncomeQueryConstructor;
+import com.epam.upskillproject.exception.PaymentParamException;
+import com.epam.upskillproject.model.dao.queryhandler.QueryExecutor;
+import com.epam.upskillproject.model.dao.queryhandler.constructors.IncomeQueryConstructor;
 import jakarta.annotation.Resource;
 import jakarta.inject.Inject;
 import jakarta.ejb.Singleton;

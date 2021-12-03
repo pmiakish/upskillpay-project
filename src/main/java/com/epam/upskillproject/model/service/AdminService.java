@@ -2,12 +2,12 @@ package com.epam.upskillproject.model.service;
 
 import com.epam.upskillproject.model.dao.*;
 import com.epam.upskillproject.model.dto.*;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.AccountSortType;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.CardSortType;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PersonSortType;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PaymentSortType;
+import com.epam.upskillproject.model.dao.queryhandler.sqlorder.sort.AccountSortType;
+import com.epam.upskillproject.model.dao.queryhandler.sqlorder.sort.CardSortType;
+import com.epam.upskillproject.model.dao.queryhandler.sqlorder.sort.PersonSortType;
+import com.epam.upskillproject.model.dao.queryhandler.sqlorder.sort.PaymentSortType;
 import com.epam.upskillproject.util.ParamsValidator;
-import com.epam.upskillproject.util.PermissionType;
+import com.epam.upskillproject.util.RoleType;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import org.apache.logging.log4j.Level;
@@ -63,10 +63,10 @@ public class AdminService {
         if (sortType == null) {
             sortType = DEFAULT_PERSON_SORT_TYPE;
         }
-        PermissionType permission = PermissionType.CUSTOMER;
+        RoleType role = RoleType.CUSTOMER;
         int offset = amount * (pageNumber - 1);
-        List<Person> entries = personDao.getPersonsPage(permission, amount, offset, sortType);
-        int total = personDao.countPersons(permission);
+        List<Person> entries = personDao.getPersonsPage(role, amount, offset, sortType);
+        int total = personDao.countPersons(role);
         return new Page<>(entries, pageNumber, amount, total, sortType);
     }
 
@@ -81,7 +81,7 @@ public class AdminService {
             logger.log(Level.WARN, String.format("Cannot get customer (invalid email parameter - %s)", email));
             return null;
         }
-        Optional<Person> person = personDao.getSinglePersonByEmail(PermissionType.CUSTOMER, email);
+        Optional<Person> person = personDao.getSinglePersonByEmail(RoleType.CUSTOMER, email);
         return person.orElse(null);
     }
 
@@ -96,14 +96,14 @@ public class AdminService {
             logger.log(Level.WARN, String.format("Cannot get customer (invalid id parameter - %s)", id));
             return null;
         }
-        Optional<Person> person = personDao.getSinglePersonById(PermissionType.CUSTOMER, id);
+        Optional<Person> person = personDao.getSinglePersonById(RoleType.CUSTOMER, id);
         return person.orElse(null);
     }
 
     /**
      * Updates customer's profile
      * @param id a positive BigInteger
-     * @param newPermissionType might be null (in this case will be used old person's permission type)
+     * @param newRoleType might be null (in this case will be used old person's role type)
      * @param email an unique valid email
      * @param newPassword might be null (in this case will be used old person's password)
      * @param newFirstName not null String value
@@ -114,7 +114,7 @@ public class AdminService {
      * @throws SQLException
      */
     public synchronized boolean updateCustomer(BigInteger id,
-                                               PermissionType newPermissionType,
+                                               RoleType newRoleType,
                                                String email,
                                                String newPassword,
                                                String newFirstName,
@@ -126,17 +126,17 @@ public class AdminService {
             logger.log(Level.WARN, String.format("Cannot update customer (bad parameters passed) [id: %s]", id));
             return false;
         }
-        Optional<Person> person = personDao.getSinglePersonById(PermissionType.CUSTOMER, id);
+        Optional<Person> person = personDao.getSinglePersonById(RoleType.CUSTOMER, id);
         if (person.isPresent()) {
-            if (newPermissionType == null) {
-                newPermissionType = person.get().getPermission();
+            if (newRoleType == null) {
+                newRoleType = person.get().getrole();
             }
             if (newPassword == null) {
                 newPassword = person.get().getPassword();
             }
-            Person personDto = new Person(id, newPermissionType, email, newPassword, newFirstName, newLastName,
+            Person personDto = new Person(id, newRoleType, email, newPassword, newFirstName, newLastName,
                     statusType, newRegDate);
-            return personDao.updatePerson(PermissionType.CUSTOMER, personDto);
+            return personDao.updatePerson(RoleType.CUSTOMER, personDto);
         } else {
             logger.log(Level.WARN, String.format("Cannot update customer (person with id %s not found)", id));
             return false;

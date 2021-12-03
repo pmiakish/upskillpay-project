@@ -1,13 +1,13 @@
 package com.epam.upskillproject.model.dto;
 
-import com.epam.upskillproject.util.PermissionType;
+import com.epam.upskillproject.util.RoleType;
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.Objects;
 
 public class Person {
     private final BigInteger id;
-    private final PermissionType permission;
+    private final RoleType role;
     private final String email;
     private final String password;
     private final String firstName;
@@ -16,10 +16,10 @@ public class Person {
     private final LocalDate regDate;
     private final int hash;
 
-    public Person(BigInteger id, PermissionType permission, String email, String password, String firstName,
+    public Person(BigInteger id, RoleType role, String email, String password, String firstName,
                   String lastName, StatusType statusType, LocalDate regDate) {
         this.id = id;
-        this.permission = permission;
+        this.role = role;
         this.email = email;
         this.password = password;
         this.firstName = firstName;
@@ -29,10 +29,10 @@ public class Person {
         this.hash = hashCode();
     }
 
-    public Person(BigInteger id, PermissionType permission, String email, String firstName, String lastName,
+    public Person(BigInteger id, RoleType role, String email, String firstName, String lastName,
                   StatusType statusType, LocalDate regDate) {
         this.id = id;
-        this.permission = permission;
+        this.role = role;
         this.email = email;
         this.password = null;
         this.firstName = firstName;
@@ -42,10 +42,10 @@ public class Person {
         this.hash = hashCode();
     }
 
-    public Person(PermissionType permission, String email, String password, String firstName, String lastName,
+    public Person(RoleType role, String email, String password, String firstName, String lastName,
                   StatusType statusType) {
         this.id = null;
-        this.permission = permission;
+        this.role = role;
         this.email = email;
         this.password = password;
         this.firstName = firstName;
@@ -83,8 +83,8 @@ public class Person {
         return regDate;
     }
 
-    public PermissionType getPermission() {
-        return permission;
+    public RoleType getrole() {
+        return role;
     }
 
     public int getHash() {
@@ -97,7 +97,7 @@ public class Person {
         if (o == null || getClass() != o.getClass()) return false;
         Person person = (Person) o;
         return Objects.equals(id, person.id) &&
-                permission == person.permission &&
+                role == person.role &&
                 Objects.equals(email, person.email) &&
                 Objects.equals(password, person.password) &&
                 Objects.equals(firstName, person.firstName) &&
@@ -108,14 +108,14 @@ public class Person {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, permission, email, password, firstName, lastName, status, regDate);
+        return Objects.hash(id, role, email, password, firstName, lastName, status, regDate);
     }
 
     @Override
     public String toString() {
         return "Person{" +
                 "id=" + id +
-                ", permission=" + permission +
+                ", role=" + role +
                 ", email='" + email + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +

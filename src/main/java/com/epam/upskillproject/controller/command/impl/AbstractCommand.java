@@ -4,8 +4,8 @@ import com.epam.upskillproject.controller.servlet.util.LocaleDispatcher;
 import com.epam.upskillproject.controller.servlet.util.ParamReader;
 import com.epam.upskillproject.controller.command.Command;
 import com.epam.upskillproject.controller.command.CommandResult;
-import com.epam.upskillproject.util.PermissionType;
-import com.epam.upskillproject.view.tags.OperationType;
+import com.epam.upskillproject.util.RoleType;
+import com.epam.upskillproject.view.tag.OperationType;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,7 +28,7 @@ public abstract class AbstractCommand implements Command {
     }
 
     public abstract CommandResult execute(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException;
-    public abstract PermissionType[] getPermissions();
+    public abstract RoleType[] getRoles();
 
     protected void setOperationError(HttpServletRequest req, OperationType operationType, String message) {
         req.setAttribute(OPERATION_NAME_ATTR, operationType.name());

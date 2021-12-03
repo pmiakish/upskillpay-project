@@ -2,7 +2,7 @@ package com.epam.upskillproject.controller.command.impl;
 
 import com.epam.upskillproject.controller.command.Command;
 import com.epam.upskillproject.controller.command.CommandResult;
-import com.epam.upskillproject.util.PermissionType;
+import com.epam.upskillproject.util.RoleType;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -38,12 +38,12 @@ public class CommandWrapper implements Command {
     }
 
     @Override
-    // Returns only those permissions that are contained in both commands
-    public PermissionType[] getPermissions() {
-        PermissionType[] baseCommandPermissions = baseCommand.getPermissions();
-        PermissionType[] wrapperCommandPermissions = wrapperCommand.getPermissions();
-        return Arrays.stream(baseCommandPermissions)
-                .filter(bp -> Arrays.asList(wrapperCommandPermissions).contains(bp))
-                .toArray(PermissionType[]::new);
+    // Returns only those Roles that are contained in both commands
+    public RoleType[] getRoles() {
+        RoleType[] baseCommandRoles = baseCommand.getRoles();
+        RoleType[] wrapperCommandRoles = wrapperCommand.getRoles();
+        return Arrays.stream(baseCommandRoles)
+                .filter(bp -> Arrays.asList(wrapperCommandRoles).contains(bp))
+                .toArray(RoleType[]::new);
     }
 }

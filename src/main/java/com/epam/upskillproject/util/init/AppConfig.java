@@ -9,7 +9,7 @@ import jakarta.security.enterprise.identitystore.DatabaseIdentityStoreDefinition
 @DatabaseIdentityStoreDefinition(
         dataSourceLookup = "java:global/customProjectDB",
         callerQuery = "SELECT PASSWORD FROM PERSON WHERE EMAIL=?",
-        groupsQuery = "SELECT prm.NAME FROM PERSON p INNER JOIN PERM prm ON p.PERM=prm.ID WHERE p.EMAIL=?",
+        groupsQuery = "SELECT r.NAME FROM PERSON p INNER JOIN ROLE r ON p.ROLE=r.ID WHERE p.EMAIL=?",
         hashAlgorithmParameters = {
                 "Pbkdf2PasswordHash.Iterations=3072",
                 "Pbkdf2PasswordHash.Algorithm=PBKDF2WithHmacSHA512",

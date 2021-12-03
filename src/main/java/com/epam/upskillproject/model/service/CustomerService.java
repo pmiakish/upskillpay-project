@@ -1,13 +1,13 @@
 package com.epam.upskillproject.model.service;
 
-import com.epam.upskillproject.exceptions.AccountLimitException;
-import com.epam.upskillproject.exceptions.PaymentParamException;
-import com.epam.upskillproject.exceptions.TransactionException;
+import com.epam.upskillproject.exception.AccountLimitException;
+import com.epam.upskillproject.exception.PaymentParamException;
+import com.epam.upskillproject.exception.TransactionException;
 import com.epam.upskillproject.model.dao.*;
-import com.epam.upskillproject.model.dao.queryhandlers.FinancialTransactionsPerformer;
+import com.epam.upskillproject.model.dao.queryhandler.FinancialTransactionsPerformer;
 import com.epam.upskillproject.model.dto.*;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.AccountSortType;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PaymentSortType;
+import com.epam.upskillproject.model.dao.queryhandler.sqlorder.sort.AccountSortType;
+import com.epam.upskillproject.model.dao.queryhandler.sqlorder.sort.PaymentSortType;
 import com.epam.upskillproject.util.ParamsValidator;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;

@@ -1,6 +1,6 @@
 package com.epam.upskillproject.model.dao;
 
-import com.epam.upskillproject.exceptions.PaymentParamException;
+import com.epam.upskillproject.exception.PaymentParamException;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;

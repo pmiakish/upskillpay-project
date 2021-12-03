@@ -61,7 +61,7 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="/payments">Платежи</a>
                             </li>
-                            <c:if test="${user != null && user.permission == 'SUPERADMIN'}">
+                            <c:if test="${user != null && user.role == 'SUPERADMIN'}">
                                 <li class="nav-item">
                                     <a class="nav-link" href="/admins">Администраторы</a>
                                 </li>
@@ -147,7 +147,7 @@
                                         <button type="submit" class="btn btn-outline-danger">БЛОКИРОВАТЬ</button>
                                     </form>
                             </c:if>
-                            <c:if test="${user != null && user.permission == 'SUPERADMIN'}">
+                            <c:if test="${user != null && user.role == 'SUPERADMIN'}">
                                 <form style="display: inline;" method="POST"
                                       action="${requestScope['jakarta.servlet.forward.request_uri']}"
                                       onsubmit="return confirm('Вы уверены? Действие не может быть отменено!');">
@@ -201,7 +201,7 @@
                                         <button type="submit" class="btn btn-outline-danger">БЛОКИРОВАТЬ</button>
                                     </form>
                             </c:if>
-                            <c:if test="${user != null && user.permission == 'SUPERADMIN'}">
+                            <c:if test="${user != null && user.role == 'SUPERADMIN'}">
                                 <form style="display: inline;" method="POST"
                                       action="${requestScope['jakarta.servlet.forward.request_uri']}"
                                       onsubmit="return confirm('Вы уверены? Действие не может быть отменено!');">

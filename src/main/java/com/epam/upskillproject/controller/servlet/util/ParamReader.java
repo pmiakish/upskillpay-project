@@ -1,14 +1,14 @@
 package com.epam.upskillproject.controller.servlet.util;
 
-import com.epam.upskillproject.controller.command.enums.TargetType;
+import com.epam.upskillproject.controller.command.enumeration.TargetType;
 import com.epam.upskillproject.util.init.PropertiesKeeper;
 import com.epam.upskillproject.model.dto.CardNetworkType;
-import com.epam.upskillproject.util.PermissionType;
+import com.epam.upskillproject.util.RoleType;
 import com.epam.upskillproject.model.dto.StatusType;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.AccountSortType;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.CardSortType;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PaymentSortType;
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.PersonSortType;
+import com.epam.upskillproject.model.dao.queryhandler.sqlorder.sort.AccountSortType;
+import com.epam.upskillproject.model.dao.queryhandler.sqlorder.sort.CardSortType;
+import com.epam.upskillproject.model.dao.queryhandler.sqlorder.sort.PaymentSortType;
+import com.epam.upskillproject.model.dao.queryhandler.sqlorder.sort.PersonSortType;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
@@ -187,19 +187,19 @@ public class ParamReader {
         return Optional.of(statusType);
     }
 
-    public Optional<PermissionType> readPermissionType(HttpServletRequest req, String paramName) {
+    public Optional<RoleType> readRoleType(HttpServletRequest req, String paramName) {
         Optional<String> paramValue = readString(req, paramName);
-        PermissionType permissionType;
+        RoleType roleType;
         if (paramValue.isPresent()) {
             try {
-                permissionType = PermissionType.valueOf(paramValue.get().toUpperCase());
+                roleType = RoleType.valueOf(paramValue.get().toUpperCase());
             } catch (IllegalArgumentException e) {
                 return Optional.empty();
             }
         } else {
             return Optional.empty();
         }
-        return Optional.of(permissionType);
+        return Optional.of(roleType);
     }
 
     public Optional<CardNetworkType> readCardNetworkType(HttpServletRequest req, String paramName) {

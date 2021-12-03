@@ -1,6 +1,6 @@
 package com.epam.upskillproject.model.dto;
 
-import com.epam.upskillproject.model.dao.queryhandlers.sqlorder.sort.SortType;
+import com.epam.upskillproject.model.dao.queryhandler.sqlorder.sort.SortType;
 import java.util.List;
 import java.util.Objects;
 

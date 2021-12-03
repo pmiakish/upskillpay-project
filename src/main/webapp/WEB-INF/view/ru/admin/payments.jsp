@@ -61,7 +61,7 @@
                             <li class="nav-item">
                                 <a class="nav-link active" aria-current="page" href="/payments">Платежи</a>
                             </li>
-                            <c:if test="${user != null && user.permission == 'SUPERADMIN'}">
+                            <c:if test="${user != null && user.role == 'SUPERADMIN'}">
                                 <li class="nav-item">
                                     <a class="nav-link" href="/admins">Администраторы</a>
                                 </li>

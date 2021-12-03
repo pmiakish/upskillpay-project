@@ -1,6 +1,6 @@
 package com.epam.upskillproject.connect.customds;
 
-import com.epam.upskillproject.exceptions.CustomSQLCode;
+import com.epam.upskillproject.exception.CustomSQLCode;
 import com.epam.upskillproject.util.init.PropertiesKeeper;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import jakarta.annotation.PostConstruct;
@@ -33,6 +33,7 @@ public class CustomPooledDataSource extends MysqlDataSource {
     private static final String CP_INACTIVITY_LIMIT_MS_PROP = "cp.inactivityTimeLimitMillis";
     // ConnectionPool default values
     private static final int VALIDATION_TIMEOUT_VALUE_SEC = 3;
+    private static final int SHUTDOWN_TIMEOUT_VALUE_MS = 1000;
     private static final int DEFAULT_CP_MIN_CONNECT = 5;
     private static final int DEFAULT_CP_MAX_CONNECT = 10;
     private static final int DEFAULT_CP_REQUEST_TIMEOUT_VALUE = 5;
@@ -54,6 +55,7 @@ public class CustomPooledDataSource extends MysqlDataSource {
 
     private BlockingQueue<PoolConnection> connectionPool;
     private ArrayList<PoolConnection> activeConnections;
+    boolean active;
 
     @Inject
     public CustomPooledDataSource(PropertiesKeeper propertiesKeeper) {
@@ -76,6 +78,7 @@ public class CustomPooledDataSource extends MysqlDataSource {
 
         connectionPool = new ArrayBlockingQueue<>(maxConnectionsNumber);
         activeConnections = new ArrayList<>();
+        active = true;
         while (totalConnections() < minConnectionsNumber) {
             try {
                 connectionPool.add(createConnection());
@@ -152,25 +155,30 @@ public class CustomPooledDataSource extends MysqlDataSource {
 
     @Override
     public synchronized Connection getConnection() throws SQLException, IllegalStateException {
-        if (connectionPool == null || activeConnections == null) {
+        if (isActive()) {
             throw new IllegalStateException("Connection pool is shut down");
         }
         try {
             PoolConnection connection = connectionPool.poll(requestTimeoutValue, requestTimeoutUnit);
             logger.log(Level.TRACE, "Connection obtained from connection pool");
-            if (connection == null) {
-                connection = createConnection();
-            } else if (!connection.isValid(VALIDATION_TIMEOUT_VALUE_SEC)) {
+            if (connection != null && !connection.isValid(VALIDATION_TIMEOUT_VALUE_SEC)) {
                 connection.close();
                 connection = createConnection();
+            } else if (connection == null && totalConnections() < maxConnectionsNumber) {
+                connection = createConnection();
+            } else {
+                logger.log(Level.WARN, String.format("Cannot get connection: connection pool exhausted, timeout: %s %s",
+                        requestTimeoutValue, requestTimeoutUnit.name()));
+                throw new SQLException("Cannot get connection: connection pool exhausted", CONNECTION_FAILURE_SQLSTATE,
+                        CustomSQLCode.POOL_EXHAUSTED.getCode());
             }
             activeConnections.add(connection);
             return connection;
         } catch (InterruptedException e) {
-            logger.log(Level.WARN, String.format("Cannot get connection from Connection pool, timeout: %s %s",
+            logger.log(Level.WARN, String.format("Cannot get connection: interrupted while waiting, timeout: %s %s",
                     requestTimeoutValue, requestTimeoutUnit.name()), e);
-            throw new SQLException("Cannot get connection: connection pool exhausted", CONNECTION_FAILURE_SQLSTATE,
-                    CustomSQLCode.POOL_EXHAUSTED.getCode(), e);
+            throw new SQLException("Cannot get connection: interrupted while waiting", CONNECTION_FAILURE_SQLSTATE,
+                    CustomSQLCode.POOL_INTERRUPTED.getCode(), e);
         }
     }
 
@@ -181,7 +189,14 @@ public class CustomPooledDataSource extends MysqlDataSource {
     }
 
     public void shutdown() throws SQLException {
+        active = false;
         for (Connection connection : activeConnections) {
+            long startTime = System.currentTimeMillis();
+            while (System.currentTimeMillis() < startTime + SHUTDOWN_TIMEOUT_VALUE_MS) {
+                if (connection == null || connection.isClosed()) {
+                    break;
+                }
+            }
             if (connection != null && !connection.isClosed()) {
                 connection.close();
             }
@@ -195,8 +210,8 @@ public class CustomPooledDataSource extends MysqlDataSource {
         connectionPool = null;
     }
 
-    public boolean isValid() {
-        return (connectionPool != null && activeConnections != null && totalConnections() > 0);
+    public boolean isActive() {
+        return (active && connectionPool != null && activeConnections != null && totalConnections() > 0);
     }
 
     private PoolConnection createConnection() throws SQLException {
@@ -218,6 +233,7 @@ public class CustomPooledDataSource extends MysqlDataSource {
             if (activeConnections.remove(poolConnection)) {
                 if (poolConnection.isValid(VALIDATION_TIMEOUT_VALUE_SEC) &&
                         connectionPool.size() < connectionPool.remainingCapacity()) {
+                    poolConnection.rollback();
                     poolConnection.setAutoCommit(true);
                     added = connectionPool.add(poolConnection);
                 } else {
