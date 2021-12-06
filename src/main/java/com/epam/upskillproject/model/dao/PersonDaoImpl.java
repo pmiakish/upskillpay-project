@@ -140,9 +140,12 @@ public class PersonDaoImpl implements PersonDao {
         ResultSet rs = queryExecutor.execute(conn, query);
         StatusType statusType = null;
         if (rs != null && rs.next()) {
+            String dbValue = null;
             try {
-                statusType = StatusType.valueOf(rs.getString(1).toUpperCase());
+                dbValue = rs.getString(1).toUpperCase();
+                statusType = StatusType.valueOf(dbValue);
             } catch (IllegalArgumentException e) {
+                logger.log(Level.INFO, "Cannot get status type: incompatible value retrieved: " + dbValue, e);
                 return Optional.empty();
             } finally {
                 rs.getStatement().close();

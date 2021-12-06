@@ -160,9 +160,12 @@ public class CardDaoImpl implements CardDao {
         ResultSet rs = queryExecutor.execute(conn, rawQuery, id);
         StatusType statusType = null;
         if (rs != null && rs.next()) {
+            String dbValue = null;
             try {
-                statusType = StatusType.valueOf(rs.getString(1).toUpperCase());
+                dbValue = rs.getString(1).toUpperCase();
+                statusType = StatusType.valueOf(dbValue);
             } catch (IllegalArgumentException e) {
+                logger.log(Level.INFO, "Cannot get status type: incompatible value retrieved: " + dbValue, e);
                 return Optional.empty();
             } finally {
                 rs.getStatement().close();
@@ -179,9 +182,12 @@ public class CardDaoImpl implements CardDao {
         ResultSet rs = queryExecutor.execute(conn, rawQuery, cardId);
         BigInteger accountId = null;
         if (rs != null && rs.next()) {
+            String dbValue = null;
             try {
-                accountId = new BigInteger(rs.getString(1));
+                dbValue = rs.getString(1);
+                accountId = new BigInteger(dbValue);
             } catch (NumberFormatException e) {
+                logger.log(Level.INFO, "Cannot get account id: incompatible value retrieved: " + dbValue, e);
                 return Optional.empty();
             } finally {
                 rs.getStatement().close();

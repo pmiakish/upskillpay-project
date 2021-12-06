@@ -110,7 +110,6 @@ public class PaymentDaoImpl implements PaymentDao {
         Connection conn = dataSource.getConnection();
         String rawQuery = queryConstructor.byReceiver();
         String query = String.format(rawQuery, orderStrategy.getOrder(sortType));
-
         ResultSet rs = queryExecutor.execute(conn, query, id);
         return retrievePayments(conn, rs);
     }
