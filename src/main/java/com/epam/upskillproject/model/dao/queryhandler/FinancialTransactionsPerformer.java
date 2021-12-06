@@ -267,6 +267,7 @@ public class FinancialTransactionsPerformer {
         if (success) {
             try {
                 conn.commit();
+                conn.setAutoCommit(true);
             } catch (SQLException commitEx) {
                 success = false;
                 logger.log(Level.WARN, "Cannot end transaction properly because of throwing exception " +
