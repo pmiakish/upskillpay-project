@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Stateless
 public class ParamsValidator {
-    private static final String EMAIL_PATTERN = "^[\\w\\.]+@\\w+\\.[A-Za-z]{2,6}$";
+    private static final String EMAIL_PATTERN = "^[-\\w\\.]+@\\w+\\.[A-Za-z]{2,6}$";
     private static final String NAME_PATTERN = "^[\\p{Lu}][-\\p{L} ]+$";
     private static final int MAX_PASSWORD_LENGTH = 255;
     private static final int MAX_NAME_LENGTH = 30;
@@ -36,7 +36,7 @@ public class ParamsValidator {
 
     public boolean validatePersonAddParams(String email, String password, String firstName, String lastName) {
         return validateEmail(email) &&
-                (password == null || validatePassword(password)) &&
+                validatePassword(password) &&
                 validateName(firstName, lastName);
 
     }
