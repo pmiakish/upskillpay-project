@@ -37,8 +37,8 @@ The application is developed on the *Jakarta EE* platform (v.9.1.0), implements 
 ### Used patterns
 
 The application uses the behavioral, creational and structural design patterns:
-- '*Command*', '*Decorator*' and '*factory method*' for HTTP-requests handling in a controller
-- '*Strategy*' and the '*factory method*' to create suitable column names combinations for complex ordering in generated SQL-queries
+- '*Command*', '*Decorator*' and '*Simple factory*' for HTTP-requests handling in a controller
+- '*Strategy*' and the '*Simple factory*' to create suitable column names combinations for complex ordering in generated SQL-queries
 
 ## Program features 
 
